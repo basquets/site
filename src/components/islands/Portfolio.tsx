@@ -6,6 +6,7 @@ import { TOKENS } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
 import { disconnect, switchToRobinhood } from "@/lib/wallet";
 import { useBalances } from "./use-balances";
+import { useHydrated } from "./use-hydrated";
 import { tokenChange, useTokenMarket } from "./use-live-market";
 import { useWallet } from "./use-wallet";
 
@@ -18,7 +19,12 @@ const ADDRESSES = [USDG, ...TOKENS.map((t) => t.address)];
 /** The connected wallet's shelf: USDG cash, stock token positions valued at
  *  the market store's prices, and the basket slot for when baskets deploy. */
 export default function Portfolio() {
-  const wallet = useWallet();
+  const liveWallet = useWallet();
+  const hydrated = useHydrated();
+  // Hydration must mirror the server's disconnected markup (see use-hydrated).
+  const wallet = hydrated
+    ? liveWallet
+    : ({ status: "disconnected", address: null, error: null } as const);
   const market = useTokenMarket();
   const { balances } = useBalances(wallet.address, ADDRESSES);
   const [copied, setCopied] = useState(false);

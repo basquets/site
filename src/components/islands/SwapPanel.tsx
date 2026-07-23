@@ -14,6 +14,7 @@ import RouteCard from "./RouteCard";
 import TokenFactsCard from "./TokenFactsCard";
 import TokenSelect, { type TokenOption, toOptions } from "./TokenSelect";
 import { useBalances } from "./use-balances";
+import { useHydrated } from "./use-hydrated";
 import { tokenChange, useTokenMarket } from "./use-live-market";
 import { useQuote } from "./use-quote";
 import { useWallet } from "./use-wallet";
@@ -22,7 +23,13 @@ const label = "m-0 text-[11px] uppercase tracking-[0.1em] text-ink/55";
 
 export default function SwapPanel() {
   const market = useTokenMarket();
-  const wallet = useWallet();
+  const liveWallet = useWallet();
+  const hydrated = useHydrated();
+  // The hydration render must match the server's disconnected markup; the
+  // real status takes over one effect-tick later.
+  const wallet = hydrated
+    ? liveWallet
+    : ({ status: "disconnected", address: null, error: null } as const);
   const options = useMemo(() => toOptions(market.tokens), [market.tokens]);
   const usdgOption = options[0];
 

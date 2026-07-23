@@ -17,6 +17,25 @@ const permit2Abi = parseAbi([
 const MAX_UINT256 = 2n ** 256n - 1n;
 const MAX_UINT160 = 2n ** 160n - 1n;
 
+/**
+ * Explicit gas fields for every wallet call. MetaMask's own fee estimation on
+ * chain 4663 is unreliable (the chain reports full-block feeHistory and has
+ * produced six-figure-ETH fee quotes in the wild), while the chain's actual
+ * signals are sane (~0.1 gwei, zero priority) — so the dapp estimates through
+ * its own RPC and pins the numbers instead of letting the wallet guess.
+ */
+async function gasFields(estimate: () => Promise<bigint>) {
+  const [fees, gas] = await Promise.all([
+    publicClient.estimateFeesPerGas(),
+    estimate(),
+  ]);
+  return {
+    gas: (gas * 15n) / 10n, // headroom for state drift between estimate and mine
+    maxFeePerGas: fees.maxFeePerGas * 2n,
+    maxPriorityFeePerGas: fees.maxPriorityFeePerGas ?? 0n,
+  };
+}
+
 async function waitFor(hash: `0x${string}`) {
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
   if (receipt.status !== "success")
@@ -41,11 +60,21 @@ async function ensureErc20Allowance(
     args: [owner, spender],
   });
   if (current >= needed) return;
+  const approveArgs = [spender, opts.exact ? needed : MAX_UINT256] as const;
   const hash = await walletClient().writeContract({
     address: token,
     abi: erc20,
     functionName: "approve",
-    args: [spender, opts.exact ? needed : MAX_UINT256],
+    args: approveArgs,
+    ...(await gasFields(() =>
+      publicClient.estimateContractGas({
+        address: token,
+        abi: erc20,
+        functionName: "approve",
+        args: approveArgs,
+        account: owner,
+      }),
+    )),
   });
   await waitFor(hash);
   const after = await publicClient.readContract({
@@ -74,11 +103,26 @@ async function ensurePermit2Allowance(
   });
   const now = Math.floor(Date.now() / 1000);
   if (amount >= needed && expiration > now + 60) return;
+  const permitArgs = [
+    token,
+    UNIVERSAL_ROUTER,
+    MAX_UINT160,
+    now + 30 * 24 * 3600,
+  ] as const;
   const hash = await walletClient().writeContract({
     address: PERMIT2,
     abi: permit2Abi,
     functionName: "approve",
-    args: [token, UNIVERSAL_ROUTER, MAX_UINT160, now + 30 * 24 * 3600],
+    args: permitArgs,
+    ...(await gasFields(() =>
+      publicClient.estimateContractGas({
+        address: PERMIT2,
+        abi: permit2Abi,
+        functionName: "approve",
+        args: permitArgs,
+        account: owner,
+      }),
+    )),
   });
   await waitFor(hash);
 }
@@ -150,10 +194,16 @@ export const walletExecutor: SwapExecutor = async (
     );
     // Read immediately before the swap so approval waits never widen the diff window.
     const before = await buyBalance(intent, owner);
-    const hash = await walletClient().sendTransaction({
+    const zeroExTx = {
       to: rail.tx.to as `0x${string}`,
       data: rail.tx.data as `0x${string}`,
       value: BigInt(rail.tx.value),
+    };
+    const hash = await walletClient().sendTransaction({
+      ...zeroExTx,
+      ...(await gasFields(() =>
+        publicClient.estimateGas({ account: owner, ...zeroExTx }),
+      )),
     });
     return settle(intent, owner, hash, before);
   }
@@ -161,7 +211,7 @@ export const walletExecutor: SwapExecutor = async (
   if (!rail.hops) throw new Error("v4 quote is missing hops");
   await ensurePermit2Allowance(owner, intent.sellToken, intent.sellAmount);
   const before = await buyBalance(intent, owner);
-  const hash = await walletClient().sendTransaction({
+  const v4Tx = {
     to: UNIVERSAL_ROUTER,
     data: buildV4Calldata({
       sellToken: intent.sellToken,
@@ -171,6 +221,12 @@ export const walletExecutor: SwapExecutor = async (
       deadline: intent.deadline,
       hops: rail.hops,
     }),
+  };
+  const hash = await walletClient().sendTransaction({
+    ...v4Tx,
+    ...(await gasFields(() =>
+      publicClient.estimateGas({ account: owner, ...v4Tx }),
+    )),
   });
   return settle(intent, owner, hash, before);
 };

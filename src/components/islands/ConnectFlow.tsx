@@ -1,6 +1,7 @@
 import { type ApiAccess, BasquetsApi } from "@basquets/api-client";
 import { useEffect, useRef, useState } from "react";
 import { disconnect, requestLogin, switchToRobinhood } from "@/lib/wallet";
+import { useHydrated } from "./use-hydrated";
 import { useWallet } from "./use-wallet";
 
 const API_URL = import.meta.env.PUBLIC_API_URL as string | undefined;
@@ -20,7 +21,12 @@ const btnGhost =
  * waitlisted place or allowlisted access — is read back from the API.
  */
 export default function ConnectFlow() {
-  const wallet = useWallet();
+  const liveWallet = useWallet();
+  const hydrated = useHydrated();
+  // Hydration must mirror the server's disconnected markup (see use-hydrated).
+  const wallet = hydrated
+    ? liveWallet
+    : ({ status: "disconnected", address: null, error: null } as const);
   const [role, setRole] = useState<Role>("investor");
   const [access, setAccess] = useState<ApiAccess | null>(null);
   const [apiError, setApiError] = useState(false);
