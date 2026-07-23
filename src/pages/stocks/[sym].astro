@@ -28,14 +28,23 @@ const ROUTES = [
     name: "The Robinhood app",
     detail:
       "Buy in an eligible country, then withdraw to a self-custody wallet. The simplest route, and the only one that starts in fiat.",
+    href: "/docs/getting-stock-tokens",
+    cta: "Eligibility and steps",
+    art: "fiat",
   },
   {
     name: "The swap desk here",
     detail: `Uniswap v4 pools and 0x market makers quoted side by side; the better price fills. USDG in, ${token.sym} out, minimum enforced onchain.`,
+    href: "/swap",
+    cta: `Swap ${token.sym}`,
+    art: "venues",
   },
   {
     name: "A basket",
     detail: `Hold ${token.sym} as part of a recipe instead of buying it alone: one routed transaction, one position to manage.`,
+    href: "/baskets",
+    cta: "Explore baskets",
+    art: "basket",
   },
 ];
 ---
@@ -68,23 +77,62 @@ const ROUTES = [
         <TokenFacts sym={token.sym} client:load />
       </Section>
 
-      <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
-        <div>
-          <Kicker class="mb-3.5">Getting some</Kicker>
-          <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">Three ways in.</h2>
-          <p class="mt-5.5 mb-0 max-w-[48ch] text-[15.5px] leading-7 text-ink/78">
-            You cannot mint {token.sym}: the primary market is open only to Authorized Participants.
-            Every retail route is a purchase on the secondary market. Eligibility rules apply and
-            exclude several countries;
-            <a href="/docs/getting-stock-tokens" class="text-accent-700">check them first</a>.
-          </p>
-        </div>
-        <div class="flex flex-col text-[14.5px] leading-6">
-          {ROUTES.map((r, i) => (
-            <div class:list={["flex flex-col gap-1.5 border-t-2 border-divider py-4", i === ROUTES.length - 1 && "border-b-2"]}>
-              <span class="font-heading font-extrabold">{r.name}</span>
-              <span class="text-ink/78">{r.detail}</span>
-            </div>
+      <Section rule class="pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <Kicker class="mb-3.5">Getting some</Kicker>
+        <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">Three ways in.</h2>
+        <p class="mt-5 mb-8 max-w-[62ch] text-[15.5px] leading-7 text-ink/78">
+          You cannot mint {token.sym}: the primary market is open only to Authorized Participants.
+          Every retail route is a purchase on the secondary market. Eligibility rules apply and
+          exclude several countries; <a href="/docs/getting-stock-tokens" class="text-accent-700">check them first</a>.
+        </p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] border-t-2 border-l-2 border-divider">
+          {ROUTES.map((r) => (
+            <a href={r.href} class="group flex flex-col border-r-2 border-b-2 border-divider p-6 text-ink no-underline hover:bg-surface">
+              <span class="flex h-14 items-center gap-3" aria-hidden="true">
+                {r.art === "fiat" && (
+                  <>
+                    <span class="flex size-9 items-center justify-center border-2 border-ink font-heading font-extrabold text-[15px]">$</span>
+                    <span class="relative h-0.5 w-10 bg-ink">
+                      <span class="absolute -top-1 -right-px border-y-[5px] border-l-8 border-y-transparent border-l-ink"></span>
+                    </span>
+                    <span class="size-9 bg-accent"></span>
+                  </>
+                )}
+                {r.art === "venues" && (
+                  <>
+                    <span class="flex flex-col gap-1.5">
+                      <span class="size-4 bg-accent"></span>
+                      <span class="size-4 border-2 border-neutral-500"></span>
+                    </span>
+                    <span class="relative h-0.5 w-10 bg-ink">
+                      <span class="absolute -top-1 -right-px border-y-[5px] border-l-8 border-y-transparent border-l-ink"></span>
+                    </span>
+                    <span class="size-9 bg-accent"></span>
+                  </>
+                )}
+                {r.art === "basket" && (
+                  <span class="flex size-12 items-center justify-center border-2 border-ink">
+                    <span class="grid grid-cols-3 gap-1">
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-accent"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                      <span class="size-2 bg-neutral-300"></span>
+                    </span>
+                  </span>
+                )}
+              </span>
+              <span class="mt-3 font-heading font-extrabold text-[16px]">{r.name}</span>
+              <p class="mt-2 mb-0 text-[14.5px] leading-6 text-ink/75">{r.detail}</p>
+              <span class="mt-auto flex items-center gap-2 pt-4 font-heading font-extrabold text-[13.5px] text-accent-700">
+                {r.cta}
+                <span class="transition-transform duration-150 group-hover:translate-x-1" aria-hidden="true">→</span>
+              </span>
+            </a>
           ))}
         </div>
       </Section>
@@ -96,19 +144,30 @@ const ROUTES = [
             {token.sym} tracks the underlying US-listed {kind} but does not convey ownership of it.
             It is a tokenised debt security issued by Robinhood Assets (Jersey) Limited, and it
             transfers like any ERC-20: nights, weekends, holidays. When US markets close the oracle
-            freezes; your tokens keep moving.
-            <a href="/docs/stock-tokens" class="text-accent-700">The full mechanics</a> are worth ten minutes.
+            freezes; your tokens keep moving. <a href="/docs/stock-tokens" class="text-accent-700">The full mechanics</a> are
+            worth ten minutes.
           </p>
+          <!-- the token, not the certificate -->
+          <div class="mt-9 hidden items-center gap-5 sm:flex" aria-hidden="true">
+            <span class="flex size-14 items-center justify-center bg-accent font-heading font-extrabold text-[18px] text-ground">{token.sym.slice(0, 1)}</span>
+            <span class="font-heading font-extrabold text-[22px] text-ink/45">≠</span>
+            <span class="flex h-[72px] w-14 flex-col justify-center gap-1.5 border-2 border-neutral-400 px-2.5 opacity-60">
+              <span class="h-0.5 w-full bg-neutral-400"></span>
+              <span class="h-0.5 w-full bg-neutral-400"></span>
+              <span class="h-0.5 w-3/4 bg-neutral-400"></span>
+            </span>
+            <span class="max-w-[18ch] text-[12px] leading-5 text-ink/55">The token in your wallet, not the certificate in a vault.</span>
+          </div>
         </div>
-        <div class="flex flex-col text-[14.5px] leading-6">
+        <div class="flex flex-col divide-y-2 divide-divider text-[14.5px] leading-6">
           {[
             ["Issuer", "Robinhood Assets (Jersey) Limited"],
             ["You own", "Economic exposure. No voting rights, no legal title"],
             ["Pricing", "Chainlink oracle during market hours; frozen at close"],
             ["Custody", "Yours: a wallet, not an account"],
             ["Corporate actions", "Applied as a multiplier; your raw balance never changes"],
-          ].map(([term, def], i) => (
-            <div class:list={["flex gap-4 border-t-2 border-divider py-4", i === 4 && "border-b-2"]}>
+          ].map(([term, def]) => (
+            <div class="flex gap-4 py-4">
               <span class="min-w-[130px] font-heading font-extrabold">{term}</span>
               <span class="text-ink/78">{def}</span>
             </div>
