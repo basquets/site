@@ -1,9 +1,8 @@
 import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import type { EIP1193Provider } from "viem";
 import { robinhoodChain } from "@/lib/chain";
 import {
-  disconnect,
   registerBridgeActions,
   setBridgeState,
   switchToRobinhood,
@@ -64,23 +63,6 @@ const buttonBase =
 
 function ButtonUi() {
   const wallet = useWallet();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) =>
-      e.key === "Escape" && setMenuOpen(false);
-    const onClick = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setMenuOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("mousedown", onClick);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("mousedown", onClick);
-    };
-  }, [menuOpen]);
 
   if (wallet.status === "connecting")
     return (
@@ -103,51 +85,13 @@ function ButtonUi() {
       </a>
     );
 
+  // Connected: the chip is the door to the portfolio page, which also carries
+  // the copy/explorer/disconnect actions the old dropdown held.
   const short = `${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)}`;
   return (
-    <div className="relative" ref={rootRef}>
-      <button
-        type="button"
-        className={`${buttonBase} tnum`}
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((o) => !o)}
-      >
-        {short} ▾
-      </button>
-      {menuOpen && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-48 border-2 border-ink bg-ground">
-          <button
-            type="button"
-            className="block w-full px-4 py-2 text-left text-sm hover:bg-surface"
-            onClick={() => {
-              void navigator.clipboard.writeText(wallet.address ?? "");
-              setMenuOpen(false);
-            }}
-          >
-            Copy address
-          </button>
-          <a
-            href={`${robinhoodChain.blockExplorers.default.url}/address/${wallet.address}`}
-            target="_blank"
-            rel="noreferrer"
-            className="block px-4 py-2 text-sm text-ink no-underline hover:bg-surface"
-          >
-            View on explorer
-          </a>
-          <button
-            type="button"
-            className="block w-full border-t-2 border-divider px-4 py-2 text-left text-sm hover:bg-surface"
-            onClick={() => {
-              disconnect();
-              setMenuOpen(false);
-            }}
-          >
-            Disconnect
-          </button>
-        </div>
-      )}
-    </div>
+    <a href="/portfolio" className={`${buttonBase} no-underline tnum`}>
+      {short}
+    </a>
   );
 }
 
