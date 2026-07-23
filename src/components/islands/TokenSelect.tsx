@@ -104,7 +104,7 @@ export default function TokenSelect({
   const market = useTokenMarket();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Hand focus back to whatever opened the picker when it closes.
   useEffect(() => {
@@ -217,7 +217,7 @@ export default function TokenSelect({
           aria-label="Search tokens"
         />
       </div>
-      <ul
+      <div
         ref={listRef}
         id="token-select-listbox"
         role="listbox"
@@ -227,21 +227,22 @@ export default function TokenSelect({
         {rows.map((r, i) => {
           const header =
             r.group !== lastGroup ? (
-              <li
+              <div
                 role="presentation"
                 className="border-b border-divider bg-surface px-4 py-1.5 text-[10px] uppercase tracking-[0.1em] text-ink/50"
               >
                 {GROUP_LABELS[r.group]}
-              </li>
+              </div>
             ) : null;
           lastGroup = r.group;
           const disabled = r.option.disabledReason !== null;
           return (
             <Fragment key={r.option.symbol}>
               {header}
-              <li
+              <div
                 id={`tokopt-${r.option.symbol}`}
                 role="option"
+                tabIndex={-1}
                 aria-selected={i === active}
                 aria-disabled={disabled || undefined}
               >
@@ -297,14 +298,14 @@ export default function TokenSelect({
                     </>
                   )}
                 </button>
-              </li>
+              </div>
             </Fragment>
           );
         })}
         {rows.length === 0 && (
-          <li className="px-4 py-3 text-[13px] text-ink/55">No matches.</li>
+          <div className="px-4 py-3 text-[13px] text-ink/55">No matches.</div>
         )}
-      </ul>
+      </div>
     </div>
   );
 }
