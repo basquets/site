@@ -21,8 +21,14 @@ const SYMS = [
   "MSTR",
 ];
 
-/** Deterministic backdrop of drifting ticker columns; fills its nearest positioned ancestor. */
-export default function TickerRain() {
+/** Deterministic backdrop of drifting ticker columns; fills its nearest
+ *  positioned ancestor. `tone="accent"` remixes the palette for the green
+ *  plates: ground-tinted glyphs instead of ink-tinted ones. */
+export default function TickerRain({
+  tone = "light",
+}: {
+  tone?: "light" | "accent";
+}) {
   let rng = 5;
   const rand = () => {
     rng = (rng * 16807) % 2147483647;
@@ -33,14 +39,22 @@ export default function TickerRain() {
       { length: 9 },
       () => SYMS[Math.floor(rand() * SYMS.length)],
     );
-    const items = [...picked, ...picked].map((sym, j) => ({
-      key: `${sym}-${j}`,
-      sym,
-      color:
-        rand() < 0.08
-          ? "color-mix(in srgb, var(--color-accent) 38%, transparent)"
-          : `color-mix(in srgb, var(--color-ink) ${6 + Math.floor(rand() * 7)}%, transparent)`,
-    }));
+    const items = [...picked, ...picked].map((sym, j) => {
+      const special = rand() < 0.08;
+      const mix = rand();
+      return {
+        key: `${sym}-${j}`,
+        sym,
+        color:
+          tone === "accent"
+            ? special
+              ? "color-mix(in srgb, var(--color-ground) 30%, transparent)"
+              : `color-mix(in srgb, var(--color-ground) ${8 + Math.floor(mix * 8)}%, transparent)`
+            : special
+              ? "color-mix(in srgb, var(--color-accent) 38%, transparent)"
+              : `color-mix(in srgb, var(--color-ink) ${6 + Math.floor(mix * 7)}%, transparent)`,
+      };
+    });
     return {
       items,
       anim: i % 2 ? "bq-col-down" : "bq-col-up",
@@ -57,7 +71,7 @@ export default function TickerRain() {
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: static decorative columns
           key={i}
-          className="h-full min-w-0 flex-1 overflow-hidden border-r border-ink/8"
+          className={`h-full min-w-0 flex-1 overflow-hidden border-r ${tone === "accent" ? "border-ground/10" : "border-ink/8"}`}
         >
           <div
             className="mx-auto flex w-max flex-col"
