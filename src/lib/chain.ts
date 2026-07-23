@@ -1,10 +1,17 @@
 import { defineChain } from "viem";
 
+// A keyed provider (Alchemy) when configured — the public endpoint 429s under
+// balance sweeps — with the public RPC as the always-working fallback. PUBLIC_
+// by design: any URL the browser reads from is public anyway.
+const RPC_URL =
+  (import.meta.env?.PUBLIC_RPC_URL as string | undefined) ??
+  "https://rpc.mainnet.chain.robinhood.com";
+
 export const robinhoodChain = defineChain({
   id: 4663,
   name: "Robinhood Chain",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: { default: { http: ["https://rpc.mainnet.chain.robinhood.com"] } },
+  rpcUrls: { default: { http: [RPC_URL] } },
   blockExplorers: {
     default: {
       name: "Blockscout",

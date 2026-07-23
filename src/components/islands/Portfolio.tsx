@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { BasquetsApi } from "@basquets/api-client";
+import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { buttonVariants } from "@/components/ui/button";
-import { robinhoodChain, USDG, USDG_DECIMALS } from "@/lib/chain";
+import { NATIVE_ETH, robinhoodChain, USDG, USDG_DECIMALS } from "@/lib/chain";
 import { TOKENS } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
 import { disconnect, switchToRobinhood } from "@/lib/wallet";
@@ -14,7 +15,29 @@ const label = "m-0 text-[11px] uppercase tracking-[0.1em] text-ink/55";
 const usd = (v: number) =>
   `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const ADDRESSES = [USDG, ...TOKENS.map((t) => t.address)];
+const API_URL = import.meta.env.PUBLIC_API_URL as string | undefined;
+const ADDRESSES = [USDG, NATIVE_ETH, ...TOKENS.map((t) => t.address)];
+
+/** Chainlink ETH/USD via /v1/market. Typed loosely because the site's pinned
+ *  api-client predates the field. */
+function useEthUsd(): number | null {
+  const [price, setPrice] = useState<number | null>(null);
+  useEffect(() => {
+    if (!API_URL) return;
+    let cancelled = false;
+    new BasquetsApi(API_URL)
+      .market()
+      .then((m) => {
+        const v = (m as { ethUsd?: number | null }).ethUsd;
+        if (!cancelled && typeof v === "number") setPrice(v);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return price;
+}
 
 /** The connected wallet's shelf: USDG cash, stock token positions valued at
  *  the market store's prices, and the basket slot for when baskets deploy. */
@@ -27,6 +50,7 @@ export default function Portfolio() {
     : ({ status: "disconnected", address: null, error: null } as const);
   const market = useTokenMarket();
   const { balances } = useBalances(wallet.address, ADDRESSES);
+  const ethUsd = useEthUsd();
   const [copied, setCopied] = useState(false);
 
   if (wallet.status === "disconnected")
@@ -60,6 +84,8 @@ export default function Portfolio() {
   const usdgBalance = Number(
     formatUnits(balances[USDG.toLowerCase()] ?? 0n, USDG_DECIMALS),
   );
+  const ethBalance = Number(formatUnits(balances[NATIVE_ETH] ?? 0n, 18));
+  const ethValue = ethUsd !== null ? ethBalance * ethUsd : null;
   const positions = TOKENS.map((t) => {
     const raw = balances[t.address.toLowerCase()] ?? 0n;
     if (raw === 0n) return null;
@@ -79,7 +105,8 @@ export default function Portfolio() {
 
   const stocksValue = positions.reduce((a, p) => a + (p.value ?? 0), 0);
   const unpriced = positions.filter((p) => p.price === null).length;
-  const total = usdgBalance + stocksValue;
+  const cashValue = usdgBalance + (ethValue ?? 0);
+  const total = cashValue + stocksValue;
 
   return (
     <div className="flex flex-col gap-6">
@@ -139,7 +166,7 @@ export default function Portfolio() {
       <dl className="m-0 grid grid-cols-2 border-t-2 border-l-2 border-divider lg:grid-cols-4">
         {[
           ["Total value", loaded ? usd(total) : "…"],
-          ["USDG cash", loaded ? usd(usdgBalance) : "…"],
+          ["Cash · USDG + ETH", loaded ? usd(cashValue) : "…"],
           ["Stock positions", loaded ? String(positions.length) : "…"],
           ["Baskets", "0"],
         ].map(([l, v]) => (
@@ -163,6 +190,50 @@ export default function Portfolio() {
           in the total.
         </p>
       )}
+
+      {/* cash and gas: the two assets every swap starts or ends in */}
+      <div className="border-2 border-ink bg-ground">
+        <div className="border-b-2 border-divider px-5 py-2.5">
+          <span className={label}>Cash &amp; gas</span>
+        </div>
+        <ul className="m-0 list-none p-0">
+          <li className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-2 border-divider px-5 py-3">
+            <span className="w-14 font-heading font-extrabold">USDG</span>
+            <span className="min-w-0 flex-1 truncate text-[12px] text-ink/55">
+              Global Dollar
+            </span>
+            <span className="text-[13px] text-ink/70 tnum">
+              {loaded
+                ? usdgBalance.toLocaleString("en-US", {
+                    maximumFractionDigits: 4,
+                  })
+                : "…"}
+            </span>
+            <span className="w-28 text-right font-heading font-extrabold text-[14px] tnum">
+              {loaded ? usd(usdgBalance) : ""}
+            </span>
+          </li>
+          <li className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-3">
+            <span className="w-14 font-heading font-extrabold">ETH</span>
+            <span className="min-w-0 flex-1 truncate text-[12px] text-ink/55">
+              Ether, pays the gas
+            </span>
+            <span className="text-[13px] text-ink/70 tnum">
+              {loaded
+                ? ethBalance.toLocaleString("en-US", {
+                    maximumFractionDigits: 5,
+                  })
+                : "…"}
+            </span>
+            <span className="w-24 text-right text-[13px] tnum">
+              {ethUsd !== null ? usd(ethUsd) : "no feed"}
+            </span>
+            <span className="w-28 text-right font-heading font-extrabold text-[14px] tnum">
+              {loaded && ethValue !== null ? usd(ethValue) : ""}
+            </span>
+          </li>
+        </ul>
+      </div>
 
       {/* stock positions */}
       <div className="border-2 border-ink bg-ground">
