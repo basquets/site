@@ -14,6 +14,9 @@ interface Props {
   noindex?: boolean;
 }
 const { title, description, chrome = true, noindex = false } = Astro.props;
+// Cloudflare Web Analytics: renders only when the beacon token is set, so local
+// dev and previews don't pollute the production numbers. Cookieless, no banner.
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL("/og.png", Astro.site);
 const orgLd = JSON.stringify({
@@ -51,6 +54,14 @@ const orgLd = JSON.stringify({
     <script is:inline type="application/ld+json" set:html={orgLd} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    {cfBeaconToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: cfBeaconToken })}
+      ></script>
+    )}
   </head>
   <body>
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-accent focus:px-3.5 focus:py-2 focus:text-ground">Skip to content</a>
