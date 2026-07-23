@@ -29,7 +29,7 @@ export default function MarketMovers({
     .filter((r) => r.price !== null && r.change !== null)
     // pick the day's biggest absolute moves, then show gainers-first
     .sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0))
-    .slice(0, 5)
+    .slice(0, 8)
     .sort((a, b) => (b.change ?? 0) - (a.change ?? 0));
 
   if (!rows.length) return null;
