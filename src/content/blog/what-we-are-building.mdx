@@ -1,0 +1,98 @@
+---
+title: "Baskets, not bets: what we are building"
+description: "Basquets is the asset management layer of Robinhood Chain — baskets of real tokenized stocks that anyone can create, invest in, and automate. Who we are, what exists today, and what comes next."
+date: 2026-07-23
+tags: ["announcement"]
+---
+
+Robinhood put real US stocks onchain as tokens — NVDA, AAPL, SPY, ninety-six
+of them, with live Chainlink prices, on a chain of their own. We think that is
+the most interesting raw material to appear in crypto in years, and also that
+it is exactly that: raw material. Individual tokens you buy one at a time,
+in a market [we have measured](/blog/measuring-robinhood-chain) at roughly
+$17M of total float.
+
+Basquets is the layer that turns those ingredients into portfolios. This
+article is the plain-language version of what we are doing and where it goes.
+
+## The problem, in human terms
+
+Buying stocks one by one is a chore, and doing it well is a job. That is why
+the index fund became the most successful financial product in history —
+people don't want twelve decisions, they want one good one.
+
+But index funds are gated. There is an issuer, a fee structure you mostly
+take on faith, a market that closes at 4pm, and an account that isn't really
+yours. Tokenized stocks change the raw material: for the first time, real
+equity exposure lives in a wallet the user controls, priced onchain,
+transferable at 3am on a Sunday. What's missing is the layer that makes it
+*usable* — the layer that turns tokens into portfolios, and portfolios into
+habits.
+
+## What a basket is
+
+A basket is a single ERC-20 token that holds a fixed recipe of stock tokens —
+an AI basket, a dividend basket, a "my personal top 10" basket. Minting one
+deposits the underlying tokens in-kind; redeeming one gives them back. No
+fund, no issuer, no wrapper you have to trust: the basket *is* its contents,
+and both the recipe and the holdings are public state anyone can read.
+
+On top of that primitive sit three promises.
+
+**Anyone can be an issuer.** Creating a basket takes minutes, not a fund
+license. Pick components, set the recipe, name it, publish. Curators earn a
+transparent share of the fees their basket generates — the best "fund
+managers" of this era might be a finance YouTuber in Lisbon or a quant
+hobbyist in Jakarta.
+
+**Investing becomes one decision.** One tap converts stablecoins into a whole
+portfolio, with a live preview of exactly which tokens are bought at what
+price. A savings plan makes it zero taps: set an amount and a cadence — €100
+into an AI basket every Monday — and let it run. This is the emotional core
+of the product: calm, compounding, self-custodied.
+
+**Everything is glass.** Holdings, recipes, fees and prices are onchain and
+verifiable by anyone. Fees live in a single controller contract that is
+rate-capped and timelocked, and the interface reads them from the chain
+rather than hardcoding them. No fine print, because there is nowhere to hide
+it.
+
+## Built on measurements, not vibes
+
+We published [the research](/blog/measuring-robinhood-chain) before the
+product on purpose, because the design follows from it. The market is thin,
+so the core protocol has no trading dependency — swaps live only in the
+replaceable periphery. Prices from convenient sources disagree with the
+oracle by double digits, so every value-bearing path reads one source of
+truth and fails closed when it isn't fresh. Only about a third of the
+registry has a price feed, so basket components are allowlisted against
+verified feeds. When US markets close, minting pauses and the interface says
+so — a stock product should behave like one.
+
+The same posture applies to us. The contracts are
+[public on GitHub](https://github.com/basquets), the
+[docs](/docs) describe the system as built, and the
+[stock token dashboard](/stocks) shows the chain as it is, tagged by source —
+including the numbers that are unflattering.
+
+## What exists today, and what comes next
+
+Today you can explore every stock token on Robinhood Chain on the
+[dashboard](/stocks), read the [documentation](/docs), browse the first
+[baskets](/baskets), and [swap](/swap) stock tokens directly. The protocol is
+pre-launch: an independent audit comes before meaningful TVL, and launch is
+guarded — a TVL cap and a small set of curated flagship baskets first, with
+basket creation opening to everyone after.
+
+From there, the order of operations is the order of the promises above:
+one-tap investing from stablecoins, then savings plans, then the curator
+program at full width. And underneath all of it, the piece we care about most
+as infrastructure: a public NAV oracle that values any basket with the same
+fail-closed discipline, so that wallets and other protocols on Robinhood
+Chain can integrate basket tokens without trusting us.
+
+The index fund was the best idea in the history of investing. We are
+rebuilding it as an open protocol, where the fund managers are the community
+and the fine print is a contract address. If you want to follow along or
+argue with us about it, we're on [X](https://x.com/basquets) and
+[Discord](https://discord.gg/basquets).
