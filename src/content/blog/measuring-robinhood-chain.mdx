@@ -1,0 +1,189 @@
+---
+title: "We measured Robinhood Chain before we built on it"
+description: "94 of 96 stock tokens live in Uniswap, a third of the registry has a price feed, and the convenient price is wrong on 17 of 30 tokens. The research that shaped Basquets, in one article."
+date: 2026-07-23
+tags: ["research", "stock tokens", "protocol design"]
+---
+
+Robinhood put real US stocks onchain as ERC-20 tokens — NVDA, AAPL, SPY, 96 of
+them — with live Chainlink prices, on its own Arbitrum Orbit chain. We are
+building Basquets on top of them: an open protocol where anyone can create a
+basket of stock tokens, invest in one with a single transaction, and automate
+it with a recurring savings plan.
+
+Before writing a line of Solidity, we spent time answering three questions the
+documentation does not: where does the liquidity actually live, how big is
+this market really, and can you trust the prices you can most easily get?
+Everything below is measured directly from chain 4663 on 21 July 2026, against
+the public RPC (`https://rpc.mainnet.chain.robinhood.com`) and the public
+Blockscout API. All of it is reproducible, and every finding shaped a design
+decision in the protocol. This article replaces our earlier separate notes and
+is the single reference for both.
+
+## Finding 1 — the tokens live in Uniswap, not RFQ
+
+Robinhood's developer documentation says tokenized stocks "trade via RFQ at
+launch." That is true, and it is also not where the tokens are.
+
+Uniswap v4 keeps every pool's tokens in one singleton contract — `PoolManager`
+at `0x8366a39CC670B4001A1121B8F6A443A643e40951`, verified on Robinhood Chain —
+so "how much of this stock token sits in Uniswap" is a single `balanceOf`
+read. We ran it for all 96 registry assets, alongside `totalSupply()`:
+
+**94 of the 96 stock tokens hold a non-zero balance in the Uniswap v4
+`PoolManager`.** Not a handful of blue chips — effectively the entire
+registry. The concentrated names are striking:
+
+| Token | In Uniswap v4 | Total supply | Share of supply |
+|---|---|---|---|
+| NU | 17.27 | 19.96 | **86.5%** |
+| NFLX | 395.38 | 491.94 | **80.4%** |
+| RIVN | 13.60 | 18.41 | **73.9%** |
+| NVDA | 6,267.50 | 13,963.61 | **44.9%** |
+| F | 21.81 | 49.34 | **44.2%** |
+| SPCX | 3,408.82 | 8,313.42 | **41.0%** |
+| MSFT | 361.85 | 1,732.82 | 20.9% |
+| TSLA | 520.57 | 3,004.27 | 17.3% |
+| AAPL | 373.56 | 2,625.54 | 14.2% |
+
+Nearly half of every NVDA token in existence sits in one contract, with
+roughly $8.3M of USDG on the other side of those pools.
+
+This matters more than it sounds. RFQ is a fine mechanism, but RFQ liquidity
+is not composable: you cannot route through it, and another protocol cannot
+build on a quote. An AMM pool is a public object — its state is readable by
+any contract, its price derivable by anyone, its depth a number rather than a
+relationship. The fact that stock token liquidity landed overwhelmingly in
+Uniswap pools is the difference between tokenized equities being *tradeable*
+and being *composable*. It is why an onchain index protocol is possible on
+this chain at all.
+
+## Finding 2 — the market is real, early, and brutally concentrated
+
+The same sweep gives the market's true shape, and it is worth stating plainly.
+
+**Onchain market capitalisation across all 96 tokens is roughly $17M.** That
+is the entire tokenized float of every Robinhood stock token combined — less
+than a rounding error against the companies they track.
+
+**24h volume is about $6.7M, and heavily concentrated.** NVDA alone is around
+60% of it; NVDA, TSLA and SPCX together are roughly 86% of all trading.
+
+Holder counts, indexed from Transfer events by
+[Blockscout](https://robinhoodchain.blockscout.com), tell the same story from
+the other end:
+
+| Token | Holders |
+|---|---|
+| NVDA | 23,624 |
+| AAPL | 22,562 |
+| SPCX | 18,782 |
+| TSLA | 17,043 |
+| SGOV | 114 |
+| TSM | 58 |
+| BABA | 42 |
+| NOW | 15 |
+
+Fifteen holders. The long tail is not thin — it is close to empty. If you are
+buying, depth is the number that matters, not price: on the concentrated names
+you will trade close to the quote; on a token with 42 holders, the gap between
+the price you see and the price you get is the whole cost of the trade.
+
+## Finding 3 — the convenient price is frequently wrong
+
+Anything built on these tokens needs prices, and there are two obvious
+sources. The explorer API returns a price in one HTTP call. A Chainlink feed
+takes an ABI, an address and a decimals field. The convenient one is tempting,
+so we checked whether they agree.
+
+We compared both sources at the same moment for every token that has both: 30
+tokens in total, since only about a third of the 96-token registry has a
+Chainlink feed at all. For the oracle we called `latestRoundData()` on each
+aggregator; for the explorer we read `exchange_rate` from the Blockscout token
+API.
+
+**17 of 30 differed by more than 2%.** The worst cases:
+
+| Token | Chainlink | Explorer | Difference |
+|---|---|---|---|
+| CRWV | $78.64 | $11.24 | **−85.7%** |
+| IONQ | $35.35 | $45.77 | +29.5% |
+| COIN | $176.81 | $210.42 | +19.0% |
+| MU | $973.79 | $885.93 | −9.0% |
+| CRCL | $71.72 | $65.29 | −9.0% |
+| MSTR | $101.15 | $92.32 | −8.7% |
+
+CRWV is the one to sit with. An eighty-six percent error is not drift or
+staleness — it is a different number about a different thing. Anything that
+priced a position or computed a portfolio value from that field got an answer
+wrong by a factor of seven. And since an explorer's market-cap column is
+supply times its own price, the market caps inherit the same error: CRWV's
+real onchain capitalisation was around $417k, not the $59.6k reported.
+
+To be fair to the convenient source: on well-covered tokens it was fine — AMD,
+SNDK, ASML and ORCL matched Chainlink to within a fraction of a percent. The
+failure is not uniform, which is exactly what makes it dangerous. Spot-checking
+three tokens would have told you everything was fine.
+
+The oracle side has its own honest caveat: **staleness is normal.** At a
+single instant, feed ages ranged from 0.0 to 6.3 hours (GOOGL 6.3h, SLV 5.5h,
+AMZN 5.3h). This is not a malfunction — the stock feeds update 24/5 with a
+deviation threshold and a long heartbeat, so a quiet stock simply does not
+tick, and outside US market hours they freeze entirely. The mistake is not the
+staleness; the mistake is displaying a stale price as current, or transacting
+on one.
+
+## What the measurements dictated
+
+Basquets was designed backwards from these three findings. Each one maps to a
+decision you can verify in the [docs](/docs) and the contracts.
+
+**Liquidity is composable but thin → the core must not depend on trading.**
+A basket is a fixed recipe of components, and minting or redeeming it is
+*in-kind*: you deposit or withdraw the underlying tokens themselves. No swap
+happens in the core protocol, ever. Swaps live only in the periphery — the
+zap that converts USDG into a whole basket in one transaction, and the savings
+plans that automate it — and the periphery is replaceable. If liquidity
+vanishes tomorrow, existing baskets still mint, redeem and hold. On a $17M
+market, designing for thin pools is not pessimism, it is the job.
+
+**Prices disagree → one source of truth, and it is the one settlement uses.**
+Every value-bearing path in Basquets reads the same Chainlink feeds through
+one public contract, the NAV oracle. There is no "display price" from a
+different source than the "settlement price" — the [stock token
+dashboard](/stocks) shows the same oracle data the contracts read, tags every
+figure with its source, and a token we cannot price from a source we trust
+shows no price at all. A second source that disagrees is not redundancy; it is
+ambiguity.
+
+**Staleness is normal → freshness is a first-class condition, and we fail
+closed.** The NAV oracle's `nav()` returns the last known value with a `fresh`
+flag for display; `navStrict()`, which every value-bearing code path uses,
+reverts unless every component passes every check — staleness against the
+feed's heartbeat, sequencer uptime, price positivity, corporate-action pause.
+When US markets close, minting pauses and the UI says so. That is not a
+limitation, it is what makes a stock product behave like one — and what makes
+basket tokens safe for other protocols to build on.
+
+**Only ~a third of tokens have a feed → components are allowlisted.** A basket
+may only contain tokens registered with a verified Chainlink feed and its
+heartbeat. This bounds the component universe today, and it also means every
+basket in existence can always be valued by the same public oracle — no basket
+of unpriceable tokens, no fake "NVDA" component.
+
+**Everything is measurable → so are we.** Fees are enumerable onchain in a
+single controller contract, rate-capped and timelocked; the UI reads them
+rather than hardcoding them. Holdings, recipes and NAV are public state.
+Publishing this research is the same posture applied to the market we build
+on: the check is cheaper than discovering the failure in production.
+
+## Method and reproducibility
+
+Supply figures and Uniswap balances are exact onchain reads — `balanceOf`,
+`totalSupply`, `latestRoundData` — with no indexer or API in between. Holder
+counts, 24h volume and the aggregate market capitalisation are
+explorer-reported and indicative only; as Finding 3 shows, explorer-derived
+dollar figures deserve skepticism, so treat their order of magnitude as the
+claim. All figures are a snapshot of 21 July 2026. For current numbers rather
+than this snapshot, the [stock token dashboard](/stocks) reads the chain live,
+with every price tagged with its source.
