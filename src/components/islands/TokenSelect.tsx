@@ -36,11 +36,15 @@ export function toOptions(tokens: Record<string, ApiToken>): TokenOption[] {
       name: t.name,
       address: t.address,
       decimals: 18,
+      // "No USDG route", not "no liquidity": several of these tokens hold real
+      // balances in the PoolManager via non-USDG pairs (verified 2026-07-23),
+      // but our routing only fills through USDG pools and 0x makes no market
+      // in them, so they are unswappable here either way.
       disabledReason:
         status !== "ACTIVE"
           ? `Trading ${status.toLowerCase()}`
           : noPool
-            ? "No onchain liquidity yet"
+            ? "No USDG route yet"
             : null,
     });
   }
@@ -51,7 +55,7 @@ type Group = "held" | "market" | "unavailable";
 const GROUP_LABELS: Record<Group, string> = {
   held: "You hold",
   market: "Tradable",
-  unavailable: "No liquidity yet",
+  unavailable: "No USDG route yet",
 };
 
 interface Row {
