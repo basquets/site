@@ -6,8 +6,15 @@ import {
 } from "viem";
 import { USDG } from "../chain";
 
-/** Universal Router command + v4-periphery action ids (v4-periphery Actions.sol).
- *  Cross-checked against the live router by the fork test in services/api. */
+/**
+ * Universal Router command + v4-periphery action ids (v4-periphery Actions.sol).
+ *
+ * Robinhood Chain's router is a FORK of v4-periphery, not the canonical build:
+ * its swap param structs carry an extra `minHopPriceX36` field (per-hop price
+ * floor; 0 / empty array disables the check — verified in the router's
+ * Blockscout-verified V4Router.sol, 2026-07-23). Canonical Uniswap encodings
+ * revert in abi.decode, which is why every struct below includes the field.
+ */
 export const V4_SWAP_COMMAND = "0x10";
 export const ACTIONS = {
   SWAP_EXACT_IN_SINGLE: 0x06,
@@ -71,6 +78,7 @@ export function buildV4Calldata(a: EncodeArgs): `0x${string}` {
             { name: "zeroForOne", type: "bool" },
             { name: "amountIn", type: "uint128" },
             { name: "amountOutMinimum", type: "uint128" },
+            { name: "minHopPriceX36", type: "uint256" },
             { name: "hookData", type: "bytes" },
           ],
         },
@@ -87,6 +95,8 @@ export function buildV4Calldata(a: EncodeArgs): `0x${string}` {
           zeroForOne,
           amountIn: a.sellAmount,
           amountOutMinimum: a.minBuyAmount,
+          // 0 disables the fork's per-hop price floor; amountOutMinimum is the guarantee
+          minHopPriceX36: 0n,
           hookData: "0x",
         },
       ],
@@ -120,6 +130,7 @@ export function buildV4Calldata(a: EncodeArgs): `0x${string}` {
                 { name: "hookData", type: "bytes" },
               ],
             },
+            { name: "minHopPriceX36", type: "uint256[]" },
             { name: "amountIn", type: "uint128" },
             { name: "amountOutMinimum", type: "uint128" },
           ],
@@ -129,6 +140,8 @@ export function buildV4Calldata(a: EncodeArgs): `0x${string}` {
         {
           currencyIn: a.sellToken,
           path: [pathKey(USDG, a.hops[0]), pathKey(a.buyToken, a.hops[1])],
+          // empty disables the fork's per-hop price floors; amountOutMinimum is the guarantee
+          minHopPriceX36: [],
           amountIn: a.sellAmount,
           amountOutMinimum: a.minBuyAmount,
         },
