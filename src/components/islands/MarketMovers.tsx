@@ -27,13 +27,15 @@ export default function MarketMovers({
       change: tokenChange(market, o.symbol),
     }))
     .filter((r) => r.price !== null && r.change !== null)
+    // pick the day's biggest absolute moves, then show gainers-first
     .sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0))
-    .slice(0, 5);
+    .slice(0, 5)
+    .sort((a, b) => (b.change ?? 0) - (a.change ?? 0));
 
   if (!rows.length) return null;
 
   return (
-    <div className="self-start border-2 border-ink bg-ground">
+    <div className="flex h-full flex-col border-2 border-ink bg-ground">
       <div className="flex items-baseline justify-between border-b-2 border-divider px-5 py-2.5">
         <span className="text-[11px] uppercase tracking-[0.1em] text-ink/55">
           Movers today
@@ -43,16 +45,16 @@ export default function MarketMovers({
           Live
         </span>
       </div>
-      <ul className="m-0 list-none p-0">
+      <ul className="m-0 flex flex-1 list-none flex-col p-0">
         {rows.map(({ option, price, change }) => (
           <li
             key={option.address}
-            className="border-b-2 border-divider last:border-b-0"
+            className="flex flex-1 border-b-2 border-divider last:border-b-0"
           >
             <button
               type="button"
               onClick={() => onPick(option)}
-              className="flex w-full items-baseline gap-3 px-5 py-2.5 text-left hover:bg-surface active:translate-y-px"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left hover:bg-surface active:translate-y-px"
             >
               <span className="font-heading font-extrabold">
                 {option.symbol}

@@ -146,7 +146,7 @@ export default function SwapPanel() {
   const buyFacts = buy ? market.tokens[buy.symbol] : undefined;
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
       <div className="border-2 border-ink bg-ground shadow-lg">
         <div className="flex items-baseline justify-between border-b-2 border-divider px-6 py-3">
           <span className={label}>Swap</span>
