@@ -6,7 +6,6 @@ import { fmtCompactUsd, fmtFeeTier } from "@/lib/format";
 import { fmtUsd } from "@/lib/market";
 import { useLivePools } from "./use-live-pools";
 
-const SCALE_MAX = 1_000_000;
 const AMBER = "oklch(0.80 0.13 85)";
 
 const SORTS = [
@@ -16,9 +15,17 @@ const SORTS = [
   { value: "frag", label: "Fragmentation" },
 ];
 
-function DepthMeter({ green, yellow }: { green: number; yellow: number }) {
-  const g = Math.min(100, (green / SCALE_MAX) * 100);
-  const y = Math.min(100 - g, (Math.max(0, yellow - green) / SCALE_MAX) * 100);
+function DepthMeter({
+  green,
+  yellow,
+  scaleMax,
+}: {
+  green: number;
+  yellow: number;
+  scaleMax: number;
+}) {
+  const g = Math.min(100, (green / scaleMax) * 100);
+  const y = Math.min(100 - g, (Math.max(0, yellow - green) / scaleMax) * 100);
   return (
     <div className="ml-auto w-[180px] text-left">
       <div className="relative flex h-2 overflow-hidden rounded-[5px] bg-surface">
@@ -75,7 +82,13 @@ function PoolSubRow({ pool }: { pool: ApiPool }) {
   );
 }
 
-function StockRow({ stock }: { stock: ApiPoolStock }) {
+function StockRow({
+  stock,
+  scaleMax,
+}: {
+  stock: ApiPoolStock;
+  scaleMax: number;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -138,6 +151,7 @@ function StockRow({ stock }: { stock: ApiPoolStock }) {
           <DepthMeter
             green={stock.depth.greenUsd}
             yellow={stock.depth.yellowUsd}
+            scaleMax={scaleMax}
           />
         </td>
       </tr>
@@ -175,6 +189,11 @@ export default function PoolsTable() {
   if (state.mode === "unavailable")
     return <p className="text-ink/55">Pool data is unavailable right now.</p>;
 
+  // Scale the depth bars to the deepest stock on screen, so the meter always
+  // uses its full width and discriminates the long tail — a fixed ceiling would
+  // leave every bar near-empty once the deepest pool is well under it.
+  const scaleMax = Math.max(1, ...stocks.map((s) => s.depth.yellowUsd));
+
   return (
     <div>
       <div className="mb-3.5 flex items-center justify-between gap-4">
@@ -204,7 +223,7 @@ export default function PoolsTable() {
         </thead>
         <tbody className="[&>tr]:border-b [&>tr]:border-divider">
           {stocks.map((s) => (
-            <StockRow key={s.address} stock={s} />
+            <StockRow key={s.address} stock={s} scaleMax={scaleMax} />
           ))}
         </tbody>
       </table>
