@@ -22,6 +22,3 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
-
-# lockfile pending first @basquets/api-client npm publish
-bun.lock
