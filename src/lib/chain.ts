@@ -11,6 +11,13 @@ export const robinhoodChain = defineChain({
       url: "https://robinhoodchain.blockscout.com",
     },
   },
+  contracts: {
+    // Canonical singleton deployment, verified live on 4663 via eth_getCode
+    // (2026-07-23). Without this entry viem's multicall() refuses to batch.
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    },
+  },
 });
 
 export const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" as const;
