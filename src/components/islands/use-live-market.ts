@@ -94,6 +94,7 @@ const STORE_KEY = "__basquetsMarketStore";
 const globalScope = globalThis as typeof globalThis & {
   [STORE_KEY]?: MarketStore;
 };
+// biome-ignore lint/suspicious/noAssignInExpressions: one-shot global singleton — assign-and-read is the point
 const store: MarketStore = (globalScope[STORE_KEY] ??= {
   state: EMPTY,
   subs: new Set(),

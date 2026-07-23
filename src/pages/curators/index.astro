@@ -1,13 +1,12 @@
 ---
 import CuratorCalc from "../../components/islands/CuratorCalc";
+import RecipeRain from "../../components/islands/RecipeRain";
 import Container from "../../components/layout/Container.astro";
 import Kicker from "../../components/layout/Kicker.astro";
 import Section from "../../components/layout/Section.astro";
 import { buttonVariants } from "../../components/ui/button";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { cn } from "../../lib/utils";
-
-const SEATS_LEFT = 7;
 
 const offer = [
   {
@@ -17,13 +16,13 @@ const offer = [
   },
   {
     stat: "Day 1",
-    title: "Landing-page placement",
-    copy: "Genesis baskets are the launch. Your basket and name on the Basquets landing page, a permanent genesis badge, and co-marketing across our channels at launch.",
+    title: "We launch together",
+    copy: "Early baskets are the launch. Your basket and name on the Basquets landing page, and co-marketing across our channels when it goes live.",
   },
   {
-    stat: "+",
-    title: "Reserved token allocation",
-    copy: "If Basquets holds a token event, genesis curators have a reserved allocation. Being first is recognized permanently, not just at launch.",
+    stat: "Minutes",
+    title: "From thesis to token",
+    copy: "Pick 3-20 tokenized US stocks, set the weights, name it, publish. No fund license, no code, no back office. Rebalance whenever you like; every change is public onchain.",
   },
 ];
 
@@ -44,12 +43,12 @@ const audience = [
 ---
 <BaseLayout
   title="Curators - Basquets"
-  description="The genesis curator program: turn your portfolio into a product your audience can invest in with one tap, and earn 60% of every fee it generates."
+  description="Become a Basquets curator: turn your portfolio into a product your audience can invest in with one tap, and earn 60% of every fee it generates."
 >
   <main id="main">
     <Container>
       <Section class="pt-[calc(3*28px)] pb-[calc(2.5*28px)]">
-        <Kicker class="mb-4">Genesis curator program · {SEATS_LEFT} of 10 seats open</Kicker>
+        <Kicker class="mb-4">The curator program</Kicker>
         <h1 class="m-0 -ml-[0.058em] text-[clamp(42px,6vw,84px)] leading-[1.06] tracking-[-0.02em]">
           <span class="block">Your portfolio,</span>
           <span class="block">as a product.</span>
@@ -60,13 +59,13 @@ const audience = [
           of every fee it generates.
         </p>
         <div class="mt-7 flex flex-wrap gap-3">
-          <a href="/connect?role=curator" class={cn(buttonVariants({ variant: "primary", size: "lg" }))}>Claim a genesis seat</a>
+          <a href="/connect?role=curator" class={cn(buttonVariants({ variant: "primary", size: "lg" }))}>Join the curator whitelist</a>
           <a href="#economics" class={cn(buttonVariants({ variant: "ghost", size: "lg" }))}>See the economics</a>
         </div>
       </Section>
 
       <Section rule>
-        <h2 class="m-0 mb-7 text-[clamp(24px,2.6vw,32px)] tracking-[-0.015em]">The genesis offer.</h2>
+        <h2 class="m-0 mb-7 text-[clamp(24px,2.6vw,32px)] tracking-[-0.015em]">The offer.</h2>
         <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-y-7 gap-x-[clamp(24px,4vw,56px)]">
           {offer.map((o) => (
             <div class="border-l-2 border-divider pl-5">
@@ -97,7 +96,7 @@ const audience = [
             <h3 class="m-0 mb-4 text-[22px] tracking-[-0.01em]">We do the rest</h3>
             <div class="grid gap-3.5 text-[15px] leading-[25px]">
               <p class="m-0"><strong>Everything technical.</strong> Contracts, audits, listing, zap routing, pricing, custody rails on Robinhood Chain. You never touch code.</p>
-              <p class="m-0"><strong>Launch marketing.</strong> Landing placement, announcement content, and a launch push across Basquets channels for every genesis basket.</p>
+              <p class="m-0"><strong>Launch marketing.</strong> Landing placement, announcement content, and a launch push across Basquets channels for every early basket.</p>
             </div>
           </div>
         </div>
@@ -115,22 +114,26 @@ const audience = [
         </div>
       </Section>
 
-      <Section rule id="apply" class="pb-[calc(3*28px)]">
-        <div class="bg-accent p-[clamp(32px,5vw,64px)] text-ground">
-          <p class="m-0 text-[12px] uppercase tracking-[0.1em] opacity-90">Genesis closes when the seats do</p>
-          <h2 class="mt-3.5 mb-0 max-w-[20ch] font-heading font-extrabold text-[clamp(32px,4.4vw,60px)] text-ground leading-[1.08] tracking-[-0.02em]">
-            {SEATS_LEFT} of 10 genesis seats remain. Launch is Q3 2026.
-          </h2>
-          <p class="mt-5.5 mb-0 max-w-[56ch] text-[15.5px] leading-[26px] opacity-95">
-            Connect a wallet to claim a seat, or send us a rough list of stocks (or just a thesis)
-            and we'll bring a draft basket, its fee math, and a launch plan to a 30-minute call.
-          </p>
-          <div class="mt-7 flex flex-wrap gap-3">
-            <a href="/connect?role=curator" class={cn(buttonVariants({ variant: "inverse" }), "bg-ground text-accent-800 hover:bg-accent-100 active:bg-accent-100")}>Connect wallet to claim</a>
-            <a href="mailto:curators@basquets.xyz" class={cn(buttonVariants({ variant: "inverse" }))}>curators@basquets.xyz</a>
-          </div>
-        </div>
-      </Section>
     </Container>
+
+    <!-- the ask, with the curators' own material drifting behind it -->
+    <section id="apply" class="relative overflow-hidden bg-accent text-ground">
+      <RecipeRain client:idle />
+      <Container class="relative z-10 py-[calc(3.5*28px)]">
+        <h2 class="m-0 -ml-[0.058em] max-w-[20ch] font-heading font-extrabold text-ground text-[clamp(34px,4.4vw,58px)] leading-[1.06] tracking-[-0.015em]">
+          <span class="block">Get on the whitelist.</span>
+          <span class="block">Bring a thesis.</span>
+        </h2>
+        <p class="mt-6 mb-0 max-w-[54ch] text-base leading-7 text-ground/85">
+          Connect a wallet to join the curator whitelist; the beta opens wallet by wallet. Want to
+          talk it through first? Send a rough list of stocks, or just the thesis, and we'll bring a
+          draft basket, its fee math, and a launch plan to a 30-minute call.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href="/connect?role=curator" class={cn(buttonVariants({ variant: "inverse", size: "lg" }), "bg-ground text-accent-800 hover:bg-accent-100 active:bg-accent-100")}>Join the whitelist</a>
+          <a href="mailto:curators@basquets.xyz" class={cn(buttonVariants({ variant: "inverse", size: "lg" }))}>curators@basquets.xyz</a>
+        </div>
+      </Container>
+    </section>
   </main>
 </BaseLayout>

@@ -372,7 +372,8 @@ body::after {
    `screen` because the page-wide `multiply` pass dies on ink. Host needs
    `relative overflow-hidden bg-ink` and content above it (`relative z-10`). */
 .slab {
-  border-top: 1px solid color-mix(in oklch, var(--color-ground) 22%, transparent);
+  border-top: 1px solid
+    color-mix(in oklch, var(--color-ground) 22%, transparent);
 }
 .slab::before,
 .slab::after {

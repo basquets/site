@@ -70,12 +70,12 @@ export default function AccessGate({ page }: { page: GatedPage }) {
           <h1 className="mt-3 mb-0 font-heading font-extrabold text-[28px] tracking-[-0.015em]">
             {connected
               ? "This wallet isn't on the allowlist yet."
-              : "This area opens with your seat."}
+              : "This area opens with the whitelist."}
           </h1>
           <p className="mt-3 mb-0 text-sm leading-6 text-ink/75">
             {connected
-              ? "The beta opens wallet by wallet. Your place in line is held; check your standing or come back when your seat is confirmed."
-              : "The curator tools are enabled wallet by wallet during the private beta. Connect to hold your place, or read about the genesis program; we unlock access as seats are confirmed."}
+              ? "The beta opens wallet by wallet. Your place in line is held; check your standing or come back when your wallet is allowlisted."
+              : "The curator tools are enabled wallet by wallet during the private beta. Join the whitelist to hold your place, or read about the curator program; we unlock access as wallets are confirmed."}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a

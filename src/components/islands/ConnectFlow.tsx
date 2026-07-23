@@ -75,8 +75,8 @@ export default function ConnectFlow() {
           </h2>
           <p className={`mt-2.5 mb-5.5 ${sub}`}>
             Use an email, a social login, or a wallet you already have. Email
-            and social create a self-custodied embedded wallet for you — no
-            seed phrase, no extension.
+            and social create a self-custodied embedded wallet for you — no seed
+            phrase, no extension.
           </p>
           <button
             type="button"
