@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { Button } from "@/components/ui/button";
-import { USDG } from "@/lib/chain";
+import { NATIVE_ETH, USDG } from "@/lib/chain";
 import { fmtFeeTier } from "@/lib/format";
 import { walletExecutor } from "@/lib/swap/execute";
 import { gaugeModel } from "@/lib/swap/gauge-model";
@@ -213,9 +213,18 @@ export default function SwapPanel() {
               <button
                 type="button"
                 className="border border-divider px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em] text-ink/70 hover:bg-accent-100 hover:text-ink active:translate-y-px"
-                onClick={() =>
-                  setAmountText(formatUnits(sellBalance, sell.decimals))
-                }
+                onClick={() => {
+                  // Selling native ETH keeps a sliver back for the gas the
+                  // swap itself needs; MAX-ing to zero would strand the tx.
+                  const gasReserve = 5_000_000_000_000_000n; // 0.005 ETH
+                  const spendable =
+                    sell.address === NATIVE_ETH
+                      ? sellBalance > gasReserve
+                        ? sellBalance - gasReserve
+                        : 0n
+                      : sellBalance;
+                  setAmountText(formatUnits(spendable, sell.decimals));
+                }}
               >
                 Max
               </button>

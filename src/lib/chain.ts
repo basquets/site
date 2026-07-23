@@ -22,6 +22,8 @@ export const robinhoodChain = defineChain({
 
 export const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" as const;
 export const USDG_DECIMALS = 6;
+/** v4's native-ETH currency sentinel; the quote API spells it the same way. */
+export const NATIVE_ETH = "0x0000000000000000000000000000000000000000" as const;
 // Verified by scripts/verify-v4-periphery.ts — keep in sync with services/api/src/market/periphery.ts.
 export const UNIVERSAL_ROUTER =
   "0x8876789976dEcBfCbBbe364623C63652db8C0904" as const;

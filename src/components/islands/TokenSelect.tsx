@@ -2,7 +2,7 @@ import type { ApiToken } from "@basquets/api-client";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { formatUnits } from "viem";
 import { Input } from "@/components/ui/input";
-import { USDG, USDG_DECIMALS } from "@/lib/chain";
+import { NATIVE_ETH, USDG, USDG_DECIMALS } from "@/lib/chain";
 import { tokenChange, useTokenMarket } from "./use-live-market";
 
 export interface TokenOption {
@@ -20,6 +20,15 @@ export function toOptions(tokens: Record<string, ApiToken>): TokenOption[] {
       name: "Global Dollar",
       address: USDG,
       decimals: USDG_DECIMALS,
+      disabledReason: null,
+    },
+    // Native ETH trades over the healthy ETH/USDG bridge pools; it is also the
+    // gas asset, so swapping into it is how a stocks-only wallet refuels.
+    {
+      symbol: "ETH",
+      name: "Ether",
+      address: NATIVE_ETH,
+      decimals: 18,
       disabledReason: null,
     },
   ];

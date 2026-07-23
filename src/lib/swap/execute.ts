@@ -1,5 +1,10 @@
 import { parseAbi } from "viem";
-import { PERMIT2, UNIVERSAL_ROUTER, ZEROEX_ALLOWANCE_HOLDER } from "../chain";
+import {
+  NATIVE_ETH,
+  PERMIT2,
+  UNIVERSAL_ROUTER,
+  ZEROEX_ALLOWANCE_HOLDER,
+} from "../chain";
 import { publicClient, walletClient } from "../wallet";
 import { buildV4Calldata } from "./encode";
 import type { SwapExecutor, SwapIntent, SwapResult } from "./intent";
@@ -149,22 +154,23 @@ async function settle(
   before: bigint,
 ): Promise<SwapResult> {
   await waitFor(hash);
-  const after = await publicClient.readContract({
-    address: intent.buyToken,
-    abi: erc20,
-    functionName: "balanceOf",
-    args: [owner],
-  });
+  const after = await buyBalance(intent, owner);
   return { txHash: hash, received: after - before };
 }
 
+const isNative = (a: string) => a.toLowerCase() === NATIVE_ETH;
+
+/** For a native buy this includes the gas the swap itself burns, so the
+ *  reported `received` underestimates slightly — honest, and cheap. */
 const buyBalance = (intent: SwapIntent, owner: `0x${string}`) =>
-  publicClient.readContract({
-    address: intent.buyToken,
-    abi: erc20,
-    functionName: "balanceOf",
-    args: [owner],
-  });
+  isNative(intent.buyToken)
+    ? publicClient.getBalance({ address: owner })
+    : publicClient.readContract({
+        address: intent.buyToken,
+        abi: erc20,
+        functionName: "balanceOf",
+        args: [owner],
+      });
 
 /** v1 transport: the connected EOA signs and pays gas. The relayer executor
  *  slots in behind the same SwapExecutor type later. */
@@ -182,16 +188,19 @@ export const walletExecutor: SwapExecutor = async (
       throw new Error(
         "0x quote is indicative — re-quote with a taker before executing",
       );
-    const spender = rail.tx.allowanceTarget as `0x${string}`;
-    const pinned =
-      spender.toLowerCase() === ZEROEX_ALLOWANCE_HOLDER.toLowerCase();
-    await ensureErc20Allowance(
-      owner,
-      intent.sellToken,
-      spender,
-      intent.sellAmount,
-      { exact: !pinned },
-    );
+    // Native ETH needs no allowance; the 0x tx carries it as msg.value.
+    if (!isNative(intent.sellToken)) {
+      const spender = rail.tx.allowanceTarget as `0x${string}`;
+      const pinned =
+        spender.toLowerCase() === ZEROEX_ALLOWANCE_HOLDER.toLowerCase();
+      await ensureErc20Allowance(
+        owner,
+        intent.sellToken,
+        spender,
+        intent.sellAmount,
+        { exact: !pinned },
+      );
+    }
     // Read immediately before the swap so approval waits never widen the diff window.
     const before = await buyBalance(intent, owner);
     const zeroExTx = {
@@ -209,7 +218,10 @@ export const walletExecutor: SwapExecutor = async (
   }
 
   if (!rail.hops) throw new Error("v4 quote is missing hops");
-  await ensurePermit2Allowance(owner, intent.sellToken, intent.sellAmount);
+  // Selling native ETH skips Permit2 entirely: the router settles the pool
+  // from msg.value instead of pulling an ERC-20.
+  if (!isNative(intent.sellToken))
+    await ensurePermit2Allowance(owner, intent.sellToken, intent.sellAmount);
   const before = await buyBalance(intent, owner);
   const v4Tx = {
     to: UNIVERSAL_ROUTER,
@@ -221,6 +233,7 @@ export const walletExecutor: SwapExecutor = async (
       deadline: intent.deadline,
       hops: rail.hops,
     }),
+    ...(isNative(intent.sellToken) ? { value: intent.sellAmount } : {}),
   };
   const hash = await walletClient().sendTransaction({
     ...v4Tx,
