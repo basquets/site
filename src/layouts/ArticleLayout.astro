@@ -1,0 +1,45 @@
+---
+import Container from "../components/layout/Container.astro";
+import Kicker from "../components/layout/Kicker.astro";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  kicker: string;
+}
+const { title, description, date, kicker } = Astro.props;
+const formatted = date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
+const articleLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: title,
+  description,
+  datePublished: date.toISOString(),
+  author: { "@type": "Organization", name: "Basquets" },
+  publisher: { "@type": "Organization", name: "Basquets" },
+});
+---
+<BaseLayout title={`${title} - Basquets`} description={description}>
+  <script is:inline type="application/ld+json" set:html={articleLd} />
+  <main id="main">
+    <Container>
+      <article class="py-[calc(3*28px)]">
+        <header class="mb-10 border-b-2 border-divider pb-10">
+          <Kicker class="mb-3.5">{kicker} · {formatted}</Kicker>
+          <h1 class="m-0 -ml-[0.058em] max-w-[24ch] text-[clamp(32px,4vw,52px)] leading-[1.08] tracking-[-0.02em]">{title}</h1>
+          <p class="mt-6 mb-0 max-w-[58ch] text-[17px] leading-7 text-ink/78">{description}</p>
+        </header>
+        <div class="prose-basquets max-w-[68ch] text-[15.5px] leading-7">
+          <slot />
+        </div>
+      </article>
+    </Container>
+  </main>
+</BaseLayout>

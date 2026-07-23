@@ -1,0 +1,47 @@
+---
+title: "Addresses"
+description: "Chain parameters and contract addresses for Robinhood Chain mainnet and testnet."
+order: 10
+---
+
+# Addresses
+
+## Robinhood Chain
+
+| | Mainnet | Testnet |
+|---|---|---|
+| Chain ID | `4663` | `46630` |
+| RPC | `https://rpc.mainnet.chain.robinhood.com` | `https://rpc.testnet.chain.robinhood.com` |
+| Explorer | [robinhoodchain.blockscout.com](https://robinhoodchain.blockscout.com) | [explorer.testnet.chain.robinhood.com](https://explorer.testnet.chain.robinhood.com) |
+| Gas token | ETH | ETH |
+
+Robinhood Chain is an Arbitrum Orbit L2 settling to Ethereum with blob data availability.
+
+## Basquets contracts
+
+> **Pre-launch.** Contract addresses will be published here at deployment. Until then, any address claiming to be a Basquets contract is not one.
+
+| Contract | Mainnet | Testnet |
+|---|---|---|
+| BasquetFactory | - | - |
+| ComponentRegistry | - | - |
+| FeeController | - | - |
+| NAVOracle | - | - |
+| ZapRouter | - | - |
+| DCAManager | - | - |
+
+## Ecosystem addresses we build on
+
+Verify every address against its primary source before use: for stock tokens that is Robinhood's [onchain contract registry](https://docs.robinhood.com/chain/contracts/), for feeds it is [Chainlink's feed page](https://docs.chain.link/data-feeds/price-feeds/addresses?network=robinhood).
+
+| Contract | Address (mainnet) | Source |
+|---|---|---|
+| USDG (6 decimals) | `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` | [Robinhood docs](https://docs.robinhood.com/chain/contracts/) |
+| WETH | `0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73` | Robinhood docs |
+| ERC-4337 EntryPoint v0.7 | `0x0000000071727De22E5E9d8BAf0edAc6f37da032` | [Robinhood AA docs](https://docs.robinhood.com/chain/account-abstraction/) |
+| ERC-4337 EntryPoint v0.8 | `0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108` | Robinhood AA docs |
+| USDG/USD Chainlink feed | `0x61B7e5650328764B076A108EFF5fa7282a1B9aD2` | Chainlink RDD |
+| NVDA/USD Chainlink feed | `0x379EC4f7C378F34a1B47E4F3cbeBCbAC3E8E9F15` | Chainlink RDD |
+| L2 sequencer uptime feed | *not yet published by Chainlink* | - |
+
+Stock token and feed addresses for all supported components are enumerated onchain in `ComponentRegistry` once deployed; that registry, not this page, is the machine source of truth.

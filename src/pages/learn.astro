@@ -1,0 +1,89 @@
+---
+import IngredientStrip from "../components/islands/IngredientStrip";
+import RecipeTable from "../components/islands/RecipeTable";
+import Container from "../components/layout/Container.astro";
+import CTABanner from "../components/layout/CTABanner.astro";
+import Section from "../components/layout/Section.astro";
+import FeatureCell from "../components/site/FeatureCell.astro";
+import { buttonVariants } from "../components/ui/button";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { cn } from "../lib/utils";
+---
+<BaseLayout
+  title="How Basquets works"
+  description="A basket is a single token holding a fixed recipe of real tokenized US stocks. No issuer, no fine print, no closing bell. Here's what keeps it honest."
+>
+  <main id="main">
+    <Container>
+      <Section class="pt-[calc(3*28px)]">
+        <h1 class="m-0 -ml-[0.058em] text-[clamp(38px,5vw,68px)] leading-[1.06] tracking-[-0.02em]">
+          <span class="block">What a basket is,</span>
+          <span class="block">and what keeps it honest.</span>
+        </h1>
+        <p class="mt-9 mb-0 max-w-[58ch] text-[17px] leading-7">
+          A basket is a single token holding a fixed recipe of real tokenized US stocks. No issuer,
+          no fine print, no closing bell. Just a recipe, an oracle, and your wallet.
+        </p>
+      </Section>
+
+      <Section rule id="how" class="pt-[calc(3*28px)] pb-[calc(3*28px)]">
+        <h2 class="m-0 mb-7 text-[clamp(24px,2.6vw,32px)] tracking-[-0.015em]">What Basquets does.</h2>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] border-t-2 border-l-2 border-divider">
+          <FeatureCell num="01" title="Create" copy="Pick official stock tokens, set the recipe, name it, publish. Minutes, not a fund license. You earn a share of the fees your basket generates.">
+            <div class="flex max-w-[280px] flex-col gap-1.5">
+              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[72%] bg-ink"></span></div>
+              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[48%] bg-neutral-500"></span></div>
+              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[32%] bg-neutral-300"></span></div>
+            </div>
+          </FeatureCell>
+          <FeatureCell num="02" title="Invest" copy="Stablecoins in, basket out: one signature, gas sponsored. You see exactly which tokens are bought, at which oracle price, before you confirm.">
+            <div class="flex items-center gap-3.5 tnum">
+              <span class="font-heading font-extrabold">USDG</span>
+              <span class="relative h-0.5 max-w-20 flex-1 bg-ink">
+                <span class="absolute -top-1 -right-px border-y-[5px] border-l-8 border-y-transparent border-l-ink"></span>
+              </span>
+              <span class="inline-flex size-5.5 items-center justify-center border-2 border-accent"><span class="size-2.5 bg-accent"></span></span>
+              <span class="font-heading font-extrabold text-accent-700">bMAG7</span>
+            </div>
+          </FeatureCell>
+          <FeatureCell num="03" title="Compose" copy="Basket tokens are plain ERC-20s with a public NAV oracle. Wallets list them, lending markets accept them, and anyone can verify everything.">
+            <div class="flex size-16 items-center justify-center border-2 border-ink">
+              <span class="flex size-10 items-center justify-center border-2 border-neutral-500">
+                <span class="size-4.5 bg-accent"></span>
+              </span>
+            </div>
+          </FeatureCell>
+        </div>
+      </Section>
+
+      <Section rule id="glass" class="grid items-start gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(3*28px)] pb-[calc(3*28px)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div>
+          <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">Everything is glass.</h2>
+          <p class="mt-5.5 mb-0 max-w-[48ch] text-[15.5px] leading-7 text-ink/78">
+            A basket's recipe is fixed and onchain: exactly these tokens, exactly these amounts,
+            priced by Chainlink oracles. Fees are declared once and visible always. This is the
+            recipe for AI Ten, live.
+          </p>
+        </div>
+        <div>
+          <RecipeTable client:load />
+          <p class="mt-3 mb-0 text-[11px] text-ink/55">Sample basket, priced live from real component prices.</p>
+        </div>
+      </Section>
+
+      <Section rule id="ingredients" class="pb-[calc(3*28px)]">
+        <h2 class="m-0 mb-7 text-[clamp(24px,2.6vw,32px)] tracking-[-0.015em]">Start from real ingredients.</h2>
+        <IngredientStrip client:load />
+        <p class="mt-4 mb-0 max-w-[62ch] text-[13px] leading-6 text-ink/70">
+          Robinhood stock tokens, straight from the onchain asset registry. The only things a
+          basket can hold.
+        </p>
+      </Section>
+    </Container>
+
+    <CTABanner lines={["Seen enough?", "Draft the market."]}>
+      <a href="/baskets" class={cn(buttonVariants({ variant: "inverse" }))}>Explore baskets</a>
+      <a href="/" class={cn(buttonVariants({ variant: "inverse" }), "border-transparent")}>Back to Basquets</a>
+    </CTABanner>
+  </main>
+</BaseLayout>

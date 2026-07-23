@@ -1,0 +1,126 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import type { MarkdownHeading } from "astro";
+import Container from "../components/layout/Container.astro";
+import Kicker from "../components/layout/Kicker.astro";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  entry: CollectionEntry<"docs">;
+  headings: MarkdownHeading[];
+}
+const { entry, headings } = Astro.props;
+
+const docs = (await getCollection("docs")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const items = docs.map((d) => ({
+  id: d.id,
+  href: d.id === "index" ? "/docs" : `/docs/${d.id}`,
+  title: d.id === "index" ? "Overview" : d.data.title,
+}));
+const current = items.findIndex((i) => i.id === entry.id);
+const prev = current > 0 ? items[current - 1] : undefined;
+const next = current < items.length - 1 ? items[current + 1] : undefined;
+
+// rehype-autolink-headings appends a literal "#" to each heading; strip it
+// from the collected heading text before rendering the TOC.
+const toc = headings
+  .filter((h) => h.depth === 2)
+  .map((h) => ({ ...h, text: h.text.replace(/\s*#\s*$/, "") }));
+const pageTitle =
+  entry.id === "index"
+    ? "Docs - Basquets"
+    : `${entry.data.title} - Basquets docs`;
+
+const crumbs = [
+  { name: "Docs", item: new URL("/docs", Astro.site).toString() },
+  ...(entry.id === "index"
+    ? []
+    : [
+        {
+          name: entry.data.title,
+          item: new URL(`/docs/${entry.id}`, Astro.site).toString(),
+        },
+      ]),
+];
+const docsLd = JSON.stringify([
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: entry.data.title,
+    description: entry.data.description,
+    author: { "@type": "Organization", name: "Basquets" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.item,
+    })),
+  },
+]);
+---
+<BaseLayout title={pageTitle} description={entry.data.description}>
+  <script is:inline type="application/ld+json" set:html={docsLd} />
+  <main id="main">
+    <Container>
+      <div class="grid items-start gap-y-10 gap-x-[clamp(32px,5vw,80px)] py-[calc(2*28px)] lg:grid-cols-[220px_minmax(0,1fr)]">
+        <aside class="lg:sticky lg:top-7">
+          <nav aria-label="Protocol docs">
+            <Kicker class="mb-3.5">Protocol docs</Kicker>
+            <ol class="m-0 flex list-none flex-col p-0 max-lg:flex-row max-lg:flex-wrap max-lg:gap-x-5 lg:border-l-2 lg:border-divider">
+              {items.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={item.id === entry.id ? "page" : undefined}
+                    class="block py-1.5 text-sm text-ink/70 no-underline hover:text-accent-700 aria-[current=page]:font-heading aria-[current=page]:font-extrabold aria-[current=page]:text-accent-700 lg:-ml-0.5 lg:border-l-2 lg:border-transparent lg:pl-4 lg:aria-[current=page]:border-accent"
+                  >{item.title}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          {toc.length > 1 && (
+            <nav aria-label="On this page" class="mt-10 max-lg:hidden">
+              <p class="m-0 mb-3.5 text-[11px] uppercase tracking-[0.08em] text-ink/55">On this page</p>
+              <ol class="m-0 list-none border-l-2 border-divider p-0">
+                {toc.map((h) => (
+                  <li>
+                    <a href={`#${h.slug}`} class="block py-1.5 pl-4 text-[13px] leading-5 text-ink/70 no-underline hover:text-accent-700">{h.text}</a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
+        </aside>
+
+        <article class="min-w-0">
+          <div class="prose-basquets text-[15.5px] leading-7">
+            <slot />
+          </div>
+
+          <nav aria-label="Docs pagination" class="mt-14 grid border-t-2 border-l-2 border-divider sm:grid-cols-2">
+            {prev && (
+              <a href={prev.href} class:list={["block border-r-2 border-b-2 border-divider p-5 text-ink no-underline hover:bg-surface", !next && "sm:col-span-2"]}>
+                <span class="block text-[11px] uppercase tracking-[0.08em] text-ink/55">Previous</span>
+                <span class="mt-1.5 block font-heading font-extrabold text-[15px]">← {prev.title}</span>
+              </a>
+            )}
+            {next && (
+              <a href={next.href} class:list={["block border-r-2 border-b-2 border-divider p-5 text-ink no-underline hover:bg-surface", !prev && "sm:col-span-2"]}>
+                <span class="block text-[11px] uppercase tracking-[0.08em] text-ink/55">Next</span>
+                <span class="mt-1.5 block font-heading font-extrabold text-[15px]">{next.title} →</span>
+              </a>
+            )}
+          </nav>
+        </article>
+      </div>
+
+      <slot name="bottom" />
+    </Container>
+  </main>
+</BaseLayout>

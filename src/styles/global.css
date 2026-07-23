@@ -1,0 +1,436 @@
+@import "tailwindcss";
+@import "@fontsource/archivo/400.css";
+@import "@fontsource/archivo/600.css";
+@import "@fontsource/archivo/800.css";
+
+@theme {
+  /* grounds & ink */
+  --color-ground: oklch(0.972 0.007 168);
+  --color-surface: #eae9e9;
+  --color-ink: #201e1d;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+
+  /* accent — Basquets green (overrides the Modernist red) */
+  --color-accent-100: oklch(0.96 0.03 155);
+  --color-accent-200: oklch(0.91 0.06 155);
+  --color-accent-300: oklch(0.84 0.09 155);
+  --color-accent-400: oklch(0.74 0.13 155);
+  --color-accent-500: oklch(0.64 0.17 155);
+  --color-accent-600: oklch(0.55 0.16 155);
+  --color-accent-700: oklch(0.46 0.13 155);
+  --color-accent-800: oklch(0.37 0.1 155);
+  --color-accent-900: oklch(0.28 0.07 155);
+  --color-accent: oklch(0.62 0.17 155);
+
+  /* neutral ramp (Modernist) */
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #7d7979;
+  --color-neutral-700: #605d5d;
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
+  /* 50/950 pinned so Tailwind's cool-gray defaults can't leak into the warm ramp */
+  --color-neutral-50: #f8f4f4;
+  --color-neutral-950: #201e1d;
+
+  /* semantic market colors (price up / down) */
+  --color-gain: oklch(0.52 0.14 155);
+  --color-loss: oklch(0.55 0.19 27);
+
+  /* type */
+  --font-heading: "Archivo", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, sans-serif;
+
+  /* radius: flat by decree */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  /* elevation */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+}
+
+@layer base {
+  body {
+    @apply bg-ground text-ink font-body;
+    font-size: 15px;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-extrabold;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+}
+
+@utility tnum {
+  font-feature-settings: "tnum" 1;
+}
+
+/* Shiki css-variables theme, mapped onto the Modernist ramp (see astro.config.ts). */
+:root {
+  --astro-code-foreground: var(--color-ink);
+  --astro-code-background: var(--color-surface);
+  --astro-code-token-keyword: var(--color-accent-700);
+  --astro-code-token-constant: var(--color-accent-800);
+  --astro-code-token-string: var(--color-accent-800);
+  --astro-code-token-string-expression: var(--color-accent-700);
+  --astro-code-token-comment: var(--color-neutral-600);
+  --astro-code-token-function: var(--color-ink);
+  --astro-code-token-parameter: var(--color-neutral-800);
+  --astro-code-token-punctuation: var(--color-neutral-700);
+  --astro-code-token-link: var(--color-accent-700);
+  /* legacy variable names, kept in case of version drift */
+  --astro-code-color-text: var(--color-ink);
+  --astro-code-color-background: var(--color-surface);
+}
+
+/* Inline SVG diagrams inside docs content (drawn in the Modernist language). */
+.doc-diagram {
+  margin: 20px 0 24px;
+  overflow-x: auto;
+}
+.doc-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 560px;
+  height: auto;
+}
+.doc-diagram .dg-box {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 2;
+}
+.doc-diagram .dg-accentbox {
+  fill: var(--color-accent-100);
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.doc-diagram .dg-line {
+  stroke: var(--color-ink);
+  stroke-width: 1.6;
+  fill: none;
+}
+.doc-diagram .dg-arrowhead {
+  fill: var(--color-ink);
+}
+.doc-diagram text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  fill: var(--color-ink);
+}
+.doc-diagram .dg-label {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  fill: color-mix(in srgb, var(--color-ink) 55%, transparent);
+}
+.doc-diagram .dg-strong {
+  font-family: var(--font-heading);
+  font-weight: 800;
+}
+.doc-diagram .dg-accent {
+  fill: var(--color-accent-700);
+}
+.doc-diagram .dg-muted {
+  fill: color-mix(in srgb, var(--color-ink) 60%, transparent);
+}
+.doc-diagram .dg-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+@utility kicker-text {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-700);
+}
+
+/* long-form article body (blog/docs MDX) */
+@utility prose-basquets {
+  h1 {
+    margin: 0 0 20px;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    margin-top: 40px;
+    margin-bottom: 12px;
+    font-size: 24px;
+    line-height: 32px;
+  }
+  h3 {
+    margin-top: 28px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    line-height: 28px;
+  }
+  p {
+    margin: 0 0 14px;
+  }
+  /* keep running text at a readable measure while tables, code and diagrams
+     use the full column width */
+  p,
+  ul,
+  ol,
+  blockquote {
+    max-width: 78ch;
+  }
+  table {
+    width: 100%;
+    margin: 20px 0 24px;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-feature-settings: "tnum" 1;
+  }
+  th {
+    padding: 8px 10px 8px 0;
+    border-bottom: 2px solid var(--color-divider);
+    text-align: left;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+  }
+  td {
+    padding: 8px 10px 8px 0;
+    border-bottom: 1px solid var(--color-divider);
+    vertical-align: top;
+  }
+  @media (max-width: 767px) {
+    table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+  a {
+    color: var(--color-accent-700);
+  }
+  code {
+    background: var(--color-surface);
+    padding-inline: 4px;
+  }
+  pre {
+    overflow-x: auto;
+    border: 2px solid var(--color-divider);
+    background: var(--color-surface);
+    padding: 16px;
+  }
+  ul,
+  ol {
+    padding-left: 1.25em;
+    margin: 0 0 12px;
+  }
+  ul {
+    list-style: disc;
+  }
+  ol {
+    list-style: decimal;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  blockquote {
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-surface);
+    margin: 0 0 14px;
+    padding: 14px 16px;
+  }
+  blockquote > :last-child {
+    margin-bottom: 0;
+  }
+  .heading-anchor {
+    margin-left: 0.4em;
+    color: var(--color-accent-700);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  h1:hover .heading-anchor,
+  h2:hover .heading-anchor,
+  h3:hover .heading-anchor,
+  .heading-anchor:focus-visible {
+    opacity: 1;
+  }
+}
+
+/* marquee + live-dot animations used by the ticker and live badges */
+@keyframes bq-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes bq-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@utility animate-ticker {
+  animation: bq-ticker 36s linear infinite;
+}
+@utility animate-pulse-live {
+  animation: bq-pulse 2.4s ease-in-out infinite;
+}
+
+/* connect-page ticker rain, caret blink, and panel fade */
+@keyframes bq-col-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes bq-col-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes bq-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bq-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-panel-in {
+  animation: bq-in 0.3s ease both;
+}
+@utility animate-caret {
+  animation: bq-blink 1.1s step-end infinite;
+}
+
+/* Site-wide grain, so every surface reads as printed stock rather than a flat
+   screen fill. Fixed to the viewport (one tile, no repaint on scroll) and held
+   at z-index 1: that puts it over ordinary page content but under anything
+   deliberately layered — dropdowns (z-20/30) and modals (z-40) stay crisp. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* An ink plate, not a colour swap: a hero's accent aura carries over its top
+   edge, a lit hairline reads as the plate's lip, and the grain is re-laid in
+   `screen` because the page-wide `multiply` pass dies on ink. Host needs
+   `relative overflow-hidden bg-ink` and content above it (`relative z-10`). */
+.slab {
+  border-top: 1px solid color-mix(in oklch, var(--color-ground) 22%, transparent);
+}
+.slab::before,
+.slab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.slab::before {
+  background: radial-gradient(
+    72% 46% at 50% 0%,
+    color-mix(in oklch, var(--color-accent) 24%, transparent),
+    transparent 72%
+  );
+}
+.slab::after {
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* Hero zap reveal: each stage rises as the money moves through it. */
+@keyframes bq-zap-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-zap-in {
+  animation: bq-zap-in 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+/* Two nudges once the stages have landed, then still. */
+@keyframes bq-arrow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+}
+@utility animate-arrow-pulse {
+  animation: bq-arrow-pulse 0.9s ease-in-out both 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker,
+  .animate-pulse-live,
+  .animate-caret,
+  .animate-zap-in,
+  .animate-arrow-pulse,
+  .ticker-rain * {
+    animation: none !important;
+  }
+}

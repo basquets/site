@@ -1,0 +1,40 @@
+---
+title: "Market hours & corporate actions"
+description: "What happens on weekends, during corporate actions, and when the sequencer is down: the protocol fails closed, on purpose."
+order: 6
+---
+
+# Market hours & corporate actions
+
+Stocks have market hours; blockchains don't. Basquets resolves this tension by **failing closed**: when a component can't be priced with confidence, everything value-bearing simply waits. This isn't a limitation we apologize for; it's the property that makes basket tokens safe for other protocols to accept as collateral.
+
+## The truth table
+
+| Condition | issue / redeem (in-kind) | Zap | Savings plans | UI |
+|---|---|---|---|---|
+| Markets open, all feeds fresh | Yes | Yes | Execute | live NAV |
+| Weekend / market closed | Paused | Paused | Queued | frozen NAV + "markets closed" |
+| Corporate action on one component | Paused (that basket only) | Paused (that basket only) | Queued | per-basket notice |
+| Sequencer down | Paused | Paused | Queued | degraded banner |
+
+## Why feeds go stale on weekends
+
+Chainlink's Robinhood stock feeds update **24/5**, tracking US equities market availability, with a 0.5% deviation threshold and a 24-hour heartbeat. Outside market hours the price is simply the last traded price, accurate but not live. `NAVOracle` reports this precisely: `nav()` returns the last known value with a `fresh` flag, while `navStrict()`, what every value-bearing code path uses, reverts unless every component passes every freshness check.
+
+## Corporate actions
+
+Dividends and splits on Robinhood stock tokens are processed through an onchain multiplier, and during processing the token reports `oraclePaused() == true`. While any component of a basket is paused:
+
+- `issue` and `redeem` for that basket revert,
+- zaps into or out of that basket revert,
+- savings-plan executions for that basket queue and retry.
+
+When the pause lifts, everything resumes with the multiplier already reflected in the feed price. Basket accounting never changes: recipes are defined in raw units, which corporate actions never touch. Dividends arrive as price appreciation (the tokens are total-return instruments).
+
+## Skipped savings-plan windows
+
+If a plan's execution window falls on a weekend or during a pause, the plan executes **once** when conditions clear, then returns to its schedule. It never "catches up" with multiple buys: a missed Monday does not become a double buy on Tuesday. Schedules advance from the schedule, not from execution time, so timing never drifts.
+
+## What "sequencer down" means
+
+Robinhood Chain is an Arbitrum Orbit L2. If its sequencer halts, Chainlink prices can't update and interactions pause; the protocol additionally enforces a grace period after restart before resuming, so nobody can act on stale prices in the first blocks back. (The chain's sequencer uptime feed is checked when configured; see [Addresses](/docs/addresses) for current status.)

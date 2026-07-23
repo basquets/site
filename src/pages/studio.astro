@@ -1,0 +1,17 @@
+---
+import AccessGate from "../components/islands/AccessGate";
+import Container from "../components/layout/Container.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Studio - Basquets"
+  description="The curator studio: your baskets, TVL, holders, and the fee stream, live in one place. Private beta."
+  noindex
+>
+  <main id="main">
+    <Container>
+      <AccessGate page="studio" client:only="react" />
+      <p class="mb-10 text-[11px] text-ink/55">Private beta · product preview. Basket NAVs are live onchain data; nothing is deployed, so every balance reads zero.</p>
+    </Container>
+  </main>
+</BaseLayout>

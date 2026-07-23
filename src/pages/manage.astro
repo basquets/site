@@ -1,0 +1,20 @@
+---
+import AccessGate from "../components/islands/AccessGate";
+import Container from "../components/layout/Container.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Manage - Basquets"
+  description="Manage a basket: draft a rebalance, publish it with one signature, tune the fee. Private beta."
+  noindex
+>
+  <main id="main">
+    <Container>
+      <div class="pt-[calc(1.5*28px)]">
+        <a href="/studio" class="text-[13px] uppercase tracking-[0.08em] text-accent-700 no-underline hover:underline">← Studio</a>
+      </div>
+      <AccessGate page="manage" client:only="react" />
+      <p class="mb-10 text-[11px] text-ink/55">Private beta · product preview. Component prices and NAV are live onchain data; nothing is deployed, so every balance reads zero.</p>
+    </Container>
+  </main>
+</BaseLayout>

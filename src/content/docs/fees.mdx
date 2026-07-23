@@ -1,0 +1,45 @@
+---
+title: "Fees"
+description: "Every fee, its rate, and who receives it: enumerable onchain, hardcapped in code."
+order: 5
+---
+
+# Fees
+
+Every rate lives in a single contract, `FeeController`. The app reads it; so can you. There is no fee that is not on this page, and no fee on this page that is not readable onchain.
+
+## The fee table
+
+| Fee | Launch rate | Charged on | Goes to |
+|---|---|---|---|
+| Mint | 0.40% | `issue`, carved from the minted basket tokens | 60% curator / 40% treasury |
+| Redeem | 0.40% | `redeem`, taken in components | 60% curator / 40% treasury |
+| **Streaming** | **0%** | — disabled at launch, see below | 60% curator / 40% treasury |
+| Zap | 0.25% | the USDG leg of every zap and savings-plan execution | 100% treasury (funds keeper bounties) |
+| Basket creation | 0 at launch (flat, configurable) | `createBasket` | 100% treasury |
+
+**There is no management fee.** Holding a basket costs nothing, forever, no matter how long you hold it. Every fee above is charged on an *action* you take — minting, redeeming, or routing a swap — and never on the assets sitting in your wallet.
+
+That is a deliberate choice, not an oversight. A percentage-of-assets fee on a passive basket compounds silently against the holder and is invisible until it isn't. We would rather earn when the protocol does something for you.
+
+## Hard caps, in code
+
+Rates are changeable only through a 48-hour timelock, and the contract enforces ceilings that no admin can exceed:
+
+- Mint / redeem fee: **≤ 1%**
+- Streaming fee: **≤ 3% / year**
+- Zap fee: **≤ 0.5%**
+
+"The admin rugs the fees" is structurally impossible, not policy-impossible.
+
+## The streaming fee, and why it is off
+
+`FeeController` ships with `streamingFeeBps = 0`. The accrual code short-circuits at zero, so no dilution occurs and no fee shares are minted: a basket held for a year has exactly the same units per token as the day it was created. You can verify this yourself by calling `streamingFeeBps()` on the contract in [Addresses](/docs/addresses).
+
+The mechanism still exists, capped at 3%/year, and governance can enable it through the same 48-hour timelock as every other rate. If that ever happens the change is queued publicly two days in advance and emits a `RatesQueued` event before it can take effect — you will always have notice and the ability to redeem first.
+
+For reference, here is what it would do if switched on. It is the standard index-token dilution pattern: on every mint, redeem, or an explicit permissionless poke, the contract mints new basket tokens to the fee recipients proportional to elapsed time, and scales the basket's effective units down by exactly the same factor, so every outstanding token stays fully backed. No component is ever sold to pay fees, so accrual works even while markets are closed. All accrual math runs at 27-decimal precision; rounding always favors the basket's holders, with any residue bounded to a single wei per accrual.
+
+## Curator economics
+
+Curators earn **60% of all basket fees** for baskets they created, paid onchain and claimable anytime. At launch rates that means 60% of the mint and redeem fees — a curator earns when someone enters or leaves their basket, not while they sit in it. The zap fee is routing infrastructure and accrues fully to the treasury; curators earn on their product, not on plumbing. See [Curators](/docs/curators) for worked examples.

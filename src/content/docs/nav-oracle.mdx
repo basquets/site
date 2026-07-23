@@ -1,0 +1,55 @@
+---
+title: "NAV Oracle"
+description: "Public onchain NAV for every basket: freshness-checked, integrator-grade, free to read."
+order: 9
+---
+
+# NAV Oracle
+
+`NAVOracle` is public infrastructure: an onchain view contract that values any Basquets basket in USD, with explicit freshness semantics. It's what our own periphery uses, and it's designed for you to build on: lending markets listing basket collateral, wallets showing balances, structured products, dashboards.
+
+## Interface
+
+```solidity
+struct NAVResult {
+    uint256 navPerToken;   // USD, 8 decimals (Chainlink convention)
+    uint256 oldestUpdate;  // updatedAt of the most stale component feed
+    bool    fresh;         // true iff every freshness check passed
+}
+
+/// Always returns; check .fresh before using the value for anything value-bearing.
+function nav(address basket) external view returns (NAVResult memory);
+
+/// Reverts unless fresh. Use this in anything that moves value.
+function navStrict(address basket) external view returns (uint256);
+
+/// Value one component amount; same freshness semantics.
+function componentValue(address token, uint256 amount)
+    external view returns (uint256 value, bool fresh);
+```
+
+## Freshness semantics
+
+`fresh == true` requires, for **every** component of the basket:
+
+1. **Sequencer up:** the L2 sequencer uptime feed reports up, and a grace period has elapsed since restart (skipped until the feed address is published; see [Addresses](/docs/addresses)).
+2. **Sane answer:** `answer > 0`, `updatedAt > 0`.
+3. **Not stale:** `block.timestamp − updatedAt ≤ heartbeat` for that feed (per the component registry, sourced from Chainlink's feed page).
+4. **No corporate action in progress:** the stock token's `oraclePaused()` is false.
+
+## Integration rules
+
+- **Use `navStrict()` for anything value-bearing.** Liquidations, borrow limits, settlement: never the unchecked value.
+- **`nav()` with `fresh == false` is a display value.** Show it as "last known NAV"; US stock feeds update 24/5, so it goes stale every weekend by design. Stale-on-weekends is normal operation, not an outage.
+- **Never apply `uiMultiplier` yourself.** Chainlink's Robinhood feeds already include the corporate-action multiplier. Multiplying twice is the classic integration bug on this chain; the oracle uses feed prices as returned, and so should any code of yours that touches the feeds directly.
+- **Expect reverts, handle them as "wait."** During corporate actions and weekends, `navStrict` reverts. The correct integrator behavior is almost always to queue and retry, not to fall back to a stale price.
+- **Decimals:** NAV is 8 decimals (Chainlink convention). Basket tokens are 18. USDG is 6. Read `decimals()`; never assume.
+
+## Collateral integration checklist
+
+Considering basket tokens as collateral? The properties that matter:
+
+- Baskets are fully backed by onchain component balances, verifiable at any time via `components()` and `balanceOf`.
+- No rebasing, ever. Balances only change on transfer, and supply only on mint/redeem/fee-accrual.
+- Fail-closed valuation (this oracle) means you never liquidate against a price that doesn't exist.
+- The residual risks are the component tokens' issuer powers; read [Security](/docs/security) before parameterizing LTVs.

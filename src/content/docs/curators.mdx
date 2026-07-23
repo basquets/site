@@ -1,0 +1,49 @@
+---
+title: "Curators"
+description: "Create a basket in minutes, earn 60% of its fees forever. No fund license required."
+order: 8
+---
+
+# Curators
+
+A curator is anyone who creates a basket. Creating one takes minutes (pick components, set the recipe, name it, publish) and earns you a transparent share of every fee your basket generates, for as long as it exists.
+
+## Creating a basket
+
+In the Basket Studio (or directly against `BasquetFactory`):
+
+1. **Pick components:** 2 to 15 tokens from the component registry (official Robinhood stock tokens with live Chainlink feeds; no fakes possible).
+2. **Set the recipe:** fixed units of each component per basket token. The studio shows a live NAV preview as you build.
+3. **Name it:** name, symbol, description. The symbol isn't enforced unique onchain; make it memorable.
+4. **Publish:** one transaction deploys your basket as an immutable contract. Creation is free at launch.
+
+Once published, the recipe is permanent. You can't change it, and neither can we; that permanence is exactly why people can trust a basket made by a stranger on the internet.
+
+## What you earn
+
+**60% of all basket fees**, continuously, claimable onchain anytime:
+
+| Fee stream | Launch rate | Your share |
+|---|---|---|
+| Mint | 0.40% per mint | 0.24% of what is minted |
+| Redeem | 0.40% per redeem | 0.24% of what is redeemed |
+| Streaming | 0% — disabled at launch | 0.60% / year for every 1% governance enables |
+
+**You earn on flow, not on assets.** There is no management fee, so a basket that nobody trades earns its curator nothing, however large it is. That cuts both ways and we would rather you know it up front: your income tracks how much people actually use your basket.
+
+A worked example. A basket that attracts €500k of new investment over a year and sees €250k redeemed pays its curator **€1,800** (€500k × 0.24% + €250k × 0.24%). Double the flow and you double the fee. A savings plan pointed at your basket is the compounding version of this: one investor decision becomes 52 mint events a year, each one paying you.
+
+Be realistic about the early numbers. Basket sizes today are bounded by how much of each stock token exists onchain, so the first cohort of curators is building a track record and a public profile rather than an income. The 60% share is written into `FeeController`, capped by code, and claimable forever — it is worth the most to the curators whose baskets are still there when the market is ten times bigger.
+
+Fees are paid in basket tokens (mint) and components (redeem); you're paid in the thing you curate.
+
+## What you can and can't do
+
+| You can | You can't |
+|---|---|
+| Create unlimited baskets | Change a recipe after publishing |
+| Earn fees on all of them | Touch investor funds, ever |
+| Claim accrued fees anytime | Upgrade or pause your basket |
+| Build a public curator profile | Set fees above the protocol caps |
+
+The best fund managers of this era might be a finance YouTuber in Lisbon or a quant hobbyist in Jakarta. The protocol doesn't care about credentials, only that your recipe is public, your incentives are visible, and your investors can leave at any time.

@@ -1,0 +1,149 @@
+---
+import BasketHero from "../../components/islands/BasketHero";
+import IngredientChart from "../../components/islands/IngredientChart";
+import RecipeTable from "../../components/islands/RecipeTable";
+import Container from "../../components/layout/Container.astro";
+import CTABanner from "../../components/layout/CTABanner.astro";
+import Section from "../../components/layout/Section.astro";
+import { buttonVariants } from "../../components/ui/button";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  ALL_BASKETS,
+  type BasketInfo,
+  CURATOR_BY_HANDLE,
+} from "../../lib/market";
+import {
+  CURATOR_SHARE_LABEL,
+  MINT_REDEEM_FEE_LABEL,
+  STREAMING_FEE_LABEL,
+  TREASURY_SHARE_LABEL,
+} from "../../lib/protocol";
+import { cn } from "../../lib/utils";
+
+export function getStaticPaths() {
+  return ALL_BASKETS.map((basket) => ({
+    params: { symbol: basket.symbol.toLowerCase() },
+    props: { basket },
+  }));
+}
+
+interface Props {
+  basket: BasketInfo;
+}
+const { basket } = Astro.props;
+const profile = CURATOR_BY_HANDLE[basket.curatorHandle];
+const initials = basket.curator.replace("@", "").slice(0, 2).toUpperCase();
+const facts = [
+  { label: "Holders", value: basket.holders },
+  { label: "Value locked", value: basket.tvl },
+  { label: "Published", value: basket.published },
+];
+---
+<BaseLayout
+  title={`${basket.name} (${basket.symbol}) - Basquets`}
+  description={`${basket.thesis} A basket curated by ${basket.curator}: one token, a fixed onchain recipe, priced live by Chainlink.`}
+>
+  <main id="main">
+    <Container>
+      <Section class="pt-[calc(2*28px)] pb-[calc(2.5*28px)]">
+        <a href="/baskets" class="text-[13px] uppercase tracking-[0.08em] text-accent-700 no-underline hover:underline">← All baskets</a>
+        <BasketHero symbol={basket.symbol} client:load />
+      </Section>
+
+      <Section class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-7 py-[calc(2*28px)]">
+        <h2 class="sr-only">Basket facts</h2>
+        {facts.map((f) => (
+          <div class="border-l-2 border-divider pl-5">
+            <p class="m-0 mb-2 text-[11px] uppercase tracking-[0.1em] text-ink/55">{f.label}</p>
+            <p class="m-0 font-heading font-extrabold text-xl tnum">{f.value}</p>
+          </div>
+        ))}
+        <div class="border-l-2 border-accent pl-5">
+          <p class="m-0 mb-2 text-[11px] uppercase tracking-[0.1em] text-accent-700">Holding fee</p>
+          <p class="m-0 font-heading font-extrabold text-xl tnum">{STREAMING_FEE_LABEL} / yr</p>
+        </div>
+      </Section>
+
+      <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <div>
+          <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">Fixed onchain.<br />Verifiable by anyone.</h2>
+          <p class="mt-5.5 mb-0 max-w-[48ch] text-[15.5px] leading-7 text-ink/78">
+            One share of {basket.symbol} always holds exactly these amounts. The recipe never
+            changes silently, and every share is redeemable for its underlying tokens, any time.
+          </p>
+        </div>
+        <div>
+          <RecipeTable symbol={basket.symbol} showColors client:load />
+          <p class="mt-3 mb-0 text-[11px] text-ink/55">Sample basket, priced live from real component prices.</p>
+        </div>
+      </Section>
+
+      <Section rule class="pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <h2 class="m-0 mb-7 text-[32px] tracking-[-0.015em]">How each token is performing.</h2>
+        <IngredientChart symbol={basket.symbol} client:load />
+      </Section>
+
+      <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <div>
+          <h2 class="m-0 mb-7 text-2xl tracking-[-0.01em]">The curator</h2>
+          <div class="flex items-start gap-5">
+            <span class="flex size-16 flex-none items-center justify-center bg-ink font-heading font-extrabold text-[22px] text-ground">{initials}</span>
+            <div>
+              <h3 class="m-0 text-[22px] tracking-[-0.01em]">
+                <a href={`/curators/${basket.curatorHandle}`} class="text-ink no-underline hover:text-accent-700">{basket.curator} →</a>
+              </h3>
+              <p class="mt-2 mb-0 max-w-[44ch] text-[14.5px] leading-6 text-ink/78">{profile.bio}</p>
+              <div class="mt-4 flex gap-7 tnum">
+                {[
+                  [String(profile.curates.length), "Baskets"],
+                  [basket.holders, "Holders"],
+                  [profile.since, "Curating since"],
+                ].map(([value, label]) => (
+                  <div>
+                    <p class="m-0 font-heading font-extrabold text-lg">{value}</p>
+                    <p class="mt-0.5 mb-0 text-[11px] uppercase tracking-[0.08em] text-ink/55">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2 class="m-0 mb-7 text-2xl tracking-[-0.01em]">Where the fee goes</h2>
+          <div class="flex h-3.5 max-w-[420px] gap-0.5">
+            <div class="w-[60%] bg-accent"></div>
+            <div class="w-[40%] bg-ink"></div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-x-7 gap-y-2 text-[13px]">
+            <span><span class="mr-2 inline-block size-2.5 bg-accent"></span>{CURATOR_SHARE_LABEL} to {basket.curator}</span>
+            <span><span class="mr-2 inline-block size-2.5 bg-ink"></span>{TREASURY_SHARE_LABEL} to the protocol treasury</span>
+          </div>
+          <p class="mt-5.5 mb-0 max-w-[44ch] text-[14.5px] leading-6 text-ink/78">
+            Minting or redeeming costs {MINT_REDEEM_FEE_LABEL} each. Holding costs {STREAMING_FEE_LABEL}:
+            the streaming fee ships disabled, so a share held for a year
+            owns exactly the units it did on day one. No other charges, no spread markup. Every
+            rate is <a href="/docs/fees" class="text-accent-700">declared onchain</a>, timelocked
+            48 hours, and hard-capped in code.
+          </p>
+        </div>
+      </Section>
+
+      <Section rule class="pt-[calc(2*28px)] pb-[calc(3*28px)]">
+        <div class="flex max-w-[72ch] items-baseline gap-4">
+          <span class="size-2.5 flex-none self-center bg-accent"></span>
+          <p class="m-0 text-[14.5px] leading-6 text-ink/78">
+            When US markets close, oracle prices freeze and minting pauses until the next open;
+            your shares stay in your wallet and keep transferring 24/7. During corporate actions
+            on an underlying stock, minting pauses and resumes automatically. No fine print: it's
+            all onchain.
+          </p>
+        </div>
+      </Section>
+    </Container>
+
+    <CTABanner lines={["One tap from USDG", `to ${basket.name}.`]}>
+      <a href="/connect" class={cn(buttonVariants({ variant: "inverse" }))}>Invest in {basket.symbol}</a>
+      <a href="/baskets" class={cn(buttonVariants({ variant: "inverse" }), "border-transparent")}>Explore baskets</a>
+    </CTABanner>
+  </main>
+</BaseLayout>

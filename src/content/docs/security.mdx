@@ -1,0 +1,57 @@
+---
+title: "Security & trust assumptions"
+description: "What the protocol guarantees, what it can't, and every power any admin holds, including Robinhood's."
+order: 11
+---
+
+# Security & trust assumptions
+
+Radical transparency includes the uncomfortable parts. This page lists every trust assumption in the system: ours and the ones we inherit from the assets we build on.
+
+## What the protocol guarantees
+
+- **No privileged path can move user or basket assets.** Not the curator, not the protocol multisig, not a compromised keeper. This property is an explicit audit requirement, verified in review.
+- **Basket contracts are immutable.** No upgrades, no setters, no pause switch on the core. Fees are capped in code (mint/redeem ≤ 1%, streaming ≤ 3%/yr, zap ≤ 0.5%) behind a 48h timelock.
+- **The core cannot be priced into a bad state.** Minting is fixed-units and in-kind: there is no internal valuation to manipulate, no first-mint inflation attack, no donation attack. No code path prices anything off contract balances.
+- **Periphery is bounded, not trusted.** The zap router calls only the whitelisted 0x exchange contract, enforces your slippage floors, and ends every transaction with zero balances. Savings-plan keepers can only cause reverts, never bad fills.
+- **Fail-closed valuation.** Every price read checks staleness, positivity, corporate-action pause, and (when configured) sequencer uptime. See [Market hours](/docs/market-hours).
+
+## What we control (and its limits)
+
+The protocol admin (a multisig) can:
+
+- **Add components** to the registry (the only growth-privileged action; it cannot affect existing baskets),
+- **Disable components**, which blocks *new* basket creation using them, never existing baskets' mint/redeem,
+- **Change fee rates and the treasury address**, enforced by the FeeController itself to pass through a 48-hour timelock and stay within the hardcoded caps,
+- **Set the NAV oracle's sequencer-uptime feed** (currently unset, pending Chainlink publishing it for this chain),
+- **Replace periphery** by deploying new versions, which users must individually opt into; existing approvals and baskets are untouched.
+
+Fee changes are timelocked in the contract; registry and oracle admin actions take effect when the multisig executes them. None of these powers reach user balances or basket collateral.
+
+## What Robinhood controls (inherited component risk)
+
+Basquets baskets hold Robinhood's stock tokens, which are beacon-proxy contracts with issuer powers. Read this list carefully; it is the honest cost of building on regulated real-world assets:
+
+| Power | Held by | Effect on baskets |
+|---|---|---|
+| Blocklist any address | Robinhood's access-control registry | A blocklisted basket contract would freeze that basket's transfers of the component; `redeemToClaims` isolates the damage to that component |
+| Pause a token entirely | `TOKEN_PAUSER_ROLE` | That component's baskets pause mint/redeem; claims hatch applies |
+| Burn from any address (`adminBurn`) | `ADMIN_BURNER_ROLE` | Could remove backing from a basket. We consider this the deepest trust assumption in the system: you are trusting Robinhood not to burn assets backing legitimate holders |
+| Upgrade all stock tokens at once | beacon owner | Token semantics could change under us; we monitor upgrade events and would pause affected periphery |
+| Corporate-action multiplier updates | `MULTIPLIER_UPDATER_ROLE` | Expected, benign, handled; see [Market hours](/docs/market-hours) |
+
+These powers exist because the tokens are regulated instruments backed by real shares. We can't remove them; we can only tell you they exist, design so a single frozen component never traps the rest of a basket, and watch the relevant roles onchain.
+
+Stock tokens are issued by Robinhood's Jersey entity and are not offered to US persons (and other restricted jurisdictions). Access restrictions are enforced at distribution, not in the token contracts; using Basquets does not exempt anyone from them.
+
+## Engineering discipline
+
+- Reentrancy guards and checks-effects-interactions on all state-changing functions; SafeERC20 with balance-delta verification on every component transfer.
+- Rounding always favors the basket (up on issue, down on redeem) with a minimum mint granularity, property-tested.
+- Foundry invariant suite as a merge gate, headlined by supply solvency: every basket's component balance always covers total supply × units plus recorded claims.
+- Fork tests against real mainnet stock tokens exercise: stale feeds, paused oracles, negative answers, sequencer-down, and multiplier updates mid-flow.
+- Independent audit before mainnet TVL; report will be linked here. Bug bounty terms will be published at launch.
+
+## Contact
+
+Security disclosures: *[address to be published]*; please practice responsible disclosure. Critical findings are eligible for the bounty program.

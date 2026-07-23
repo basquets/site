@@ -1,0 +1,119 @@
+---
+import HoldingBaskets from "../../components/islands/HoldingBaskets";
+import TokenFacts from "../../components/islands/TokenFacts";
+import TokenHero from "../../components/islands/TokenHero";
+import Container from "../../components/layout/Container.astro";
+import CTABanner from "../../components/layout/CTABanner.astro";
+import Kicker from "../../components/layout/Kicker.astro";
+import Section from "../../components/layout/Section.astro";
+import { buttonVariants } from "../../components/ui/button";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { TOKENS, type TokenInfo } from "../../lib/tokens";
+import { cn } from "../../lib/utils";
+
+export function getStaticPaths() {
+  return TOKENS.map((token) => ({
+    params: { sym: token.sym.toLowerCase() },
+    props: { token },
+  }));
+}
+
+interface Props {
+  token: TokenInfo;
+}
+const { token } = Astro.props;
+const kind = token.sector === "ETF" ? "fund" : "stock";
+
+const ROUTES = [
+  {
+    name: "The Robinhood app",
+    detail:
+      "Buy in an eligible country, then withdraw to a self-custody wallet. The simplest route, and the only one that starts in fiat.",
+  },
+  {
+    name: "Uniswap v4",
+    detail:
+      "The deepest onchain venue. Quote against USDG, pay gas in ETH. Check pool depth above before sizing a trade.",
+  },
+  {
+    name: "Basquets",
+    detail: `Hold ${token.sym} as part of a basket instead of buying it alone: one routed transaction, one position to manage.`,
+  },
+];
+---
+<BaseLayout
+  title={`${token.sym} stock token - Basquets`}
+  description={`${token.name} on Robinhood Chain: live price, tokens outstanding, holders, Uniswap depth, and where the ${token.sym} stock token can actually be bought.`}
+>
+  <main id="main">
+    <Container>
+      <Section class="pt-[calc(2*28px)] pb-[calc(2.5*28px)]">
+        <a href="/stocks" class="text-[13px] uppercase tracking-[0.08em] text-accent-700 no-underline hover:underline">← All stock tokens</a>
+        <TokenHero sym={token.sym} client:load />
+      </Section>
+
+      <Section rule class="py-[calc(2*28px)]">
+        <h2 class="m-0 mb-8 text-[clamp(24px,2.4vw,32px)] tracking-[-0.015em]">What is onchain.</h2>
+        <TokenFacts sym={token.sym} client:load />
+      </Section>
+
+      <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <div>
+          <Kicker class="mb-3.5">Getting some</Kicker>
+          <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">Three ways in.</h2>
+          <p class="mt-5.5 mb-0 max-w-[48ch] text-[15.5px] leading-7 text-ink/78">
+            You cannot mint {token.sym}: the primary market is open only to Authorized Participants.
+            Every retail route is a purchase on the secondary market. Eligibility rules apply and
+            exclude several countries —
+            <a href="/docs/getting-stock-tokens" class="text-accent-700">check them first</a>.
+          </p>
+        </div>
+        <div class="flex flex-col text-[14.5px] leading-6">
+          {ROUTES.map((r, i) => (
+            <div class:list={["flex flex-col gap-1.5 border-t-2 border-divider py-4", i === ROUTES.length - 1 && "border-b-2"]}>
+              <span class="font-heading font-extrabold">{r.name}</span>
+              <span class="text-ink/78">{r.detail}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section rule class="pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <h2 class="m-0 mb-7 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">Baskets holding {token.sym}.</h2>
+        <HoldingBaskets sym={token.sym} client:load />
+      </Section>
+
+      <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
+        <div>
+          <h2 class="m-0 text-[32px] leading-[42px] tracking-[-0.015em]">A price, not a share.</h2>
+          <p class="mt-5.5 mb-0 max-w-[48ch] text-[15.5px] leading-7 text-ink/78">
+            {token.sym} tracks the underlying US-listed {kind} but does not convey ownership of it.
+            It is a tokenised debt security issued by Robinhood Assets (Jersey) Limited, and it
+            transfers like any ERC-20: nights, weekends, holidays. When US markets close the oracle
+            freezes; your tokens keep moving.
+            <a href="/docs/stock-tokens" class="text-accent-700">The full mechanics</a> are worth ten minutes.
+          </p>
+        </div>
+        <div class="flex flex-col text-[14.5px] leading-6">
+          {[
+            ["Issuer", "Robinhood Assets (Jersey) Limited"],
+            ["You own", "Economic exposure. No voting rights, no legal title"],
+            ["Pricing", "Chainlink oracle during market hours; frozen at close"],
+            ["Custody", "Yours: a wallet, not an account"],
+            ["Corporate actions", "Applied as a multiplier; your raw balance never changes"],
+          ].map(([term, def], i) => (
+            <div class:list={["flex gap-4 border-t-2 border-divider py-4", i === 4 && "border-b-2"]}>
+              <span class="min-w-[130px] font-heading font-extrabold">{term}</span>
+              <span class="text-ink/78">{def}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </Container>
+
+    <CTABanner lines={[`${token.sym} is one ingredient.`, "Write the recipe."]}>
+      <a href="/curators" class={cn(buttonVariants({ variant: "inverse" }))}>Create a basket</a>
+      <a href="/stocks" class={cn(buttonVariants({ variant: "inverse" }), "border-transparent")}>All stock tokens</a>
+    </CTABanner>
+  </main>
+</BaseLayout>

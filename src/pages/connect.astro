@@ -1,0 +1,35 @@
+---
+import ConnectFlow from "../components/islands/ConnectFlow";
+import TickerRain from "../components/islands/TickerRain";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Connect - Basquets"
+  description="The beta opens wallet by wallet. Connect yours with Privy or any wallet to hold your place on the Basquets waitlist."
+>
+  <main id="main" class="relative overflow-hidden">
+    <TickerRain client:idle />
+    <div class="relative z-10 mx-auto grid w-full max-w-[1200px] items-center gap-x-[clamp(0px,3vw,48px)] px-[clamp(20px,5vw,72px)] lg:min-h-[calc(100dvh-220px)] lg:grid-cols-[minmax(0,7fr)_minmax(360px,5fr)]">
+      <div class="pt-[calc(2*28px)] lg:py-[calc(2*28px)]">
+        <span class="inline-flex items-center gap-2.5 text-[12px] uppercase tracking-[0.1em] text-accent-700">
+          <span class="size-2 bg-accent animate-pulse-live"></span>Private beta · opens wallet by wallet
+        </span>
+        <h1 class="mt-5 mb-0 -ml-[0.058em] text-[clamp(44px,5.6vw,80px)] leading-[1.04] tracking-[-0.02em]">
+          <span class="block">The market</span>
+          <span class="block">is waiting</span>
+          <span class="block">for you<span class="text-accent animate-caret">_</span></span>
+        </h1>
+        <p class="mt-6 mb-0 max-w-[46ch] text-base leading-[27px]">
+          Baskets of real tokenized US stocks, self-custodied, priced live by Chainlink. The beta
+          opens wallet by wallet; connect yours to hold your place.
+        </p>
+      </div>
+      <div class="my-[calc(1.5*28px)]">
+        <ConnectFlow client:load />
+        <p class="mt-3 mb-0 text-[11px] text-ink/55">
+          One login, self-custodied. We never see your keys.
+        </p>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

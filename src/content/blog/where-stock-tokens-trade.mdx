@@ -1,0 +1,77 @@
+---
+title: "94 of 96: where Robinhood's stock tokens actually trade"
+description: "The official docs say tokenized stocks trade via RFQ. We measured the chain instead, and found Uniswap holding 45% of all NVDA."
+date: 2026-07-21
+tags: ["research", "stock tokens"]
+---
+
+Robinhood's developer documentation says that tokenized stocks "trade via RFQ at launch." That is true, and it is also not where the tokens are.
+
+We read the chain directly on 21 July 2026, and found that **94 of the 96 stock tokens hold a non-zero balance in the Uniswap v4 `PoolManager`**. Not a handful of blue chips. Effectively the entire registry.
+
+## The measurement
+
+The Uniswap v4 architecture makes this easy to check, because every pool's tokens sit in one singleton contract: `PoolManager` at `0x8366a39CC670B4001A1121B8F6A443A643e40951`, verified on Robinhood Chain. So "how much of this stock token lives in Uniswap" is a single ERC-20 balance read.
+
+We took the 96 active assets from Robinhood's public asset registry and called `balanceOf(PoolManager)` and `totalSupply()` on each. Both are exact onchain reads — no indexer, no estimate, no API in between. Anyone can re-run it against `https://rpc.mainnet.chain.robinhood.com`.
+
+| Token | In Uniswap v4 | Total supply | Share of supply |
+|---|---|---|---|
+| NU | 17.27 | 19.96 | **86.5%** |
+| NFLX | 395.38 | 491.94 | **80.4%** |
+| RIVN | 13.60 | 18.41 | **73.9%** |
+| NVDA | 6,267.50 | 13,963.61 | **44.9%** |
+| F | 21.81 | 49.34 | **44.2%** |
+| SPCX | 3,408.82 | 8,313.42 | **41.0%** |
+| MSFT | 361.85 | 1,732.82 | 20.9% |
+| TSLA | 520.57 | 3,004.27 | 17.3% |
+| AAPL | 373.56 | 2,625.54 | 14.2% |
+
+Nearly half of every NVDA token in existence sits in one contract. The same contract holds roughly $8.3M of USDG on the other side of those pools.
+
+## Why this matters more than it sounds
+
+RFQ is a fine mechanism — a market maker quotes you a price, you take it or you don't. But RFQ liquidity is not composable. You cannot route through it, you cannot borrow against a quote, and another protocol cannot build on top of it without an integration.
+
+An AMM pool is a public object. Its state is readable by any contract, its price is derivable by anyone, and its depth is a number rather than a relationship. The fact that stock token liquidity has landed overwhelmingly in Uniswap pools rather than staying in RFQ is the difference between tokenized equities being *tradeable* and being *composable*. It is why an onchain index protocol is possible on this chain at all.
+
+It also means the honest answer to "where do I buy a stock token?" is not the one in the docs.
+
+## The shape of the market
+
+The rest of the picture is less flattering, and worth stating plainly.
+
+**Onchain market capitalisation across all 96 tokens is roughly $17M.** That is the entire tokenized float of every Robinhood stock token combined — less than a rounding error against the companies they track. Tokenized equities are, at this moment, very early.
+
+**24h volume is about $6.7M, and it is brutally concentrated.** NVDA alone accounts for around 60% of it. The top three tokens — NVDA, TSLA, SPCX — are roughly 86% of all trading.
+
+Holder counts tell the same story from another angle. These are indexed from Transfer events by [Blockscout](https://robinhoodchain.blockscout.com):
+
+| Token | Holders |
+|---|---|
+| NVDA | 23,624 |
+| AAPL | 22,562 |
+| SPCX | 18,782 |
+| TSLA | 17,043 |
+| SGOV | 114 |
+| TSM | 58 |
+| BABA | 42 |
+| NOW | 15 |
+
+Fifteen holders. The long tail is not thin, it is close to empty.
+
+Supply leadership is its own surprise: the largest token supply is not NVDA but **USAR at 25,195 tokens**, ahead of NVDA's 13,964, SLV's 8,860 and SPCX's 8,313.
+
+## Practical consequences
+
+If you are buying, depth is the number that matters, not price. On the concentrated names you will trade close to the quote. On a token with 42 holders, the price you see and the price you get are different numbers, and the gap is the whole cost of the trade.
+
+If you are building, the composability is real and available today, and the depth is not. Design for thin pools.
+
+## A note on the numbers
+
+Supply figures and Uniswap balances above are exact onchain reads we performed ourselves. Holder counts, 24h volume and the aggregate market capitalisation are explorer-reported and **indicative only** — we have since established that explorer prices for these tokens can be materially wrong, which is [its own article](/blog/verifying-price-sources). The order of magnitude holds; treat individual dollar figures as approximate.
+
+All figures as of 21 July 2026. The full method and the underlying registry verification live in our
+research notes. For the current numbers rather than this snapshot, the
+[stock token dashboard](/stocks) reads them live.

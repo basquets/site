@@ -1,0 +1,89 @@
+---
+title: "Stock tokens"
+description: "What a Robinhood stock token actually is: a debt security wearing an ERC-20, what you own, and how to tell a real one from a fake."
+order: 2
+---
+
+# Stock tokens
+
+Every basket on Basquets is built from Robinhood stock tokens. Before you hold one, directly or through a basket, it is worth knowing precisely what it is. The short version: **a stock token gives you the price of a share, not the share.**
+
+## What you actually own
+
+Stock Tokens are **tokenised debt securities issued by Robinhood Assets (Jersey) Limited** ("RHJ", Jersey registration 162428). Holding one gives you economic exposure to the underlying US-listed stock or ETF. It does **not** give you legal or beneficial ownership of that stock, and it carries no voting rights.
+
+That distinction matters in one practical way: your claim is against RHJ, not against Apple. You are exposed to the price of the share *and* to the issuer. Every token states its own terms onchain, and every one of them points to the same place:
+
+```solidity
+IStockToken(0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9).terms()
+// → "https://robinhood.com/stocktoken/rhj"
+```
+
+Read them. Basquets does not restate RHJ's terms and cannot alter them.
+
+## The shape of the contract
+
+Every stock token is an EIP-1967 **BeaconProxy** pointing at one shared beacon:
+
+| | |
+|---|---|
+| Beacon | `0xe10b6f6B275de231345c20D14Ab812db62151b00` |
+| Implementation | `Stock` @ `0xb35490d6f9163DE4F80d88dc75c3516eb64C5aE2` |
+| Decimals | 18, on every token |
+| Standards | ERC-20, ERC-2612 permit, ERC-8056 multiplier |
+
+Because they share a beacon, every stock token upgrades together, and every one of them exposes the same surface beyond plain ERC-20:
+
+| Function | What it tells you |
+|---|---|
+| `uiMultiplier()` | Current shares-per-token ratio |
+| `newUIMultiplier()` / `effectiveAt()` | A **scheduled** corporate action and when it activates |
+| `balanceOfUI()` / `totalSupplyUI()` | Multiplier-adjusted views of balance and supply |
+| `tokenPaused()` / `paused()` / `oraclePaused()` | Three independent freeze switches |
+| `terms()` | The legal terms URL |
+| `uid()` | The 16-byte asset id used in Robinhood's registry |
+
+## Splits and dividends: the multiplier
+
+Corporate actions do not change your balance. They change a ratio.
+
+When a stock splits 4-for-1, your raw ERC-20 balance stays exactly what it was, and `uiMultiplier()` moves to `4`. One token now represents four shares. This is the ERC-8056 pattern, and it exists so that pools, lending markets, and every contract holding the token keep working through a split without rebasing anyone's balance.
+
+Two consequences worth internalising:
+
+**The oracle price already includes the multiplier.** A Chainlink feed for a token with a multiplier of 4 reports the value of four shares. Applying the multiplier yourself is the single most common integration bug with these tokens, and it is off by exactly the multiplier. Basquets never applies it twice; neither should you.
+
+**A scheduled action is visible before it happens.** `newUIMultiplier()` and `effectiveAt()` are populated ahead of time. Anyone can read an upcoming split or dividend adjustment straight from the contract, before it takes effect. Almost nothing surfaces this today.
+
+Dividends arrive as price appreciation rather than a payment — the tokens are total-return instruments. Basket recipes are defined in raw units, which corporate actions never touch, so basket accounting is unaffected. See [Market hours & corporate actions](/docs/market-hours) for what pauses while an action is processing.
+
+## Three ways a token can be frozen
+
+These are separate powers, and it is worth knowing which is which:
+
+- **`oraclePaused()`** — pricing is suspended, typically while a corporate action is processed. The token still transfers.
+- **`tokenPaused()`** — this specific token is halted.
+- **`paused()`** — a global halt.
+
+Basquets fails closed on all three: while any component of a basket reports a pause, that basket's issue, redeem and zap paths revert rather than transacting on an uncertain price. [Security & trust assumptions](/docs/security) enumerates every power RHJ holds over these tokens, including the ones we would rather did not exist.
+
+## Telling a real token from a fake
+
+Anyone can deploy an ERC-20 called `NVDA`. Ticker and name prove nothing. The check that does prove something is the beacon.
+
+Read the EIP-1967 beacon slot on the contract and confirm it is the official beacon:
+
+```
+slot 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50
+must equal 0xe10b6f6B275de231345c20D14Ab812db62151b00
+```
+
+A contract with the right ticker and a different beacon, or no beacon at all, is not a stock token.
+
+The canonical list of genuine tokens comes from Robinhood's public asset registry. Basquets verifies every address in that registry against the beacon on a schedule, and only ever admits registry addresses as basket components — so a basket cannot contain a counterfeit. [Addresses](/docs/addresses) carries the current contract list.
+
+## Where to go next
+
+- Want to acquire some → [Getting stock tokens](/docs/getting-stock-tokens)
+- Want to hold many at once → [How baskets work](/docs/how-baskets-work)
+- Want to know what happens at 4pm on a Friday → [Market hours & corporate actions](/docs/market-hours)

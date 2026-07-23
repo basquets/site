@@ -1,0 +1,65 @@
+---
+title: "Getting stock tokens"
+description: "Who is allowed to hold them, why you cannot mint one, and the two routes that actually put a stock token in your wallet."
+order: 3
+---
+
+# Getting stock tokens
+
+This page is about acquiring the ingredient. If you want the finished dish, [Investing in baskets](/docs/investing) is one tap from a stablecoin and skips most of what follows.
+
+## First: are you allowed?
+
+Eligibility gates everything else, so check it before anything else.
+
+Robinhood states that Stock Tokens are **not available to residents of the United States, Canada, the United Kingdom or Switzerland**, nor to U.S. persons as defined under securities law, nor to entities incorporated in the UK. Robinhood maintains a fuller restricted-jurisdiction list beyond those four.
+
+Robinhood describes the product as designed for global investors but does not publish a country count. You will see "available in 120+ countries" repeated in press coverage; that number is not a first-party claim, and we do not repeat it as one. Check your own jurisdiction against Robinhood's current terms rather than against an article.
+
+## Why you cannot mint one
+
+This surprises people, so it comes second.
+
+The primary market is closed. Only **Authorized Participants** — currently BBVI — may subscribe for new tokens or redeem them directly with RHJ, and only after KYB onboarding. There is no contract call that mints you a stock token against a deposit, and there never was one for retail.
+
+Everything below is the secondary market. **Every retail route is a purchase from someone who already holds the token**, not an issuance.
+
+## Route 1: the Robinhood app
+
+The straightforward path in an eligible country. Buy Stock Tokens in Robinhood's app, then withdraw them to a self-custody wallet to use them anywhere else — including in a basket.
+
+Robinhood names Robinhood Wallet, Trust Wallet and SafePal as compatible self-custody wallets, and states that tokens can be discovered and swapped through Robinhood Wallet, decentralized exchanges, or centralized exchanges. Any standard EVM wallet pointed at Robinhood Chain will hold them; see [Addresses](/docs/addresses) for the chain parameters.
+
+## Route 2: onchain, on Robinhood Chain
+
+If you already hold assets onchain, you can buy stock tokens directly. Three things you need first:
+
+| You need | Which is |
+|---|---|
+| **Gas** | ETH, the chain's native token |
+| **The quote asset** | USDG, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` — note it has **6 decimals**, not 18 |
+| **The right contract** | The token's canonical address, from [Addresses](/docs/addresses) |
+
+The venue with real depth is **Uniswap**, whose v4 `PoolManager` at `0x8366a39CC670B4001A1121B8F6A443A643e40951` holds stock token liquidity across essentially the whole registry. **Rialto** is described by Robinhood as a PropAMM-driven spot exchange and is a genuine second spot venue. RFQ market-making is what Robinhood's own docs describe as the launch liquidity mechanism, but it is not reachable by a contract: the aggregator that fronts it declines to quote stock tokens on legal grounds. Those v4 pools are what the Basquets zap uses under the hood.
+
+### What is not a way to get one
+
+Ecosystem lists invite one specific mistake, so it is worth naming:
+
+- **Lighter and Arcus are perpetuals DEXs.** A perp gives you derivative exposure to the price. It does not put a stock token in your wallet, and you cannot put one in a basket.
+- **Morpho is a lending market.** You can borrow against these assets there; you do not source them there.
+
+## Before you buy: four checks
+
+1. **Verify the contract address** against the registry, not against a ticker in a UI. [Stock tokens](/docs/stock-tokens) explains the beacon check that proves a token is genuine.
+2. **Read `uiMultiplier()`.** If it is not 1, one token is not one share, and any mental arithmetic you do on price needs to account for that. The oracle price already does.
+3. **Check the pause flags.** `oraclePaused()`, `tokenPaused()` and `paused()` each stop something different.
+4. **Look at pool depth, not just price.** Liquidity across the registry is extremely uneven — a handful of tokens carry most of the volume and the rest are thin. On a thin pool, the price you get and the price you were quoted are different numbers.
+
+That last point is the honest reason baskets exist: buying twelve thin positions by hand, one at a time, is where the money quietly goes. [Investing in baskets](/docs/investing) does it as a single routed transaction.
+
+## Where to go next
+
+- What you are actually holding → [Stock tokens](/docs/stock-tokens)
+- Skip the shopping entirely → [Investing in baskets](/docs/investing)
+- Chain parameters and every contract address → [Addresses](/docs/addresses)

@@ -1,0 +1,74 @@
+---
+title: "Investing in baskets"
+description: "Zap in from USDG with one tap, automate with a savings plan, exit any time, in USDG or in kind."
+order: 7
+---
+
+# Investing in baskets
+
+There are three ways in and three ways out. All of them are self-custodied: basket tokens sit in your wallet like any ERC-20.
+
+## Zap
+
+The one-tap path. `zapMint` takes USDG, buys each component of the recipe from Uniswap v4 pools, mints the maximum whole amount of basket tokens, and refunds any dust: one transaction, one signature, gas sponsored. `zapRedeem` is the mirror: basket in, USDG out.
+
+Every leg carries a minimum-out bound you set before signing, so a thin pool costs you a reverted transaction rather than a bad fill. Zap sizes around $25,000 currently cost roughly 1% against the oracle price; smaller clips cost well under half of that.
+
+<div class="doc-diagram">
+  <svg viewBox="0 0 720 152" role="img" aria-label="Zap flow. You send USDG to the ZapRouter, which takes the 0.25 percent zap fee, buys the recipe's components from Uniswap v4 pools, then calls issue on the basket contract; you hold the basket token. The 0.40 percent mint fee is carved from the minted amount.">
+    <defs>
+      <marker id="dg-zap-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" class="dg-arrowhead" />
+      </marker>
+    </defs>
+    <rect x="20" y="30" width="120" height="64" class="dg-box" />
+    <text x="34" y="56" class="dg-label">YOU SEND</text>
+    <text x="34" y="80" class="dg-strong">USDG</text>
+    <line x1="140" y1="62" x2="182" y2="62" class="dg-line" marker-end="url(#dg-zap-arrow)" />
+    <rect x="190" y="30" width="150" height="64" class="dg-box" />
+    <text x="204" y="56" class="dg-label">ZAPROUTER</text>
+    <text x="204" y="80" class="dg-muted">zap fee 0.25%</text>
+    <line x1="340" y1="62" x2="382" y2="62" class="dg-line" marker-end="url(#dg-zap-arrow)" />
+    <rect x="390" y="30" width="160" height="64" class="dg-box" />
+    <text x="404" y="56" class="dg-label">UNISWAP V4</text>
+    <text x="404" y="80" class="dg-muted">buys the components</text>
+    <line x1="550" y1="62" x2="592" y2="62" class="dg-line" marker-end="url(#dg-zap-arrow)" />
+    <rect x="600" y="30" width="100" height="64" class="dg-accentbox" />
+    <text x="614" y="56" class="dg-label">YOU HOLD</text>
+    <text x="614" y="80" class="dg-strong dg-accent">bMAG7</text>
+    <text x="20" y="134" class="dg-muted" font-size="12">The router ends by calling issue() with the bought components; the 0.40% mint fee is carved from the minted amount.</text>
+  </svg>
+</div>
+
+What protects you, enforced onchain:
+
+- A minimum output (`minBasketOut` / `minUsdgOut`) you set; the transaction reverts rather than fill badly.
+- Per-component slippage floors on every fill.
+- The router only calls the single whitelisted 0x exchange contract, fixed at deployment; it cannot be pointed at arbitrary targets.
+- The router retains nothing: every unspent balance, USDG and component dust alike, is swept back to you before the transaction ends.
+
+Before you confirm, the app shows exactly which stock tokens will be bought and at what price. After, you can verify every fill on the block explorer. Legibility is the product.
+
+## Savings plans
+
+The set-and-forget path: "€100 into bAI, every Monday." You approve a USDG allowance and sign a plan; a keeper executes it on schedule.
+
+The keeper is **untrusted by design**: every guardrail is enforced by the contract:
+
+- It can only pull exactly your configured amount, only after your configured time gate.
+- The output is checked against the Chainlink-based NAV: `basketOut × NAV ≥ usdgIn × (1 − maxSlippage − zapFee)`. A keeper with bad quotes can only cause a revert, never a bad fill.
+- Cancellation is instant and yours alone. Pausing, editing, and history live in the app.
+
+Plans start at **$25 per execution**, at most one per day. The keeper is paid a flat $0.05 bounty per run regardless of size, so below that floor a plan costs more to execute than it contributes. Invest less by choosing a longer period, not a smaller amount.
+
+If markets are closed when your plan comes due, it executes when they reopen: once, no catch-up buys. See [Market hours](/docs/market-hours#skipped-savings-plan-windows).
+
+## In-kind issue and redeem
+
+The power-user path. If you already hold the component tokens, `issue` mints baskets directly from them: no swaps, no slippage, works at any liquidity. `redeem` returns the components themselves. This path is the core of the protocol and depends on nothing but the basket contract itself.
+
+If a component is ever frozen by its issuer, `redeemToClaims` guarantees you can always exit the rest of the basket; see [How baskets work](/docs/how-baskets-work#redemption-can-never-be-held-hostage).
+
+## What you pay
+
+One number before every action, itemized: see [Fees](/docs/fees). The zap preview shows the all-in cost including the market makers' spread: what you see is what executes or it reverts.

@@ -1,0 +1,64 @@
+---
+title: "Basquets"
+description: "The asset management layer of Robinhood Chain: create, invest in, and automate baskets of real tokenized stocks."
+order: 1
+---
+
+# Basquets
+
+**Basquets is the asset management layer of Robinhood Chain.** Anyone can create, invest in, and automate baskets of real tokenized stocks: self-custodied, priced by Chainlink oracles, running 24/7.
+
+Robinhood put real US stocks onchain as tokens (NVDA, AAPL, SPY) with live onchain prices. Basquets turns those raw ingredients into portfolios. A **basket** is a single ERC-20 token that holds a fixed recipe of stock tokens. Anyone can create one and earn fees when others invest. Anyone can invest with one tap from stablecoins, or set a savings plan that runs itself.
+
+It is the index fund, reinvented as an open protocol, where the fund managers are the community.
+
+## Design principles
+
+1. **Non-custodial and permissionless.** No admin can touch user funds. Anyone can create a basket from allowlisted components. Basket contracts are non-upgradeable; periphery contracts (zap, savings plans) are replaceable only by deploying new versions users opt into.
+2. **No trading dependency in the core.** Baskets are fixed-units and mint/redeem **in-kind**. Only the periphery touches swap liquidity. If liquidity vanishes, the core protocol still functions.
+3. **Oracle-defensive by default.** Every price read passes staleness, sequencer-uptime, positivity, and corporate-action checks. The protocol fails closed: if a component can't be priced, value-bearing actions revert.
+4. **Everything is glass.** Every fee rate lives in a single onchain contract, enumerable by anyone. The UI reads; it never hardcodes. Holdings, prices, and trust assumptions are public, including the ones we'd rather not have (see [Security](/docs/security)).
+
+## The system at a glance
+
+<div class="doc-diagram">
+  <svg viewBox="0 0 720 392" role="img" aria-label="System architecture. USDG and savings plans enter through the periphery contracts (ZapRouter and DCAManager, which trade against Uniswap v4 pools). The periphery calls issue and redeem, in kind, on the core contracts: BasquetFactory creates Basquet ERC-20 tokens, governed by FeeController and ComponentRegistry. The core reads prices from the public NAVOracle.">
+    <defs>
+      <marker id="dg-sys-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" class="dg-arrowhead" />
+      </marker>
+    </defs>
+    <text x="20" y="59" class="dg-strong">USDG</text>
+    <line x1="118" y1="55" x2="140" y2="55" class="dg-line" marker-end="url(#dg-sys-arrow)" />
+    <text x="20" y="93" class="dg-strong">Savings plan</text>
+    <line x1="118" y1="89" x2="140" y2="89" class="dg-line" marker-end="url(#dg-sys-arrow)" />
+    <rect x="150" y="24" width="550" height="96" class="dg-box" />
+    <text x="170" y="50" class="dg-label">PERIPHERY</text>
+    <text x="170" y="78" class="dg-strong">ZapRouter</text>
+    <text x="170" y="102" class="dg-strong">DCAManager</text>
+    <text x="430" y="90" class="dg-muted">Uniswap v4 · USDG to stock tokens</text>
+    <line x1="300" y1="120" x2="300" y2="162" class="dg-line" marker-end="url(#dg-sys-arrow)" />
+    <text x="316" y="146" class="dg-code">issue() / redeem() · in-kind</text>
+    <rect x="150" y="168" width="550" height="112" class="dg-box" />
+    <text x="170" y="194" class="dg-label">CORE</text>
+    <text x="170" y="224" class="dg-strong">BasquetFactory</text>
+    <line x1="292" y1="220" x2="372" y2="220" class="dg-line" marker-end="url(#dg-sys-arrow)" />
+    <text x="300" y="212" class="dg-muted" font-size="11">creates</text>
+    <text x="386" y="224" class="dg-strong dg-accent">Basquet (ERC-20)</text>
+    <text x="170" y="258" class="dg-strong">FeeController</text>
+    <text x="386" y="258" class="dg-strong">ComponentRegistry</text>
+    <line x1="300" y1="280" x2="300" y2="322" class="dg-line" marker-end="url(#dg-sys-arrow)" />
+    <text x="316" y="306" class="dg-code">price reads</text>
+    <rect x="150" y="328" width="550" height="52" class="dg-accentbox" />
+    <text x="170" y="360" class="dg-strong">NAVOracle</text>
+    <text x="272" y="360" class="dg-muted">public onchain, free to read</text>
+  </svg>
+</div>
+
+## Where to go
+
+- **New to stock tokens** → [Stock tokens](/docs/stock-tokens) and [Getting stock tokens](/docs/getting-stock-tokens)
+- **Investors** → [Investing in baskets](/docs/investing)
+- **Curators** → [Creating a basket](/docs/curators)
+- **Builders** → [The NAV Oracle](/docs/nav-oracle) and [Addresses](/docs/addresses)
+- **Skeptics** (welcome) → [Security & trust assumptions](/docs/security)

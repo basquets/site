@@ -1,0 +1,75 @@
+---
+title: "How baskets work"
+description: "Fixed units, in-kind minting, and why a basket has no price of its own."
+order: 4
+---
+
+# How baskets work
+
+A basket is an ERC-20 token backed one-to-one by a fixed **recipe**: a list of component stock tokens and a fixed amount of each per basket token. The recipe is set when the basket is created and never changes.
+
+## The recipe
+
+Say the curator of **bAI ("AI Leaders")** sets the recipe:
+
+| Component | Units per basket token |
+|---|---|
+| NVDA | 0.010 |
+| MSFT | 0.008 |
+| GOOGL | 0.012 |
+| META | 0.006 |
+
+Holding 100 bAI means the basket contract holds, verifiably onchain, 1.0 NVDA, 0.8 MSFT, 1.2 GOOGL, and 0.6 META on your behalf. Nothing is synthetic. There is no counterparty exposure beyond the stock tokens themselves.
+
+Because the streaming fee is [zero at launch](/docs/fees), those units do not shrink over time either. The 100 bAI you hold in five years claims the same 1.0 NVDA it claims today. The only thing that changes is what those shares are worth.
+
+## Minting and redeeming are in-kind
+
+<div class="doc-diagram">
+  <svg viewBox="0 0 720 240" role="img" aria-label="In-kind flow between your wallet and the basket contract. Issue moves the recipe's component tokens from your wallet into the Basquet contract and mints basket tokens back to you. Redeem burns basket tokens and returns the components. Using the bAI example: 1.0 NVDA, 0.8 MSFT, 1.2 GOOGL and 0.6 META back exactly 100 bAI.">
+    <defs>
+      <marker id="dg-kind-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" class="dg-arrowhead" />
+      </marker>
+    </defs>
+    <rect x="20" y="40" width="200" height="160" class="dg-box" />
+    <text x="36" y="66" class="dg-label">YOUR WALLET</text>
+    <text x="36" y="96" class="dg-code">1.0 NVDA</text>
+    <text x="36" y="118" class="dg-code">0.8 MSFT</text>
+    <text x="36" y="140" class="dg-code">1.2 GOOGL</text>
+    <text x="36" y="162" class="dg-code">0.6 META</text>
+    <rect x="500" y="40" width="200" height="160" class="dg-accentbox" />
+    <text x="516" y="66" class="dg-label">BASQUET CONTRACT</text>
+    <text x="516" y="106" class="dg-strong dg-accent" font-size="22">100 bAI</text>
+    <text x="516" y="134" class="dg-muted">ERC-20, fully backed</text>
+    <text x="516" y="154" class="dg-muted">recipe fixed forever</text>
+    <line x1="228" y1="92" x2="490" y2="92" class="dg-line" marker-end="url(#dg-kind-arrow)" />
+    <text x="360" y="76" text-anchor="middle" class="dg-code" font-size="11">issue(): components in, baskets out</text>
+    <line x1="492" y1="164" x2="230" y2="164" class="dg-line" marker-end="url(#dg-kind-arrow)" />
+    <text x="360" y="190" text-anchor="middle" class="dg-code" font-size="11">redeem(): baskets in, components out</text>
+  </svg>
+</div>
+
+- **`issue(amount)`** pulls exactly `units[i] × amount` of each component from you and mints `amount` basket tokens: `amount − mintFee` to you, the fee slice to the curator and treasury. Supply is always fully backed; fees are carved from what's minted, never minted on top.
+- **`redeem(amount)`** burns your basket tokens and transfers the components back (minus the redeem fee, retained in kind).
+
+There is **no pricing function in the core**. The cost of minting is defined by the recipe, not by pool balances or an internal valuation. This is a deliberate security property: the attack class that drained comparable protocols, manipulating an internal price to mint cheap shares, has no surface here. Anything price-shaped (the [Zap](/docs/investing#zap), savings-plan execution) lives in the periphery and is bounded against Chainlink feeds.
+
+Rounding always favors the basket: component amounts round **up** when you mint and **down** when you redeem, and a minimum mint granularity guarantees no component amount ever rounds to zero. Dust accrues to the basket, i.e. to all holders.
+
+## Total return, automatically
+
+Robinhood stock tokens handle dividends and splits through an onchain multiplier: dividends are reinvested, raw balances never rebase, and the Chainlink feed price already includes the multiplier. Because Basquets recipes are defined in **raw units**, a basket tracks **total return** with zero unit adjustments and zero corporate-action accounting. During a corporate action a component's oracle pauses and the affected basket simply pauses minting and redemption until it clears; see [Market hours & corporate actions](/docs/market-hours).
+
+## Redemption can never be held hostage
+
+If a single component token is ever paused or a transfer is blocked (see [Security](/docs/security) for who has these powers), atomic redemption of that basket would fail. For that case there is an escape hatch:
+
+- **`redeemToClaims(amount)`** burns your basket tokens and records a per-component entitlement.
+- **`claimComponent(token)`** lets you withdraw each component individually, whenever it is transferable.
+
+One frozen component can delay its own claim; it can never trap the other components in the basket.
+
+## Immutability
+
+Basket contracts are minimal proxies of a single audited implementation, initialized once, with **no setters**. The curator cannot change the recipe, cannot upgrade the contract, and cannot touch the components. A curator's only ongoing relationship with a basket is collecting their fee share.

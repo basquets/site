@@ -1,0 +1,24 @@
+---
+import Container from "../components/layout/Container.astro";
+import CTABanner from "../components/layout/CTABanner.astro";
+import Kicker from "../components/layout/Kicker.astro";
+import { buttonVariants } from "../components/ui/button";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { cn } from "../lib/utils";
+---
+<BaseLayout title="404 - Basquets" description="This page doesn't exist.">
+  <main id="main">
+    <Container>
+      <section class="py-[calc(4*28px)]">
+        <Kicker class="mb-3.5">404</Kicker>
+        <h1 class="m-0 -ml-[0.058em] text-[clamp(38px,5vw,68px)] leading-[1.06] tracking-[-0.02em]">
+          This basket is empty.
+        </h1>
+        <p class="mt-9 mb-0 max-w-[58ch] text-[17px] leading-7">The page you're looking for doesn't exist.</p>
+      </section>
+    </Container>
+    <CTABanner lines={["Lost?", "Draft the market instead."]}>
+      <a href="/" class={cn(buttonVariants({ variant: "inverse" }))}>Back to Basquets</a>
+    </CTABanner>
+  </main>
+</BaseLayout>

@@ -1,0 +1,67 @@
+---
+import "../styles/global.css";
+import MarketStatus from "../components/islands/MarketStatus";
+import TickerStrip from "../components/islands/TickerStrip";
+import Footer from "../components/layout/Footer.astro";
+import Nav from "../components/layout/Nav.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Set false for pages that bring their own nav and footer. */
+  chrome?: boolean;
+  /** Keep gated preview pages out of search results. */
+  noindex?: boolean;
+}
+const { title, description, chrome = true, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
+const orgLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Basquets",
+  url: Astro.site?.toString(),
+  logo: new URL("/favicon.svg", Astro.site).toString(),
+  description:
+    "Basquets turns tokenized US stocks on Robinhood Chain into baskets: portfolios anyone can create, invest in, and automate.",
+});
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:site_name" content="Basquets" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <script is:inline type="application/ld+json" set:html={orgLd} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+  </head>
+  <body>
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-accent focus:px-3.5 focus:py-2 focus:text-ground">Skip to content</a>
+    {chrome && <Nav />}
+    {chrome && (
+      <div class="flex items-stretch border-b-2 border-divider">
+        <div class="min-w-0 flex-1"><TickerStrip client:idle /></div>
+        <MarketStatus client:idle />
+      </div>
+    )}
+    <slot />
+    {chrome && <Footer />}
+  </body>
+</html>
