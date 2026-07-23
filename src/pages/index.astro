@@ -213,24 +213,6 @@ import { cn } from "../lib/utils";
         ))}
     </section>
 
-    <!-- closing plate: the last thing before the footer is the one action that
-         takes a single screen. -->
-    <section class="slab relative overflow-hidden bg-ink py-[clamp(64px,7vw,104px)] text-ground">
-      <Container class="relative z-10 text-center">
-        <h2 class="mx-auto m-0 max-w-[18ch] text-[clamp(28px,3.2vw,44px)] leading-[1.08] tracking-[-0.02em] text-ground">
-          Two venues bid. You take the better one.
-        </h2>
-        <p class="mx-auto mt-5 mb-0 max-w-[60ch] text-[15.5px] leading-7 text-ground/70">
-          Every swap is priced against Uniswap v4 pools and 0x market makers at the same time,
-          then filled wherever pays more. You see the price impact before you sign, and the
-          contract holds your minimum — so a moving market cannot fill you worse.
-        </p>
-        <div class="mt-9 flex flex-wrap justify-center gap-3">
-          <a href="/swap" class={cn(buttonVariants({ variant: "primary", size: "lg" }))}>Swap a stock</a>
-          <a href="/stocks" class={cn(buttonVariants({ variant: "inverse", size: "lg" }))}>See all {TOKENS.length} tokens</a>
-        </div>
-      </Container>
-    </section>
   </main>
 </BaseLayout>
 
