@@ -1,0 +1,113 @@
+---
+title: "Depth, not TVL: reading the Pools page"
+description: "One stock can have four pools and only one of them is real. Our new Pools page maps where the liquidity actually sits — measured as depth, the dollars you can trade before the price moves — and this is how to read it."
+date: 2026-07-23
+tags: ["liquidity", "stock tokens", "product"]
+---
+
+When we [measured Robinhood Chain](/blog/measuring-robinhood-chain) before
+building on it, one finding did the most work: the stock tokens live in Uniswap
+pools, and **if you are buying, depth is the number that matters, not price.**
+On a concentrated name you trade close to the quote; on a thin one, the gap
+between the price you see and the price you get is the whole cost of the trade.
+
+So we built the page that shows it. [Pools](/pools) is a live map of every
+Uniswap v4 pool that pairs a stock token with USDG on chain 4663 — grouped by
+stock, sorted by depth, and honest about what can and cannot be measured. This
+is how it works and how to read it.
+
+## How the liquidity is arranged
+
+A Robinhood stock token trades against **USDG**, a stablecoin, in Uniswap v4
+pools. That much is simple. The part that surprises people is that a single
+stock does not have *a* pool — it can have several, and they are rarely equal.
+
+Each pool is created at a **fee tier**: 0.05%, 0.30%, 1.00%, and non-standard
+tiers besides. Anyone can create one, so a token accumulates pools the way a
+street accumulates shops — some busy, most empty. NVDA is the clean example. As
+of writing it has **four** pools:
+
+| NVDA pool | Fee | Depth to 2% |
+|---|---|---|
+| 0.30% | routes here | **$203,976** |
+| 0.05% | | $1,112 |
+| 1.00% | | $256 |
+| 1.00% | | $4 |
+
+Four pools, and **one of them holds 99% of the tradeable liquidity.** The other
+three are real contracts with real (tiny) balances that will happily quote you a
+terrible price. This is what fragmentation looks like on this chain, and it is
+why the page never just shows "NVDA's price" — it shows *which* pool a trade
+would actually route through, and how deep that one is.
+
+## Why we show depth, and not TVL
+
+The instinct is to show TVL — total value locked, dollars in the pool. We
+don't, for one honest reason: **in Uniswap v4 you cannot read it per pool.**
+
+v4 keeps every pool's tokens in one shared vault (the `PoolManager` singleton).
+A `balanceOf` tells you how much of a stock token sits across *all* its pools
+combined, and the USDG side cannot be attributed back to any single pool at all.
+So a per-pool dollar TVL is simply not a number the chain will give you without
+guessing, and we would rather show you a true number than a plausible one.
+
+What we show instead is **depth**: how many dollars you can trade into a pool
+before its price moves by a set amount. The page uses two thresholds — a green
+band up to a 0.5% price move, and an amber band up to 2%. It answers the only
+question a buyer actually has: *how much can I put through here before it starts
+costing me?* Depth is computed from the pool's live state (its price and its
+active liquidity), the same math behind the depth gauge in the [swap](/swap)
+flow. It is an informative estimate, not an execution guarantee — a pool can be
+deeper or thinner a block later — and the page says so.
+
+The one dollar figure we *can* show honestly is **pooled value (stock side)**:
+the stock tokens a pool holds, times their price. It is roughly half of a full
+TVL — the USDG half is the part the singleton hides — so we label it plainly and
+show it per stock, never per pool.
+
+## How to read the page
+
+The table is one row per stock, sorted by depth, deepest first. Left to right:
+
+- **Stock** — ticker and name. Click the row to expand it.
+- **Pools** — a dot per active pool. Two dots means two pools worth showing.
+- **Best fee** — the fee tier of the *deepest* pool, the one a trade realistically
+  routes through.
+- **Price** — the token's price, tagged with its source (a Chainlink feed where
+  one exists, otherwise the pool's own spot price).
+- **Pooled value** — the stock-side dollars in the pools, marked *stock side* so
+  you never mistake it for full TVL.
+- **Depth to slippage** — the hero. A two-tone bar: the green portion is what you
+  can trade before a 0.5% move, the amber before 2%. The bar is scaled to the
+  deepest stock on screen, so the longest bar is the market's deepest pool and
+  everything else is read against it.
+
+**Click any row to open it.** The pools underneath are the fee tiers, each with
+its own price and its own depth, and the deepest one is flagged *routes here*.
+This is where NVDA's story above becomes visible: expand it and three of the
+four pools are visibly empty. You also get each pool's *spacing* — the
+granularity of its price grid, tied to the fee tier, a detail for the curious
+and safely ignorable otherwise.
+
+Above the table, four counters summarise the whole market: total depth to 2%,
+active pools, how many of the 96 stocks have any liquidity at all, and — in
+amber — how many have none. As of writing that last number is the honest
+headline: **around $654k of depth spread across 36 pools, but only 19 of 96
+stocks have a live pool.** The market is real, early, and concentrated, exactly
+as the research said. Sort by *fragmentation* to find the stocks whose depth is
+scattered across tiers rather than pooled in one.
+
+## What we actually built
+
+Almost nothing new had to be measured. Our backend already reads every pool's
+price and liquidity on every sync cycle to price the tokens — it just kept the
+single deepest pool and threw the rest away. The Pools page is mostly a matter
+of *keeping* what we were already reading: we now store each pool's depth and
+serve it, grouped by stock, from one public endpoint. Every figure on the page
+is read from chain 4663, live; refresh it in a minute and the numbers move.
+
+That is the same posture as everything else we build here. Liquidity on this
+chain is a public object — its depth a number anyone can read, not a
+relationship you have to ask an intermediary about. A page that shows it plainly,
+and admits what it can't show, is just that posture applied to the thing that
+decides whether a trade is a good one. Go [look](/pools).
