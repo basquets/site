@@ -49,31 +49,8 @@ const principles = [
         <SwapPanel client:load />
       </Section>
 
-    </Container>
-
-    <!-- the four rules of the router, on the house ink plate -->
-    <section class="slab relative overflow-hidden bg-ink py-[calc(2.5*28px)] text-ground">
-      <Container class="relative z-10">
-        <h2 class="m-0 mb-10 max-w-[18ch] text-[clamp(26px,3vw,40px)] leading-[1.1] tracking-[-0.02em] text-ground">How swapping works.</h2>
-        <div class="grid gap-x-[clamp(28px,3.5vw,56px)] gap-y-10 md:grid-cols-2 xl:grid-cols-4">
-          {principles.map((p) => (
-            <div class="border-t-2 border-accent-300/50 pt-5">
-              <span class="font-heading font-extrabold text-[clamp(30px,2.4vw,38px)] leading-none text-accent-300 tnum" aria-hidden="true">{p.num}</span>
-              <h3 class="mt-4 mb-0 max-w-[22ch] font-heading font-extrabold text-[17px] leading-6 tracking-[-0.01em] text-ground">{p.lead}</h3>
-              <p class="mt-2.5 mb-0 max-w-[44ch] text-[14.5px] leading-6 text-ground/65">{p.body}</p>
-            </div>
-          ))}
-        </div>
-        <p class="mt-11 mb-0 max-w-[62ch] text-[13.5px] leading-6 text-ground/60">
-          Fees are the pool's or the maker's trading fee plus network gas. Basquets adds nothing on
-          top. Details in <a href="/docs/fees" class="text-accent-300">docs/fees</a>.
-        </p>
-      </Container>
-    </section>
-
-    <Container>
-      <!-- close the loop back to the product -->
-      <Section class="grid items-center gap-x-[clamp(32px,5vw,88px)] gap-y-9 pt-[calc(1.5*28px)] pb-[calc(2*28px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+      <!-- the bridge to baskets, before the page lands on the ink plate -->
+      <Section rule class="grid items-center gap-x-[clamp(32px,5vw,88px)] gap-y-9 pt-[calc(1.5*28px)] pb-[calc(2*28px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <div>
           <h2 class="m-0 text-[clamp(26px,3vw,40px)] leading-[1.12] tracking-[-0.015em]">
             <span class="block">One stock is a trade.</span>
@@ -117,5 +94,25 @@ const principles = [
         </div>
       </Section>
     </Container>
+
+    <!-- the four rules of the router, on the house ink plate: the page's closing word -->
+    <section class="slab relative overflow-hidden bg-ink py-[calc(2.5*28px)] text-ground">
+      <Container class="relative z-10">
+        <h2 class="m-0 mb-10 max-w-[18ch] text-[clamp(26px,3vw,40px)] leading-[1.1] tracking-[-0.02em] text-ground">How swapping works.</h2>
+        <div class="grid gap-x-[clamp(28px,3.5vw,56px)] gap-y-10 md:grid-cols-2 xl:grid-cols-4">
+          {principles.map((p) => (
+            <div class="border-t-2 border-accent-300/50 pt-5">
+              <span class="font-heading font-extrabold text-[clamp(30px,2.4vw,38px)] leading-none text-accent-300 tnum" aria-hidden="true">{p.num}</span>
+              <h3 class="mt-4 mb-0 max-w-[22ch] font-heading font-extrabold text-[17px] leading-6 tracking-[-0.01em] text-ground">{p.lead}</h3>
+              <p class="mt-2.5 mb-0 max-w-[44ch] text-[14.5px] leading-6 text-ground/65">{p.body}</p>
+            </div>
+          ))}
+        </div>
+        <p class="mt-11 mb-0 max-w-[62ch] text-[13.5px] leading-6 text-ground/60">
+          Fees are the pool's or the maker's trading fee plus network gas. Basquets adds nothing on
+          top. Details in <a href="/docs/fees" class="text-accent-300">docs/fees</a>.
+        </p>
+      </Container>
+    </section>
   </main>
 </BaseLayout>

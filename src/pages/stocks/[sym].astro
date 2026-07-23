@@ -3,7 +3,6 @@ import HoldingBaskets from "../../components/islands/HoldingBaskets";
 import TokenFacts from "../../components/islands/TokenFacts";
 import TokenHero from "../../components/islands/TokenHero";
 import Container from "../../components/layout/Container.astro";
-import CTABanner from "../../components/layout/CTABanner.astro";
 import Kicker from "../../components/layout/Kicker.astro";
 import Section from "../../components/layout/Section.astro";
 import { buttonVariants } from "../../components/ui/button";
@@ -31,13 +30,12 @@ const ROUTES = [
       "Buy in an eligible country, then withdraw to a self-custody wallet. The simplest route, and the only one that starts in fiat.",
   },
   {
-    name: "Uniswap v4",
-    detail:
-      "The deepest onchain venue. Quote against USDG, pay gas in ETH. Check pool depth above before sizing a trade.",
+    name: "The swap desk here",
+    detail: `Uniswap v4 pools and 0x market makers quoted side by side; the better price fills. USDG in, ${token.sym} out, minimum enforced onchain.`,
   },
   {
-    name: "Basquets",
-    detail: `Hold ${token.sym} as part of a basket instead of buying it alone: one routed transaction, one position to manage.`,
+    name: "A basket",
+    detail: `Hold ${token.sym} as part of a recipe instead of buying it alone: one routed transaction, one position to manage.`,
   },
 ];
 ---
@@ -47,10 +45,23 @@ const ROUTES = [
 >
   <main id="main">
     <Container>
-      <Section class="pt-[calc(2*28px)] pb-[calc(2.5*28px)]">
+      <Section class="pt-[calc(2*28px)] pb-[calc(2*28px)]">
         <a href="/stocks" class="text-[13px] uppercase tracking-[0.08em] text-accent-700 no-underline hover:underline">← All stock tokens</a>
         <TokenHero sym={token.sym} client:load />
       </Section>
+
+      <!-- the trade door: the one action this page can hand straight to the product -->
+      <div class="mb-[calc(1.5*28px)] flex flex-wrap items-center justify-between gap-x-10 gap-y-5 border-2 border-ink bg-accent p-[clamp(20px,2.5vw,32px)] text-ground shadow-lg">
+        <div>
+          <p class="m-0 font-heading font-extrabold text-[clamp(20px,2.2vw,28px)] leading-[1.15] tracking-[-0.015em]">
+            Two venues bid on every {token.sym} swap.
+          </p>
+          <p class="mt-1.5 mb-0 text-[14.5px] leading-6 text-ground/85">
+            Uniswap v4 and 0x market makers, quoted live. You take the better one.
+          </p>
+        </div>
+        <a href="/swap" class={cn(buttonVariants({ variant: "inverse", size: "lg" }))}>Swap {token.sym}</a>
+      </div>
 
       <Section rule class="py-[calc(2*28px)]">
         <h2 class="m-0 mb-8 text-[clamp(24px,2.4vw,32px)] tracking-[-0.015em]">What is onchain.</h2>
@@ -76,11 +87,6 @@ const ROUTES = [
             </div>
           ))}
         </div>
-      </Section>
-
-      <Section rule class="pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
-        <h2 class="m-0 mb-7 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">Baskets holding {token.sym}.</h2>
-        <HoldingBaskets sym={token.sym} client:load />
       </Section>
 
       <Section rule class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-y-10 gap-x-[clamp(24px,5vw,96px)] pt-[calc(2.5*28px)] pb-[calc(3*28px)]">
@@ -111,9 +117,21 @@ const ROUTES = [
       </Section>
     </Container>
 
-    <CTABanner lines={[`${token.sym} is one ingredient.`, "Write the recipe."]}>
-      <a href="/curators" class={cn(buttonVariants({ variant: "inverse" }))}>Create a basket</a>
-      <a href="/stocks" class={cn(buttonVariants({ variant: "inverse" }), "border-transparent")}>All stock tokens</a>
-    </CTABanner>
+    <!-- the baskets that hold this token, on the house ink plate: the page's closing word -->
+    <section class="slab relative overflow-hidden bg-ink py-[calc(2.5*28px)] text-ground">
+      <Container class="relative z-10">
+        <h2 class="m-0 mb-9 max-w-[20ch] text-[clamp(28px,3.2vw,44px)] leading-[1.1] tracking-[-0.02em] text-ground">Baskets holding {token.sym}.</h2>
+        <HoldingBaskets sym={token.sym} onInk client:load />
+        <div class="mt-12 flex flex-wrap items-center justify-between gap-x-10 gap-y-6 border-t-2 border-ground/25 pt-8">
+          <p class="m-0 font-heading font-extrabold text-[clamp(20px,2.4vw,30px)] leading-[1.15] tracking-[-0.015em] text-ground">
+            {token.sym} is one ingredient. Write the recipe.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href="/curators" class={cn(buttonVariants({ variant: "inverse", size: "lg" }))}>Create a basket</a>
+            <a href="/baskets" class={cn(buttonVariants({ variant: "inverse", size: "lg" }), "border-transparent")}>Explore baskets</a>
+          </div>
+        </div>
+      </Container>
+    </section>
   </main>
 </BaseLayout>
