@@ -181,6 +181,8 @@ export default function SwapPanel() {
             <Button
               variant="secondary"
               className="shrink-0 whitespace-nowrap border-2 border-ink"
+              aria-haspopup="listbox"
+              aria-expanded={picker === "sell"}
               onClick={() => setPicker(picker === "sell" ? null : "sell")}
             >
               {sell.symbol}
@@ -268,6 +270,8 @@ export default function SwapPanel() {
             <Button
               variant="secondary"
               className="shrink-0 whitespace-nowrap border-2 border-ink"
+              aria-haspopup="listbox"
+              aria-expanded={picker === "buy"}
               onClick={() => setPicker(picker === "buy" ? null : "buy")}
             >
               {buy?.symbol ?? "Select"}
