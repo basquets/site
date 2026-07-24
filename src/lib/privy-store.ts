@@ -17,7 +17,11 @@ export interface PrivyActions {
   logout: () => Promise<void> | void;
 }
 
-let snapshot: PrivySnapshot = { ready: false, authenticated: false, address: null };
+let snapshot: PrivySnapshot = {
+  ready: false,
+  authenticated: false,
+  address: null,
+};
 const listeners = new Set<() => void>();
 
 export const privyStore = {

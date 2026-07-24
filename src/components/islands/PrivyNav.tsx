@@ -1,7 +1,11 @@
 import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import React, { useEffect } from "react";
 import { robinhoodChain } from "../../lib/chain";
-import { setPrivyActions, setPrivySnapshot, usePrivyState } from "../../lib/privy-store";
+import {
+  setPrivyActions,
+  setPrivySnapshot,
+  usePrivyState,
+} from "../../lib/privy-store";
 import { useHydrated } from "./use-hydrated";
 
 const APP_ID = import.meta.env.PUBLIC_PRIVY_APP_ID as string | undefined;
@@ -38,9 +42,15 @@ function Pill() {
   const hydrated = useHydrated();
   const { authenticated, address } = usePrivyState();
   if (!hydrated || !authenticated) return <JoinPill />;
-  const short = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "Account";
+  const short = address
+    ? `${address.slice(0, 6)}…${address.slice(-4)}`
+    : "Account";
   return (
-    <a href="/join" className="cs-pill cs-pill--acct" title="You're on the waitlist">
+    <a
+      href="/join"
+      className="cs-pill cs-pill--acct"
+      title="You're on the waitlist"
+    >
       <span className="cs-pill-dot" aria-hidden="true" />
       {short}
     </a>
@@ -85,7 +95,13 @@ export default function PrivyNav() {
             loginMessage: "Social, email, or a wallet — no seed phrase.",
             showWalletLoginFirst: false,
             walletChainType: "ethereum-only",
-            walletList: ["detected_wallets", "metamask", "coinbase_wallet", "wallet_connect", "rainbow"],
+            walletList: [
+              "detected_wallets",
+              "metamask",
+              "coinbase_wallet",
+              "wallet_connect",
+              "rainbow",
+            ],
           },
         }}
       >

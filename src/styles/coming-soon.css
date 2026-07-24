@@ -177,7 +177,8 @@
 .cs-pill--acct {
   background: var(--accent-soft);
   color: var(--accent-deep);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--accent) 30%, transparent);
   font-variant-numeric: tabular-nums;
   text-decoration: none;
 }
@@ -553,7 +554,8 @@
   z-index: 2;
 }
 @keyframes cs-gfloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) translateY(0) rotate(0deg);
   }
   50% {
@@ -568,13 +570,18 @@
   height: 62%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in oklch, var(--accent) 42%, transparent) 0%, transparent 66%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--accent) 42%, transparent) 0%,
+    transparent 66%
+  );
   filter: blur(34px);
   z-index: 1;
   animation: cs-gglow 7s ease-in-out infinite;
 }
 @keyframes cs-gglow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.38;
     transform: translate(-50%, -50%) scale(0.9);
   }

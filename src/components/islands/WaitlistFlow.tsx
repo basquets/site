@@ -12,7 +12,7 @@ function useCountUp(target: number, ms = 850): number {
     const step = (t: number) => {
       if (!startT) startT = t;
       const p = Math.min((t - startT) / ms, 1);
-      setN(Math.round((1 - Math.pow(1 - p, 3)) * target));
+      setN(Math.round((1 - (1 - p) ** 3) * target));
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
@@ -34,13 +34,21 @@ function SignIn() {
       >
         Continue with Privy
       </button>
-      <p className="cs-authmeta">Google, X, email, or a wallet · secured by Privy — no seed phrase.</p>
+      <p className="cs-authmeta">
+        Google, X, email, or a wallet · secured by Privy — no seed phrase.
+      </p>
     </div>
   );
 }
 
 /** Registers the connected wallet on the waitlist and reads its standing back. */
-function Registered({ address, onSignOut }: { address: string; onSignOut: () => void }) {
+function Registered({
+  address,
+  onSignOut,
+}: {
+  address: string;
+  onSignOut: () => void;
+}) {
   const [access, setAccess] = useState<ApiAccess | null>(null);
   const [apiError, setApiError] = useState(false);
   const joined = useRef<string | null>(null);
@@ -62,10 +70,10 @@ function Registered({ address, onSignOut }: { address: string; onSignOut: () => 
       });
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: join once per address; `join` is stable enough and re-adding it would loop.
   useEffect(() => {
     if (joined.current === address) return;
     join();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   const pos = access?.status === "waitlisted" ? (access.position ?? 0) : 0;
@@ -84,15 +92,22 @@ function Registered({ address, onSignOut }: { address: string; onSignOut: () => 
         <div className="cs-seat-body">
           <span className="cs-seat-kicker">✦ Access granted</span>
           <p className="cs-seat-headline">You're in.</p>
-          <p className="cs-seat-note">This wallet is on the allowlist — every gated surface is open to you.</p>
+          <p className="cs-seat-note">
+            This wallet is on the allowlist — every gated surface is open to
+            you.
+          </p>
         </div>
       ) : access?.status === "waitlisted" ? (
         <div className="cs-seat-body">
           <span className="cs-seat-kicker">Your seat in Genesis</span>
           <p className="cs-seat-rank">
             <span className="cs-seat-hash">#</span>
-            <span className="cs-seat-num">{shownPos.toLocaleString("en-US")}</span>
-            <span className="cs-seat-of">/ {access.total.toLocaleString("en-US")}</span>
+            <span className="cs-seat-num">
+              {shownPos.toLocaleString("en-US")}
+            </span>
+            <span className="cs-seat-of">
+              / {access.total.toLocaleString("en-US")}
+            </span>
           </p>
           <div className="cs-seat-bar" aria-hidden="true">
             <span
@@ -100,20 +115,37 @@ function Registered({ address, onSignOut }: { address: string; onSignOut: () => 
                 width: `${
                   pos > 0
                     ? (shownPos / pos) *
-                      Math.min(100, Math.max(8, ((access.total - pos + 1) / access.total) * 100))
+                      Math.min(
+                        100,
+                        Math.max(
+                          8,
+                          ((access.total - pos + 1) / access.total) * 100,
+                        ),
+                      )
                     : 8
                 }%`,
               }}
             />
           </div>
-          <p className="cs-seat-note">The beta opens wallet by wallet — top of the list first.</p>
+          <p className="cs-seat-note">
+            The beta opens wallet by wallet — top of the list first.
+          </p>
         </div>
       ) : apiError || !API_URL ? (
         <div className="cs-seat-body">
-          <p className="cs-seat-headline cs-seat-headline--sm">The waitlist is unreachable right now.</p>
-          <p className="cs-seat-note">Your wallet is connected; nothing is lost. Try again in a moment.</p>
+          <p className="cs-seat-headline cs-seat-headline--sm">
+            The waitlist is unreachable right now.
+          </p>
+          <p className="cs-seat-note">
+            Your wallet is connected; nothing is lost. Try again in a moment.
+          </p>
           {API_URL && (
-            <button type="button" className="cs-pill cs-pill--ink" onClick={join} style={{ marginTop: "18px" }}>
+            <button
+              type="button"
+              className="cs-pill cs-pill--ink"
+              onClick={join}
+              style={{ marginTop: "18px" }}
+            >
               Retry
             </button>
           )}
@@ -133,5 +165,7 @@ export default function WaitlistFlow() {
   // Server + pre-hydration: always the sign-in button, so hydration matches.
   if (!hydrated || !authenticated) return <SignIn />;
   if (!ready || !address) return <p className="cs-sub">Finishing sign-in…</p>;
-  return <Registered address={address} onSignOut={() => privyActions()?.logout()} />;
+  return (
+    <Registered address={address} onSignOut={() => privyActions()?.logout()} />
+  );
 }
