@@ -19,6 +19,8 @@
   --down: oklch(0.58 0.16 25);
   --serif: "Halant", Georgia, "Times New Roman", serif;
   --r: 18px;
+  /* shared site container width (nav, hero, sections, docs, footer, join) */
+  --wrap: 1680px;
 
   min-height: 100dvh;
   background: var(--cream);
@@ -196,7 +198,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1120px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding: 22px clamp(20px, 5vw, 48px);
 }
@@ -236,7 +238,7 @@
 /* --- hero --- */
 .cs-hero {
   position: relative;
-  max-width: 1120px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding: clamp(48px, 9vh, 120px) clamp(20px, 5vw, 48px)
     clamp(64px, 9vh, 128px);
@@ -301,7 +303,7 @@
 
 /* --- sections --- */
 .cs-section {
-  max-width: 1120px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding: clamp(48px, 8vh, 104px) clamp(20px, 5vw, 48px);
 }
@@ -466,9 +468,8 @@
    (offset-path); chip radii stay larger than the token so they never overlap
    it, so no JS depth-sorting is needed. */
 .cs-join--genesis .cs-join-inner {
-  max-width: none;
+  max-width: var(--wrap);
   width: 100%;
-  padding-inline: clamp(20px, 4vw, 64px);
   display: grid;
   grid-template-columns: 1.15fr 1fr;
   gap: clamp(24px, 4vw, 72px);
@@ -774,7 +775,7 @@
 .cs-foot {
   position: relative;
   overflow: hidden;
-  max-width: 1180px;
+  max-width: calc(var(--wrap) + 60px);
   margin: 0 auto;
   padding: clamp(48px, 8vh, 96px) clamp(20px, 5vw, 48px) 30px;
 }
@@ -996,7 +997,7 @@
 /* page container for content surfaces (docs, blog) */
 .cs-doc {
   width: 100%;
-  max-width: 1120px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding: clamp(40px, 6vw, 88px) 24px clamp(64px, 8vw, 120px);
 }
