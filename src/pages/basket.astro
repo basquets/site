@@ -38,6 +38,13 @@ const market = [
   others[7], others[8], genesis[5], others[9], others[10], genesis[6], others[11],
 ];
 const isGen = (sym: string) => genesis.some((g) => g.sym === sym);
+// Most stock logos are colour PNGs; a few brand marks ship as monochrome SVGs
+// (the PNG set had them white-on-transparent, invisible on the light tile).
+const stockSvg = new Set(["AAPL", "INTC"]);
+const logoSrc = (c: { sym: string; kind: string }) =>
+  c.kind === "crypto"
+    ? `/logos/crypto/${c.sym.toLowerCase()}.svg`
+    : `/logos/stock/${c.sym}.${stockSvg.has(c.sym) ? "svg" : "png"}`;
 
 const stats = [
   { big: "+3.6%", label: "since launch" },
@@ -69,13 +76,19 @@ const stats = [
               {[false, true].map((dup) =>
                 market.map((c) => (
                   <article class="gs-card" data-genesis={isGen(c.sym)} data-dup={dup}>
-                    <div class="gs-card-top">
-                      <span class={`cs-badge cs-badge--${c.kind}`}>{c.kind === "crypto" ? "◇" : "▪"}</span>
-                      <b>{c.sym}</b>
+                    <div class="gs-card-head">
+                      <span class="gs-logo">
+                        <img src={logoSrc(c)} alt="" loading="lazy" width="28" height="28" />
+                      </span>
+                      <span class="gs-card-id">
+                        <b class="gs-sym">{c.sym}</b>
+                        <span class="gs-name">{c.name}</span>
+                      </span>
                     </div>
-                    <span class="gs-card-name">{c.name}</span>
-                    <span class="gs-card-px">${c.px}</span>
-                    <span class={`gs-card-chg ${c.chg >= 0 ? "cs-up" : "cs-down"}`}>{c.chg >= 0 ? "▲" : "▼"} {Math.abs(c.chg)}%</span>
+                    <div class="gs-card-foot">
+                      <span class="gs-px">${c.px}</span>
+                      <span class={`gs-chg ${c.chg >= 0 ? "cs-up" : "cs-down"}`}>{c.chg >= 0 ? "▲" : "▼"} {Math.abs(c.chg)}%</span>
+                    </div>
                   </article>
                 )),
               )}
@@ -133,19 +146,39 @@ const stats = [
   .gs-row { width: 100%; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
   .gs-track { display: flex; gap: 16px; width: max-content; will-change: transform; }
   .gs-card {
-    flex: 0 0 auto; width: 150px; display: flex; flex-direction: column; gap: 3px;
-    padding: 14px 15px; border-radius: 14px;
-    background: color-mix(in srgb, #fff 62%, var(--sand-2));
+    flex: 0 0 auto; width: 178px; display: flex; flex-direction: column; gap: 14px;
+    padding: 16px; border-radius: 18px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, #fff 32%, transparent), transparent 62%),
+      color-mix(in srgb, #fff 70%, var(--sand-2));
     border: 1px solid var(--line);
-    box-shadow: 0 16px 32px -22px color-mix(in srgb, var(--ink) 45%, transparent);
+    box-shadow: 0 20px 40px -26px color-mix(in srgb, var(--ink) 45%, transparent);
     will-change: transform, opacity, filter;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .gs-card[data-genesis="true"] { border-color: color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: 0 18px 34px -20px color-mix(in srgb, var(--accent) 42%, transparent); }
-  .gs-card-top { display: flex; align-items: center; gap: 8px; }
-  .gs-card-top b { font-weight: 700; font-size: 15px; }
-  .gs-card-name { font-size: 12px; color: var(--ink-55); }
-  .gs-card-px { margin-top: 6px; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .gs-card-chg { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gs-card[data-genesis="true"] {
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    box-shadow: 0 22px 46px -24px color-mix(in srgb, var(--accent) 46%, transparent);
+    background:
+      radial-gradient(120% 90% at 50% -12%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 60%),
+      color-mix(in srgb, #fff 72%, var(--sand-2));
+  }
+  .gs-card-head { display: flex; align-items: center; gap: 11px; }
+  .gs-logo {
+    width: 42px; height: 42px; flex: none; border-radius: 12px;
+    background: #fff; border: 1px solid var(--line);
+    display: grid; place-items: center; overflow: hidden;
+    box-shadow: 0 2px 6px -3px color-mix(in srgb, var(--ink) 40%, transparent);
+  }
+  .gs-logo img { width: 28px; height: 28px; object-fit: contain; }
+  .gs-card-id { display: flex; flex-direction: column; min-width: 0; }
+  .gs-sym { font-weight: 700; font-size: 15px; letter-spacing: 0.01em; }
+  .gs-name { font-size: 11.5px; color: var(--ink-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gs-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .gs-px { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gs-chg { font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 2px 7px; border-radius: 999px; }
+  .gs-chg.cs-up { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent-deep); }
+  .gs-chg.cs-down { background: color-mix(in srgb, var(--down) 13%, transparent); color: var(--down); }
 
   /* culmination — label + stats, revealed after the gather */
   .gs-culmination { position: absolute; left: 50%; bottom: clamp(48px, 12vh, 130px); transform: translateX(-50%); width: min(92vw, 680px); opacity: 0; pointer-events: none; }
@@ -205,17 +238,29 @@ const stats = [
 
       // Gather targets: line the seven up, centred, tight. Measured with the
       // marquee frozen so positions are stable; recomputed on refresh/resize.
-      const GS = 0.82; // scale of a gathered card
+      const GS = 0.64; // scale of a gathered card — small enough to sit tight
       function computeTargets() {
         const cardW = gather[0].offsetWidth;
-        const spacing = cardW * GS + 10;
-        const total = gather.length * spacing - 10;
+        const spacing = cardW * GS + 6; // scaled width + a hair of gap = side by side
+        const total = gather.length * spacing - 6;
         const startCenter = window.innerWidth / 2 - total / 2 + (cardW * GS) / 2;
         gather.forEach((c, i) => {
           const r = c.getBoundingClientRect();
           const curCenter = r.left + r.width / 2;
           (c as any)._dx = startCenter + i * spacing - curCenter;
         });
+      }
+
+      // Freeze the marquee and lock the gather targets exactly ONCE, the first
+      // time the pin engages. Recomputing later (on re-enter / refresh) would
+      // measure already-transformed cards and corrupt the reverse scrub.
+      let frozen = false;
+      function freeze() {
+        marquee.pause();
+        if (frozen) return;
+        computeTargets();
+        frozen = true;
+        tl.invalidate();
       }
 
       const tl = gsap.timeline({
@@ -227,9 +272,8 @@ const stats = [
           pin: stage,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onEnter: () => { marquee.pause(); computeTargets(); tl.invalidate(); },
-          onEnterBack: () => { marquee.pause(); computeTargets(); tl.invalidate(); },
-          onRefresh: () => { if (marquee.paused()) computeTargets(); },
+          onEnter: freeze,
+          onEnterBack: () => marquee.pause(),
         },
       });
 
