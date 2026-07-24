@@ -1,31 +1,32 @@
 ---
 import { getCollection } from "astro:content";
-import Container from "../../components/layout/Container.astro";
-import Kicker from "../../components/layout/Kicker.astro";
-import ArticleListRow from "../../components/site/ArticleListRow.astro";
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import ComingSoonLayout from "../../layouts/ComingSoonLayout.astro";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 ---
-<BaseLayout title="Blog - Basquets" description="Protocol design, curator stories, and launch updates from Basquets.">
-  <main id="main">
-    <Container>
-      <section class="py-[calc(3*28px)]">
-        <Kicker class="mb-3.5">Blog</Kicker>
-        <h1 class="m-0 -ml-[0.058em] text-[clamp(38px,5vw,68px)] leading-[1.06] tracking-[-0.02em]">Notes from the studio.</h1>
-        <div class="mt-14 border-t-2 border-divider">
-          {posts.map((post) => (
-            <ArticleListRow
-              href={`/blog/${post.id}`}
-              date={post.data.date}
-              title={post.data.title}
-              description={post.data.description}
-            />
-          ))}
-        </div>
-      </section>
-    </Container>
-  </main>
-</BaseLayout>
+<ComingSoonLayout title="Blog - Basquets" description="Protocol design, curator stories, and launch updates from Basquets." badges={false}>
+  <section class="cs-doc">
+    <span class="cs-kicker">Blog</span>
+    <h1 class="cs-doc-title">Notes from the studio.</h1>
+    <div class="cs-blog-list">
+      {posts.map((post) => (
+        <a href={`/blog/${post.id}`} class="cs-blog-row">
+          <span class="cs-blog-date">{fmt(post.data.date)}</span>
+          <span>
+            <h2 class="cs-blog-row-title">{post.data.title}</h2>
+            <p class="cs-blog-row-desc">{post.data.description}</p>
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+</ComingSoonLayout>

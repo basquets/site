@@ -726,3 +726,421 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Docs + blog — warm content surfaces. Reuses the .cs palette so the  *
+ * documentation and articles read like the marketing homepage rather  *
+ * than the old app chrome. Scoped under .cs so tokens resolve.        *
+ * ------------------------------------------------------------------ */
+
+/* page container for content surfaces (docs, blog) */
+.cs-doc {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 88px) 24px clamp(64px, 8vw, 120px);
+}
+.cs-kicker {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin: 0 0 14px;
+}
+.cs-doc-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin: 0;
+  font-size: clamp(38px, 5vw, 64px);
+}
+
+/* docs: sidebar + article grid */
+.cs-doc-grid {
+  display: grid;
+  align-items: start;
+  gap: clamp(32px, 5vw, 72px);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1000px) {
+  .cs-doc-grid {
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+}
+.cs-doc-aside {
+  position: sticky;
+  top: 28px;
+}
+@media (max-width: 999px) {
+  .cs-doc-aside {
+    position: static;
+  }
+}
+.cs-doc-navlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 1000px) {
+  .cs-doc-navlist {
+    border-left: 1.5px solid var(--line);
+  }
+}
+@media (max-width: 999px) {
+  .cs-doc-navlist {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+  }
+}
+.cs-doc-navlist a {
+  display: block;
+  padding: 7px 0;
+  font-size: 14px;
+  color: var(--ink-70);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+@media (min-width: 1000px) {
+  .cs-doc-navlist a {
+    margin-left: -1.5px;
+    border-left: 1.5px solid transparent;
+    padding-left: 16px;
+  }
+}
+.cs-doc-navlist a:hover {
+  color: var(--accent-deep);
+}
+.cs-doc-navlist a[aria-current="page"] {
+  color: var(--accent-deep);
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+.cs-toc {
+  margin-top: 36px;
+}
+@media (max-width: 999px) {
+  .cs-toc {
+    display: none;
+  }
+}
+.cs-toc-h {
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+.cs-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1.5px solid var(--line);
+}
+.cs-toc a {
+  display: block;
+  padding: 6px 0 6px 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-70);
+  text-decoration: none;
+}
+.cs-toc a:hover {
+  color: var(--accent-deep);
+}
+
+/* pager (prev / next) */
+.cs-doc-pager {
+  display: grid;
+  gap: 0;
+  margin-top: 56px;
+  border-top: 1.5px solid var(--line);
+  border-left: 1.5px solid var(--line);
+}
+@media (min-width: 640px) {
+  .cs-doc-pager {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.cs-doc-pager a {
+  display: block;
+  padding: 20px;
+  border-right: 1.5px solid var(--line);
+  border-bottom: 1.5px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.cs-doc-pager a:hover {
+  background: var(--sand-2);
+}
+.cs-doc-pager .cs-pager-lbl {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+.cs-doc-pager .cs-pager-title {
+  display: block;
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 15px;
+}
+.cs-pager-span2 {
+  grid-column: 1 / -1;
+}
+
+/* "all pages" card grid on the docs overview */
+.cs-doc-cards {
+  display: grid;
+  gap: 0;
+  border-top: 1.5px solid var(--line);
+  border-left: 1.5px solid var(--line);
+}
+@media (min-width: 640px) {
+  .cs-doc-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1100px) {
+  .cs-doc-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.cs-doc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 150px;
+  padding: 24px;
+  border-right: 1.5px solid var(--line);
+  border-bottom: 1.5px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.cs-doc-card:hover {
+  background: var(--sand-2);
+}
+.cs-doc-card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cs-doc-card-title {
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+.cs-doc-card-arrow {
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.cs-doc-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-70);
+}
+.cs-doc-divider {
+  margin: clamp(48px, 6vw, 80px) 0 clamp(32px, 4vw, 48px);
+  border: 0;
+  height: 1.5px;
+  background: var(--line);
+}
+.cs-doc-sub {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(24px, 2.6vw, 32px);
+  margin: 0 0 24px;
+}
+
+/* article (blog post + docs body) prose */
+.cs-prose {
+  max-width: 68ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.cs-prose > :first-child {
+  margin-top: 0;
+}
+.cs-prose h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(24px, 2.4vw, 30px);
+  line-height: 1.15;
+  margin: 2.2em 0 0.6em;
+}
+.cs-prose h3 {
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  margin: 1.8em 0 0.5em;
+}
+.cs-prose p {
+  margin: 0 0 1.15em;
+}
+.cs-prose a {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+.cs-prose a:hover {
+  text-decoration-thickness: 2px;
+}
+.cs-prose ul,
+.cs-prose ol {
+  margin: 0 0 1.15em;
+  padding-left: 1.3em;
+}
+.cs-prose li {
+  margin: 0.35em 0;
+}
+.cs-prose strong {
+  font-weight: 600;
+}
+.cs-prose code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em;
+  background: var(--sand);
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+}
+.cs-prose pre {
+  background: var(--sand-2);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 0 0 1.4em;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.cs-prose pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.cs-prose blockquote {
+  margin: 0 0 1.4em;
+  padding: 4px 0 4px 20px;
+  border-left: 3px solid var(--accent);
+  color: var(--ink-70);
+  font-style: italic;
+}
+.cs-prose hr {
+  border: 0;
+  height: 1.5px;
+  background: var(--line);
+  margin: 2em 0;
+}
+.cs-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.4em;
+  font-size: 14px;
+}
+.cs-prose th,
+.cs-prose td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1.5px solid var(--line);
+}
+.cs-prose th {
+  font-weight: 600;
+  color: var(--ink-70);
+}
+.cs-prose .heading-anchor {
+  color: var(--ink-55);
+  text-decoration: none;
+  margin-left: 0.4em;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.cs-prose h2:hover .heading-anchor,
+.cs-prose h3:hover .heading-anchor {
+  opacity: 1;
+}
+
+/* article header (blog post) */
+.cs-article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 96px) 24px clamp(64px, 8vw, 120px);
+}
+.cs-article-head {
+  margin-bottom: 40px;
+  padding-bottom: 36px;
+  border-bottom: 1.5px solid var(--line);
+}
+.cs-article-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0;
+  max-width: 24ch;
+  font-size: clamp(34px, 4.4vw, 56px);
+}
+.cs-article-desc {
+  margin: 22px 0 0;
+  max-width: 58ch;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-70);
+}
+
+/* blog index list */
+.cs-blog-list {
+  margin-top: 48px;
+  border-top: 1.5px solid var(--line);
+}
+.cs-blog-row {
+  display: grid;
+  gap: 6px 32px;
+  padding: 28px 0;
+  border-bottom: 1.5px solid var(--line);
+  text-decoration: none;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+@media (min-width: 720px) {
+  .cs-blog-row {
+    grid-template-columns: 150px 1fr;
+    align-items: baseline;
+  }
+}
+.cs-blog-row:hover .cs-blog-row-title {
+  color: var(--accent-deep);
+}
+.cs-blog-date {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--ink-55);
+}
+.cs-blog-row-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 28px);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: 0;
+  transition: color 0.15s ease;
+}
+.cs-blog-row-desc {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-70);
+  max-width: 62ch;
+}
