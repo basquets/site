@@ -1,114 +1,23 @@
 ---
 import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
 
-// Genesis — a pinned scroll-story that builds the flagship basket. One centred
-// stage: the title + a live marquee of the whole market; on scroll everything
-// that isn't Genesis fades, and the seven holdings physically gather into a
-// single tight row, then the stats reveal, then a full-width waitlist CTA.
-// GSAP + ScrollTrigger (see <script>). Static fallback on mobile / reduced
+// Genesis — one pinned cover that transforms on scroll. At rest: the jade token
+// (the basket) with its seven holdings orbiting it. On scroll the seven leave
+// their orbits, settle into a row of cards, then funnel down through lines into
+// the token — which reveals its bGEN value — and the stats land. GSAP +
+// ScrollTrigger drive the scrub; a static fallback covers mobile / reduced
 // motion. Numbers are PLACEHOLDER until the live Chainlink island lands.
 
 const genesis = [
-  {
-    sym: "NVDA",
-    name: "NVIDIA",
-    kind: "stock",
-    weight: 18,
-    px: "181.20",
-    chg: 4.1,
-  },
-  {
-    sym: "AAPL",
-    name: "Apple",
-    kind: "stock",
-    weight: 16,
-    px: "232.60",
-    chg: 1.2,
-  },
-  {
-    sym: "BTC",
-    name: "Bitcoin",
-    kind: "crypto",
-    weight: 16,
-    px: "95,240",
-    chg: 2.6,
-  },
-  {
-    sym: "MSFT",
-    name: "Microsoft",
-    kind: "stock",
-    weight: 15,
-    px: "441.10",
-    chg: 0.9,
-  },
-  {
-    sym: "ETH",
-    name: "Ethereum",
-    kind: "crypto",
-    weight: 14,
-    px: "3,410",
-    chg: 5.4,
-  },
-  {
-    sym: "AMZN",
-    name: "Amazon",
-    kind: "stock",
-    weight: 13,
-    px: "233.90",
-    chg: 2.2,
-  },
-  {
-    sym: "LINK",
-    name: "Chainlink",
-    kind: "crypto",
-    weight: 8,
-    px: "24.80",
-    chg: 6.3,
-  },
+  { sym: "NVDA", name: "NVIDIA", kind: "stock", px: "181.20", chg: 4.1 },
+  { sym: "AAPL", name: "Apple", kind: "stock", px: "232.60", chg: 1.2 },
+  { sym: "BTC", name: "Bitcoin", kind: "crypto", px: "95,240", chg: 2.6 },
+  { sym: "MSFT", name: "Microsoft", kind: "stock", px: "441.10", chg: 0.9 },
+  { sym: "ETH", name: "Ethereum", kind: "crypto", px: "3,410", chg: 5.4 },
+  { sym: "AMZN", name: "Amazon", kind: "stock", px: "233.90", chg: 2.2 },
+  { sym: "LINK", name: "Chainlink", kind: "crypto", px: "24.80", chg: 6.3 },
 ];
-const others = [
-  { sym: "GOOGL", name: "Alphabet", kind: "stock", px: "201.40", chg: 3.0 },
-  { sym: "META", name: "Meta", kind: "stock", px: "604.50", chg: 2.7 },
-  { sym: "TSLA", name: "Tesla", kind: "stock", px: "412.80", chg: -1.8 },
-  { sym: "SOL", name: "Solana", kind: "crypto", px: "214.30", chg: 7.9 },
-  { sym: "COIN", name: "Coinbase", kind: "stock", px: "312.10", chg: -0.6 },
-  { sym: "PLTR", name: "Palantir", kind: "stock", px: "88.40", chg: 5.1 },
-  {
-    sym: "MSTR",
-    name: "MicroStrategy",
-    kind: "stock",
-    px: "402.70",
-    chg: -2.3,
-  },
-  { sym: "ORCL", name: "Oracle", kind: "stock", px: "196.20", chg: 1.4 },
-  { sym: "AMD", name: "AMD", kind: "stock", px: "168.90", chg: 3.6 },
-  { sym: "INTC", name: "Intel", kind: "stock", px: "42.10", chg: -1.1 },
-  { sym: "MU", name: "Micron", kind: "stock", px: "112.30", chg: 2.9 },
-  { sym: "CRWD", name: "CrowdStrike", kind: "stock", px: "372.50", chg: 0.8 },
-];
-// Interleave Genesis holdings across the market row.
-const market = [
-  others[0],
-  genesis[0],
-  others[1],
-  others[2],
-  genesis[1],
-  others[3],
-  genesis[2],
-  others[4],
-  others[5],
-  genesis[3],
-  others[6],
-  genesis[4],
-  others[7],
-  others[8],
-  genesis[5],
-  others[9],
-  others[10],
-  genesis[6],
-  others[11],
-];
-const isGen = (sym: string) => genesis.some((g) => g.sym === sym);
+
 // Most stock logos are colour PNGs; a few brand marks ship as monochrome SVGs
 // (the PNG set had them white-on-transparent, invisible on the light tile).
 const stockSvg = new Set(["AAPL", "INTC", "AMZN"]);
@@ -117,25 +26,19 @@ const logoSrc = (c: { sym: string; kind: string }) =>
     ? `/logos/crypto/${c.sym.toLowerCase()}.svg`
     : `/logos/stock/${c.sym}.${stockSvg.has(c.sym) ? "svg" : "png"}`;
 
-// Per-holding orbit: each rides its own tilted ellipse at its own speed, so the
-// seven read as distinct orbits around the token rather than one shared ring.
-// fx/fy scale a base radius (wider than tall = orbital plane seen at an angle),
-// tilt rotates that plane, dur sets the sweep. Index-aligned with `genesis`.
+// Per-holding orbit: each circles the token like a planet — its own radius (rf,
+// a factor on a shared base), speed (dur) and start phase (ph). Round circles,
+// no tilt, so the badges read as bodies orbiting the basket.
+// Radii + phases spread evenly around the circle (and speeds kept distinct) so no
+// two badges share an orbit band or clump together as they circle.
 const orbits = [
-  { fx: 1.3, fy: 0.62, tilt: -12, dur: 56, ph: 0.02 }, // NVDA
-  { fx: 1.18, fy: 0.78, tilt: 20, dur: 64, ph: 0.3 }, // AAPL
-  { fx: 1.46, fy: 0.55, tilt: 6, dur: 48, ph: 0.62 }, // BTC
-  { fx: 1.12, fy: 0.8, tilt: -22, dur: 68, ph: 0.16 }, // MSFT
-  { fx: 1.38, fy: 0.66, tilt: 26, dur: 52, ph: 0.45 }, // ETH
-  { fx: 1.25, fy: 0.72, tilt: -8, dur: 60, ph: 0.8 }, // AMZN
-  { fx: 1.52, fy: 0.58, tilt: 15, dur: 46, ph: 0.48 }, // LINK
-];
-
-const stats = [
-  { big: "+3.6%", label: "since launch" },
-  { big: "7", label: "holdings · 4 stocks / 3 crypto" },
-  { big: "1", label: "signature to own them all" },
-  { big: "0.5%", label: "streaming fee at launch" },
+  { rf: 0.72, dur: 40, ph: 0.0 }, // NVDA
+  { rf: 1.3, dur: 58, ph: 0.14 }, // AAPL
+  { rf: 0.95, dur: 46, ph: 0.28 }, // BTC
+  { rf: 1.15, dur: 64, ph: 0.42 }, // MSFT
+  { rf: 0.82, dur: 38, ph: 0.57 }, // ETH
+  { rf: 1.42, dur: 70, ph: 0.71 }, // AMZN
+  { rf: 1.05, dur: 52, ph: 0.85 }, // LINK
 ];
 ---
 <ComingSoonLayout
@@ -144,124 +47,122 @@ const stats = [
   badges={false}
 >
   <div class="gs" data-gs-root>
-    <!-- hero cover: the flagship, its holdings, the thesis -->
-    <section class="gs-hero">
-      <div class="gs-hero-artwrap" data-gs-art aria-hidden="true">
-        <span class="gs-hero-glow"></span>
-        <img class="gs-hero-art" src="/genesis-token.webp" alt="" width="1500" height="1137" />
-        <div class="gs-orbit">
+    <!-- the scroll track: tall, so the pinned cover has room to play out -->
+    <div class="gs-scene" data-gs-scene>
+      <section class="gs-pin" data-gs-pin>
+        <!-- header: the tag + title fade out on scroll; the thesis line stays on top -->
+        <div class="gs-hero-top">
+          <div class="gs-hero-fade" data-gs-fade>
+            <span class="cs-tag">The flagship basket · curated by Basquets</span>
+            <h1 class="cs-display gs-title">Genesis.</h1>
+          </div>
+          <p class="gs-heroline">Incumbents and insurgents, in one self-custodied token.</p>
+        </div>
+
+        <!-- the jade token = the basket (bGEN). The holdings orbit it, then funnel in -->
+        <div class="gs-planet" data-gs-planet>
+          <span class="gs-hero-glow" aria-hidden="true"></span>
+          <img class="gs-hero-art" src="/genesis-token.webp" alt="" width="1500" height="1137" aria-hidden="true" />
+        </div>
+
+        <!-- the seven holdings: orbit at rest (each on its own tilted ellipse via a
+             JS-built offset-path), settle into a card row on scroll -->
+        <div class="gs-orbit" data-gs-orbit>
           {genesis.map((c, i) => (
             <span
-              class="gs-orbit-lane"
-              style={`--tilt:${orbits[i].tilt}deg;--dur:${orbits[i].dur}s;--fx:${orbits[i].fx};--fy:${orbits[i].fy};--ph:${orbits[i].ph}`}
+              class="gs-orbit-chip"
+              data-gs-chip
+              data-i={i}
+              data-sym={c.sym}
+              style={`--dur:${orbits[i].dur}s;--ph:${orbits[i].ph};--rf:${orbits[i].rf}`}
             >
-              <span class="gs-orbit-chip">
-                <span class="gs-orbit-chip-in">
+              <span class="gs-orbit-chip-in">
+                <span class="gs-chip-top">
                   <i class="gs-orbit-logo"><img src={logoSrc(c)} alt="" width="18" height="18" /></i>
-                  <b>{c.sym}</b>
+                  <b class="gs-chip-sym">{c.sym}</b>
+                </span>
+                <span class="gs-chip-extra" data-gs-extra>
+                  <span class="gs-chip-name">{c.name}</span>
+                  <span class="gs-chip-foot">
+                    <span class="gs-chip-px">${c.px}</span>
+                    <span class={`gs-chip-chg ${c.chg >= 0 ? "cs-up" : "cs-down"}`}>
+                      {c.chg >= 0 ? "▲" : "▼"} {Math.abs(c.chg)}%
+                    </span>
+                  </span>
                 </span>
               </span>
             </span>
           ))}
         </div>
-      </div>
-      <div class="gs-hero-top">
-        <span class="cs-tag">The flagship basket · curated by Basquets</span>
-        <h1 class="cs-display gs-title">Genesis.</h1>
-      </div>
-      <div class="gs-hero-shelf">
-        <p class="gs-heroline">Incumbents and insurgents, in one self-custodied token.</p>
-      </div>
-      <span class="gs-scrolldown">Scroll down ↓</span>
-    </section>
 
-    <div class="gs-stagewrap" data-gs-wrap>
-      <div class="gs-stage" data-gs-stage>
-        <div class="gs-group" data-gs-group>
-          <div class="gs-row" data-gs-row>
-            <div class="gs-track" data-gs-track>
-              {[false, true].map((dup) =>
-                market.map((c) => (
-                  <article class="gs-card" data-genesis={isGen(c.sym)} data-dup={dup}>
-                    <div class="gs-card-head">
-                      <span class="gs-logo">
-                        <img src={logoSrc(c)} alt="" loading="lazy" width="28" height="28" />
-                      </span>
-                      <span class="gs-card-id">
-                        <b class="gs-sym">{c.sym}</b>
-                        <span class="gs-name">{c.name}</span>
-                      </span>
-                    </div>
-                    <div class="gs-card-foot">
-                      <span class="gs-px">${c.px}</span>
-                      <span class={`gs-chg ${c.chg >= 0 ? "cs-up" : "cs-down"}`}>{c.chg >= 0 ? "▲" : "▼"} {Math.abs(c.chg)}%</span>
-                    </div>
-                  </article>
-                )),
-              )}
-            </div>
-          </div>
-        </div>
-
-        <!-- lines the seven funnel down into the basket token -->
+        <!-- funnel lines the seven draw down into the token (paths built in JS) -->
         <svg class="gs-lines" data-gs-lines aria-hidden="true"></svg>
 
-        <!-- the minted basket token, a real onchain asset -->
-        <div class="gs-token" data-gs-token>
-          <span class="gs-token-mark" aria-hidden="true"></span>
-          <span class="gs-token-id">
-            <span class="gs-token-sym">bGEN</span>
-            <span class="gs-token-name">Genesis · basket token</span>
-          </span>
-          <span class="gs-token-val">
-            <span class="gs-token-price">$103.60</span>
-            <span class="cs-return-val cs-up gs-token-chg">+3.6%</span>
-          </span>
-        </div>
-
-        <!-- revealed once the token is minted -->
-        <div class="gs-culmination" data-gs-cul>
-          <div class="gs-stats">
-            {stats.map((s) => (
-              <div class="gs-stat">
-                <span class="gs-stat-big">{s.big}</span>
-                <span class="gs-stat-label">{s.label}</span>
-              </div>
-            ))}
+        <!-- the token's minted value, revealed as the lines arrive into it -->
+        <div class="gs-bgen" data-gs-bgen>
+          <div class="gs-bgen-card">
+            <span class="gs-bgen-mark" aria-hidden="true"><img src="/genesis-token.webp" alt="" width="1500" height="1137" /></span>
+            <span class="gs-bgen-id">
+              <span class="gs-bgen-sym">bGEN</span>
+              <span class="gs-bgen-name">Genesis · basket token</span>
+            </span>
+            <span class="gs-bgen-val">
+              <span class="gs-bgen-px">$103.60</span>
+              <span class="cs-return-val cs-up gs-bgen-chg">+3.6%</span>
+            </span>
           </div>
         </div>
-      </div>
+
+        <span class="gs-scrolldown" data-gs-scroll>Scroll down ↓</span>
+      </section>
     </div>
 
-    <!-- ACT close — CTA -->
-    <section class="gs-cta">
-      <span class="cs-tag">Early access</span>
-      <h2 class="cs-display cs-display--sm">Own Genesis in <em>one signature.</em></h2>
-      <p class="gs-cta-sub">
-        Priced live by Chainlink, self-custodied, yours. Join the waitlist to draft baskets before
-        anyone else.
-      </p>
-      <div class="cs-cta-row" style="justify-content:center;">
-        <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
-        <a href="/" class="cs-pill cs-pill--ghost cs-pill--lg">← Back home</a>
+    <!-- ACT close — CTA. The funnel line continues down and draws a rounded border
+         around this card as it scrolls in; the content fades in behind it. -->
+    <section class="gs-cta" data-gs-cta>
+      <div class="gs-cta-card" data-gs-cta-card>
+        <svg class="gs-cta-frame" data-gs-cta-frame aria-hidden="true" preserveAspectRatio="none">
+          <path data-gs-cta-path></path>
+        </svg>
+        <div class="gs-cta-inner" data-gs-cta-inner>
+          <span class="cs-tag">Early access</span>
+          <h2 class="cs-display cs-display--sm">Own Genesis in <em>one signature.</em></h2>
+          <p class="gs-cta-sub">
+            Priced live by Chainlink, self-custodied, yours. Join the waitlist to draft baskets
+            before anyone else.
+          </p>
+          <div class="cs-cta-row" style="justify-content:center;">
+            <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
+            <a href="/docs" class="cs-pill cs-pill--ghost cs-pill--lg">Learn more →</a>
+          </div>
+        </div>
       </div>
     </section>
   </div>
 </ComingSoonLayout>
 
 <style>
-  /* hero cover — one viewport: text up top under the nav, holdings shelf lower,
-     scroll cue pinned to the bottom */
-  .gs-hero { position: relative; min-height: calc(100dvh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; padding: clamp(28px, 4vh, 52px) clamp(20px, 5vw, 48px) clamp(120px, 18vh, 176px); }
-  .gs-hero-top { max-width: 640px; position: relative; z-index: 1; }
-  .gs-hero-shelf { max-width: 720px; position: relative; z-index: 1; }
-  .gs-hero-shelf .gs-heroline { margin-top: 18px; }
-  /* the generated centrepiece — jade token on ivory: the cream multiplies away,
-     leaving the stone + gold ring. The wrapper carries the mouse parallax (via
-     --px/--py from JS) so it never fights the float keyframe on the image. */
-  .gs-hero-artwrap {
-    position: absolute; top: 53%; left: 50%; z-index: 0;
-    width: min(52vh, 470px); max-width: 82vw; pointer-events: none;
+  /* the pinned cover fills one viewport; the scene above it is the scroll track */
+  .gs-scene { position: relative; height: 300vh; }
+  .gs-pin { position: relative; height: calc(100dvh - 84px); min-height: 640px; overflow: hidden; }
+
+  /* title + thesis, top-centred */
+  .gs-hero-top {
+    position: absolute; left: 50%; top: clamp(28px, 6vh, 72px); transform: translateX(-50%);
+    width: min(720px, 90vw); text-align: center; z-index: 4;
+  }
+  .gs-title { margin: 12px 0 0; font-size: clamp(56px, 10vw, 128px); }
+  .gs-heroline {
+    margin: 18px auto 0; font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: clamp(17px, 1.9vw, 24px); color: var(--ink-70); white-space: nowrap;
+  }
+
+  /* the jade token, centred — parallax (--px/--py inherited from the pin) + float.
+     A real orbit: each badge's z-index flips with its depth (JS), so badges on the
+     far half ride fully behind the planet and the near half fully in front. */
+  .gs-planet {
+    position: absolute; top: 53%; left: 50%; z-index: 2;
+    width: min(62vh, 575px); max-width: 92vw; pointer-events: none;
     transform: translate(calc(-50% + var(--px, 0px)), calc(-50% + var(--py, 0px)));
   }
   .gs-hero-art {
@@ -273,7 +174,6 @@ const stats = [
     0%, 100% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(-14px) rotate(0.8deg); }
   }
-  /* soft green halo behind the token, gently breathing */
   .gs-hero-glow {
     position: absolute; left: 50%; top: 52%; width: 74%; height: 74%;
     transform: translate(-50%, -50%); border-radius: 50%;
@@ -285,165 +185,119 @@ const stats = [
     0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.92); }
     50% { opacity: 0.78; transform: translate(-50%, -50%) scale(1.08); }
   }
-  /* the seven holdings, each on its OWN orbit around the token. A per-chip lane
-     rotates the orbital plane (--tilt); inside it the chip rides its own tilted
-     ellipse via offset-path (--fx/--fy scale a shared base radius) at its own
-     speed (--dur). offset-rotate:0 keeps the chip aligned to the tilted lane, so
-     the inner pill counter-rotates (-tilt) to stay upright in the world. */
-  .gs-orbit { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-  .gs-orbit-lane { position: absolute; inset: 0; transform: rotate(var(--tilt)); }
+
+  /* the orbit box fills the pin (no z-index of its own, so each badge can stack
+     independently against the planet for the behind/in-front depth effect) */
+  .gs-orbit { position: absolute; inset: 0; pointer-events: none; }
+  /* each badge circles the token on its own round orbit (rf scales a base radius);
+     no tilt, so GSAP can later translate it to a row slot in plain screen space.
+     z-index defaults to in-front (3); the depth loop drops it to 1 on the far half. */
   .gs-orbit-chip {
-    --R: min(30vh, 260px);
-    position: absolute; left: 0; top: 0;
-    offset-path: ellipse(calc(var(--R) * var(--fx)) calc(var(--R) * var(--fy)) at 50% 50%);
+    --base: min(32vh, 280px);
+    position: absolute; left: 0; top: 0; z-index: 3;
+    offset-path: circle(calc(var(--rf) * var(--base)) at 50% 53%);
     offset-rotate: 0deg;
     offset-distance: calc(var(--ph) * 100%);
     animation: gs-orbit var(--dur) linear infinite;
   }
+  @keyframes gs-orbit { to { offset-distance: calc(var(--ph) * 100% + 100%); } }
+  /* the badge itself — a tight glass pill (logo + ticker) at rest; on settle the
+     detail caption below it fades in, so the pill stays tight and never reflows. */
   .gs-orbit-chip-in {
+    position: relative;
     display: inline-flex; align-items: center; gap: 6px;
-    transform: rotate(calc(-1 * var(--tilt)));
     padding: 4px 11px 4px 5px; border-radius: 999px;
-    background: color-mix(in oklch, var(--cream) 72%, transparent);
+    background: color-mix(in oklch, var(--cream) 74%, transparent);
     border: 1px solid color-mix(in oklch, var(--ink) 9%, transparent);
     backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
     box-shadow: 0 6px 18px rgba(30, 34, 22, 0.12);
-    font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: var(--ink);
-    white-space: nowrap;
+    font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap;
   }
+  .gs-chip-top { display: inline-flex; align-items: center; gap: 6px; }
   .gs-orbit-logo {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; background: #fff; border-radius: 6px;
+    width: 22px; height: 22px; background: #fff; border-radius: 6px; flex: none;
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
   }
   .gs-orbit-logo img { width: 16px; height: 16px; display: block; object-fit: contain; }
-  @keyframes gs-orbit {
-    to { offset-distance: calc(var(--ph) * 100% + 100%); }
+  /* detail caption — absolute below the pill, so revealing it never widens the pill */
+  .gs-chip-extra {
+    position: absolute; top: calc(100% + 7px); left: 50%;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    opacity: 0; white-space: nowrap; pointer-events: none;
   }
+  .gs-chip-name { font-size: 11.5px; font-weight: 500; color: var(--ink-55); }
+  .gs-chip-foot { display: flex; align-items: center; gap: 8px; }
+  .gs-chip-px { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gs-chip-chg { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 2px 7px; border-radius: 999px; }
+  .gs-chip-chg.cs-up { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent-deep); }
+  .gs-chip-chg.cs-down { background: color-mix(in srgb, var(--down) 13%, transparent); color: var(--down); }
+
+  /* the funnel lines (paths created in JS lack Astro's scope attribute) */
+  /* z-index 0 — below the planet (1), so the funnel lines pass behind the token */
+  .gs-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
+  :global(.gs-line) { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.55; stroke-linecap: round; }
+
+  /* the minted bGEN token, a card that fades in as the lines arrive into it */
+  .gs-bgen {
+    position: absolute; left: 50%; top: auto; bottom: clamp(18px, 4vh, 48px); transform: translateX(-50%);
+    opacity: 0; z-index: 4;
+  }
+  .gs-bgen-card {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 13px 22px 13px 13px; border-radius: 18px;
+    background:
+      radial-gradient(130% 130% at 18% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 62%),
+      color-mix(in srgb, #fff 82%, var(--sand-2));
+    border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+    box-shadow: 0 14px 34px -20px color-mix(in srgb, var(--accent) 46%, transparent);
+  }
+  .gs-bgen-mark { width: 46px; height: 46px; flex: none; display: grid; place-items: center; }
+  .gs-bgen-mark img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(28, 44, 26, 0.28)); }
+  .gs-bgen-id { display: flex; flex-direction: column; align-items: flex-start; }
+  .gs-bgen-sym { font-weight: 700; font-size: 18px; letter-spacing: 0.01em; }
+  .gs-bgen-name { font-size: 12px; color: var(--ink-55); }
+  .gs-bgen-val { display: flex; flex-direction: column; align-items: flex-end; margin-left: 10px; }
+  .gs-bgen-px { font-family: var(--serif); font-size: clamp(23px, 2.6vw, 30px); font-weight: 500; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .gs-bgen-chg { font-size: 14px; }
+
+  /* scroll hint */
+  .gs-scrolldown { position: absolute; bottom: clamp(20px, 4vh, 40px); left: 50%; transform: translateX(-50%); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-55); opacity: 0.7; z-index: 5; animation: gs-bob 2.4s ease-in-out infinite; }
+  @keyframes gs-bob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
+
   @media (prefers-reduced-motion: reduce) {
     .gs-hero-art, .gs-hero-glow, .gs-orbit-chip { animation: none; }
   }
 
-  /* pinned stage */
-  .gs-stagewrap { height: 320vh; position: relative; }
-  .gs-stage { height: 100vh; overflow: hidden; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-  /* centred group: title + marquee row, tight together */
-  .gs-group { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 56px); width: 100%; will-change: transform; }
-  .gs-head { text-align: center; padding: 0 clamp(20px, 5vw, 48px); }
-  .gs-title { margin: 12px 0 0; font-size: clamp(56px, 10vw, 132px); }
-  .gs-sub { max-width: 50ch; margin: 18px auto 0; font-size: clamp(16px, 1.5vw, 21px); line-height: 1.55; color: var(--ink-70); }
-  /* asset chip — logo tile + bold ticker, no chrome */
-  .gs-asset {
-    display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;
-    font-weight: 600; color: var(--ink); white-space: nowrap;
+  /* CTA — a card the funnel line wraps as it scrolls in. The extra bottom space
+     gives the border-draw room to finish before the footer. */
+  .gs-cta { max-width: 760px; margin: 0 auto clamp(24px, 6vh, 72px); padding: clamp(2px, 1vh, 14px) clamp(20px, 5vw, 48px) 0; text-align: center; }
+  .gs-cta-card { position: relative; padding: clamp(30px, 5vh, 54px) clamp(24px, 5vw, 52px); border-radius: 28px; }
+  .gs-cta-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+  .gs-cta-frame path { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.6; stroke-linecap: round; stroke-linejoin: round; }
+  .gs-cta-inner { position: relative; z-index: 1; }
+  .gs-cta .cs-display { margin: 14px 0 0; font-size: clamp(27px, 4.4vw, 47px); white-space: nowrap; }
+  .gs-cta-sub { max-width: 46ch; margin: 16px auto 30px; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.6; color: var(--ink-70); }
+  @media (max-width: 640px) {
+    .gs-cta .cs-display { white-space: normal; font-size: clamp(26px, 7vw, 34px); }
   }
-  /* the holdings shelf: 4 stocks · 3 crypto */
-  .gs-shelf { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 11px 16px; margin: 24px auto 0; max-width: 660px; }
-  .gs-shelf .gs-asset { font-size: clamp(15px, 1.4vw, 18px); }
-  .gs-shelf-div { width: 1px; height: 22px; background: var(--line); }
-  .gs-asset i {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 21px; height: 21px; border-radius: 6px; background: #fff;
-    box-shadow: 0 1px 3px -1px color-mix(in srgb, var(--ink) 45%, transparent);
-  }
-  .gs-asset i img { width: 14px; height: 14px; object-fit: contain; display: block; }
-  /* the payoff line, italic, one line, closing the hero */
-  .gs-heroline { margin: 20px auto 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(18px, 1.9vw, 25px); color: var(--ink-70); white-space: nowrap; }
-  /* scroll hint, pinned to the bottom of the viewport */
-  .gs-scrolldown { position: absolute; bottom: clamp(24px, 5vh, 54px); left: 50%; transform: translateX(-50%); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-55); opacity: 0.7; z-index: 3; animation: gs-bob 2.4s ease-in-out infinite; }
-  @keyframes gs-bob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
+  /* static: a plain bordered card, no drawn frame */
+  .gs--static .gs-cta-frame { display: none; }
+  .gs--static .gs-cta-card { border: 1px solid var(--line); }
 
-  /* the market marquee */
-  .gs-row { width: 100%; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
-  .gs-track { display: flex; gap: 16px; width: max-content; will-change: transform; }
-  .gs-card {
-    flex: 0 0 auto; width: 178px; display: flex; flex-direction: column; gap: 14px;
-    padding: 16px; border-radius: 18px;
-    background:
-      linear-gradient(180deg, color-mix(in srgb, #fff 32%, transparent), transparent 62%),
-      color-mix(in srgb, #fff 70%, var(--sand-2));
-    border: 1px solid var(--line);
-    box-shadow: 0 20px 40px -26px color-mix(in srgb, var(--ink) 45%, transparent);
-    will-change: transform, opacity, filter;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .gs-card[data-genesis="true"] {
-    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    box-shadow: 0 22px 46px -24px color-mix(in srgb, var(--accent) 46%, transparent);
-    background:
-      radial-gradient(120% 90% at 50% -12%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 60%),
-      color-mix(in srgb, #fff 72%, var(--sand-2));
-  }
-  .gs-card-head { display: flex; align-items: center; gap: 11px; }
-  .gs-logo {
-    width: 42px; height: 42px; flex: none; border-radius: 12px;
-    background: #fff; border: 1px solid var(--line);
-    display: grid; place-items: center; overflow: hidden;
-    box-shadow: 0 2px 6px -3px color-mix(in srgb, var(--ink) 40%, transparent);
-  }
-  .gs-logo img { width: 28px; height: 28px; object-fit: contain; }
-  .gs-card-id { display: flex; flex-direction: column; min-width: 0; }
-  .gs-sym { font-weight: 700; font-size: 15px; letter-spacing: 0.01em; }
-  .gs-name { font-size: 11.5px; color: var(--ink-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .gs-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .gs-px { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .gs-chg { font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 2px 7px; border-radius: 999px; }
-  .gs-chg.cs-up { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent-deep); }
-  .gs-chg.cs-down { background: color-mix(in srgb, var(--down) 13%, transparent); color: var(--down); }
-
-  /* the lines the seven funnel down into the token */
-  .gs-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
-  /* :global — the paths are created in JS and lack Astro's scope attribute */
-  :global(.gs-line) { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.5; stroke-linecap: round; }
-
-  /* the minted basket token — a real onchain asset */
-  .gs-token {
-    position: absolute; left: 50%; top: 60%;
-    display: inline-flex; align-items: center; gap: 14px;
-    padding: 15px 22px 15px 15px; border-radius: 18px;
-    background:
-      radial-gradient(130% 130% at 18% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 62%),
-      color-mix(in srgb, #fff 80%, var(--sand-2));
-    border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
-    box-shadow: 0 34px 64px -30px color-mix(in srgb, var(--accent) 52%, transparent);
-    opacity: 0; z-index: 2;
-  }
-  .gs-token-mark { width: 42px; height: 42px; flex: none; border-radius: 12px; background: var(--accent); box-shadow: inset 0 0 0 5px color-mix(in srgb, #fff 34%, transparent); }
-  .gs-token-id { display: flex; flex-direction: column; }
-  .gs-token-sym { font-weight: 700; font-size: 18px; letter-spacing: 0.01em; }
-  .gs-token-name { font-size: 12px; color: var(--ink-55); }
-  .gs-token-val { display: flex; flex-direction: column; align-items: flex-end; margin-left: 10px; }
-  .gs-token-price { font-family: var(--serif); font-size: 23px; font-weight: 500; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
-  .gs-token-chg { font-size: 14px; }
-
-  /* stats, pinned to the bottom */
-  .gs-culmination { position: absolute; left: 50%; bottom: clamp(40px, 9vh, 92px); width: min(92vw, 680px); opacity: 0; pointer-events: none; z-index: 2; }
-  .gs-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .gs-stat { padding: 16px 12px; border-radius: 14px; background: color-mix(in srgb, #fff 40%, var(--sand-2)); border: 1px solid var(--line); text-align: center; }
-  .gs-stat-big { display: block; font-family: var(--serif); font-size: clamp(22px, 2.8vw, 32px); font-weight: 500; letter-spacing: -0.01em; }
-  .gs-stat-label { display: block; margin-top: 4px; font-size: 11.5px; color: var(--ink-55); line-height: 1.35; }
-
-  /* CTA */
-  .gs-cta { max-width: 760px; margin: 0 auto; padding: clamp(72px, 16vh, 180px) clamp(20px, 5vw, 48px) clamp(80px, 14vh, 160px); text-align: center; }
-  .gs-cta .cs-display { margin: 16px 0 0; }
-  .gs-cta-sub { max-width: 46ch; margin: 18px auto 34px; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.6; color: var(--ink-70); }
-
-  /* static fallback (mobile / reduced motion) */
-  .gs--static .gs-hero { min-height: auto; justify-content: flex-start; gap: 22px; padding-bottom: 8px; }
-  .gs--static .gs-hero-artwrap { display: none; }
-  .gs--static .gs-stagewrap { height: auto; }
-  .gs--static .gs-stage { height: auto; overflow: visible; display: block; padding: 24px clamp(20px, 5vw, 48px) 48px; }
-  .gs--static .gs-group { gap: 32px; }
-  .gs--static .gs-row { overflow: visible; -webkit-mask-image: none; mask-image: none; }
-  .gs--static .gs-track { flex-wrap: wrap; justify-content: center; width: auto; }
-  .gs--static .gs-card[data-genesis="false"], .gs--static .gs-card[data-dup="true"] { display: none; }
-  .gs--static .gs-lines, .gs--static .gs-scrolldown { display: none; }
+  /* static fallback (mobile / reduced motion): a plain, readable stack */
+  .gs--static .gs-scene { height: auto; }
+  .gs--static .gs-pin { height: auto; min-height: 0; overflow: visible; padding: clamp(28px, 6vh, 56px) clamp(20px, 5vw, 40px) 40px; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+  .gs--static .gs-hero-top { position: static; transform: none; }
   .gs--static .gs-heroline { white-space: normal; }
-  .gs--static .gs-token { position: static; opacity: 1; margin: 32px auto 0; }
-  .gs--static .gs-culmination { position: static; opacity: 1; margin: 28px auto 0; }
-
-  @media (max-width: 720px) { .gs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .gs--static .gs-planet { position: static; transform: none; width: min(300px, 68vw); }
+  .gs--static .gs-lines, .gs--static .gs-scrolldown { display: none; }
+  /* holdings become a plain wrapped row of pills with their detail shown */
+  .gs--static .gs-orbit { position: static; inset: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 14px; margin-top: 4px; }
+  .gs--static .gs-orbit-chip { position: static; offset-path: none; animation: none; }
+  .gs--static .gs-orbit-chip-in { margin: 0; }
+  .gs--static .gs-chip-extra { position: static; opacity: 1; transform: none; margin-top: 6px; }
+  .gs--static .gs-bgen { position: static; transform: none; opacity: 1; }
 </style>
 
 <script>
@@ -455,126 +309,185 @@ const stats = [
   if (root) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const small = window.matchMedia("(max-width: 820px)").matches;
+    const force = /[?&]motion=1/.test(location.search); // dev override for reduced-motion previews
 
-    if (reduce || small) {
+    if ((reduce || small) && !force) {
       root.classList.add("gs--static");
     } else {
-      const stage = root.querySelector("[data-gs-stage]") as HTMLElement;
-      const wrap = root.querySelector("[data-gs-wrap]") as HTMLElement;
-      const track = root.querySelector("[data-gs-track]") as HTMLElement;
-      const group = root.querySelector("[data-gs-group]") as HTMLElement;
+      const scene = root.querySelector("[data-gs-scene]") as HTMLElement;
+      const pin = root.querySelector("[data-gs-pin]") as HTMLElement;
+      const fade = root.querySelector("[data-gs-fade]") as HTMLElement;
+      const heroline = root.querySelector(".gs-heroline") as HTMLElement;
+      const planet = root.querySelector("[data-gs-planet]") as HTMLElement;
       const linesSvg = root.querySelector("[data-gs-lines]") as SVGSVGElement;
-      const token = root.querySelector("[data-gs-token]") as HTMLElement;
-      const cul = root.querySelector("[data-gs-cul]") as HTMLElement;
-      const cards = gsap.utils.toArray<HTMLElement>(".gs-card");
-      // the seven that gather = first-set Genesis holdings (not the marquee duplicate)
-      const gather = cards.filter((c) => c.dataset.genesis === "true" && c.dataset.dup === "false");
-      const fadeOut = cards.filter((c) => c.dataset.genesis !== "true" || c.dataset.dup === "true");
+      const bgen = root.querySelector("[data-gs-bgen]") as HTMLElement;
+      const scrollCue = root.querySelector("[data-gs-scroll]") as HTMLElement;
+      const chips = gsap.utils.toArray<HTMLElement>("[data-gs-chip]");
 
-      // Centre the token + stats via GSAP transforms (not CSS) so the tweens below
-      // don't clobber the centring.
-      gsap.set([token, cul], { xPercent: -50 });
-      gsap.set(token, { yPercent: -50 });
-
-      // Pre-create one funnel path per holding so the timeline can target them;
-      // their geometry is set on freeze once positions are known.
+      const ROW_Y = 0.24; // vertical centre of the settled card row (fraction of the pin)
+      const GAP = 14;
+      let fitScale = 1;
+      let heroRise = 0;
       const linePaths: SVGPathElement[] = [];
-      for (let i = 0; i < gather.length; i++) {
+      for (let i = 0; i < chips.length; i++) {
         const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
         p.setAttribute("class", "gs-line");
         linesSvg.appendChild(p);
         linePaths.push(p);
       }
 
-      // Seamless marquee: shift the track by exactly one card-set width and loop.
-      const marquee = gsap.to(track, { x: () => -track.scrollWidth / 2, duration: 46, ease: "none", repeat: -1 });
-
-      // The seven gather at FULL size into a row in the upper third; lines then
-      // funnel down into the bGEN token. Targets measured once, marquee frozen.
-      const GAP = 10;
-      const ROW_Y = 0.36; // vertical centre of the gathered row (fraction of vh)
-      const TOKEN_Y = 0.66; // vertical centre of the bGEN token
-      const centers: number[] = [];
-      let cardH = 0;
-      let fitScale = 1; // shrink only enough that all seven fit the viewport width
-      let groupShift = 0; // move the WHOLE group up so the row lands at ROW_Y (nothing flies out on its own)
-      function computeTargets() {
-        const cardW = gather[0].offsetWidth;
-        cardH = gather[0].offsetHeight;
-        const natural = gather.length * cardW + (gather.length - 1) * GAP;
-        fitScale = Math.min(1, (window.innerWidth * 0.94) / natural);
-        const spacing = (cardW + GAP) * fitScale;
-        const total = gather.length * spacing - GAP * fitScale;
-        const startCenter = window.innerWidth / 2 - total / 2 + (cardW * fitScale) / 2;
-        const targetY = window.innerHeight * ROW_Y;
-        const r0 = gather[0].getBoundingClientRect();
-        groupShift = targetY - (r0.top + r0.height / 2);
-        centers.length = 0;
-        gather.forEach((c, i) => {
-          const r = c.getBoundingClientRect();
-          const cx = startCenter + i * spacing;
-          centers[i] = cx;
-          (c as any)._dx = cx - (r.left + r.width / 2);
-        });
+      // Freeze the orbits and lock every measured target exactly once, the first
+      // time the pin engages — measuring again later (on re-enter / refresh) would
+      // read already-transformed chips and corrupt the reverse scrub.
+      let frozen = false;
+      // Resume the live orbit when the pin is scrolled back off the top, so the
+      // badges circle again instead of staying stuck at their frozen positions.
+      function unfreeze() {
+        frozen = false;
+        (root as HTMLElement).classList.remove("gs--frozen");
       }
+      function freeze() {
+        if (frozen) return;
+        frozen = true;
+        (root as HTMLElement).classList.add("gs--frozen"); // pauses the CSS orbit animation
+        // pin is the (fixed) reference; slots + lines are computed in its space
+        const pr = pin.getBoundingClientRect();
+        const planetR = planet.getBoundingClientRect();
 
-      // Set each funnel path's geometry: from the card's underside to the token.
-      function buildLines() {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        linesSvg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
-        const rowBottom = vh * ROW_Y + (cardH * fitScale) / 2;
-        const bx = vw / 2;
-        const by = vh * TOKEN_Y - 46; // roughly the token's top edge
-        linePaths.forEach((p, i) => {
-          const cx = centers[i];
-          p.setAttribute("d", `M ${cx} ${rowBottom} C ${cx} ${rowBottom + 90}, ${bx} ${by - 90}, ${bx} ${by}`);
+        const cardW = 118; // pill + its caption footprint
+        const natural = chips.length * cardW + (chips.length - 1) * GAP;
+        fitScale = Math.min(1, (pr.width * 0.9) / natural);
+        const spacing = (cardW + GAP) * fitScale;
+        const total = chips.length * spacing - GAP * fitScale;
+        const startX = pr.left + pr.width / 2 - total / 2 + (cardW * fitScale) / 2;
+        const rowY = pr.top + pr.height * ROW_Y;
+        heroRise = (fade ? fade.offsetHeight : 120) * 0.82; // how far the thesis line climbs
+
+        // funnel routes card → through the token's centre → down into bGEN, so the
+        // seven merge behind the planet into one strand that becomes the token (all
+        // pin-local coords for the SVG). The mid section is hidden behind the planet.
+        const planetMidY = planetR.top + planetR.height * 0.5 - pr.top;
+        // converge on the bGEN card's true centre (measured) so the strand lines up
+        // with the card and the CTA connector below — not the parallax-shifted planet
+        const bgenR = bgen.getBoundingClientRect();
+        const bxL = bgenR.left + bgenR.width / 2 - pr.left;
+        const bgenY = bgenR.top + bgenR.height * 0.4 - pr.top;
+        const rowYL = pr.height * ROW_Y;
+
+        chips.forEach((chip, i) => {
+          const r = chip.getBoundingClientRect();
+          const cx0 = r.left + r.width / 2;
+          const cy0 = r.top + r.height / 2;
+          const slotX = startX + i * spacing;
+          // circular orbits (no tilt) → the travel delta is plain screen space
+          (chip as any)._tx = slotX - cx0;
+          (chip as any)._ty = rowY - cy0;
+          chip.style.zIndex = "3"; // settled cards sit in front of the token
+          // funnel line: card underside → planet centre → bGEN (pin-local)
+          const slotXL = slotX - pr.left;
+          const startLineY = rowYL + 42 * fitScale;
+          const p = linePaths[i];
+          // card → through the token → down behind the card to the pin's foot, so a
+          // single centred strand emerges from under the card toward the CTA
+          p.setAttribute("d", `M ${slotXL} ${startLineY} C ${slotXL} ${startLineY + 120}, ${bxL} ${planetMidY}, ${bxL} ${bgenY} L ${bxL} ${pr.height}`);
           const len = p.getTotalLength();
           p.style.strokeDasharray = `${len}`;
           p.style.strokeDashoffset = `${len}`;
         });
-      }
-
-      // Freeze the marquee and lock every measured value exactly ONCE, the first
-      // time the pin engages. Recomputing later (on re-enter / refresh) would
-      // measure already-transformed elements and corrupt the reverse scrub.
-      let frozen = false;
-      function freeze() {
-        marquee.pause();
-        if (frozen) return;
-        computeTargets();
-        buildLines();
-        frozen = true;
+        linesSvg.setAttribute("viewBox", `0 0 ${pr.width} ${pr.height}`);
         tl.invalidate();
       }
 
+      // Real-orbit depth: while circling (not settling), a badge above the planet's
+      // centre line rides fully behind it (z 1), below rides fully in front (z 3).
+      // Whole-badge — no seam — and the flip lands at the planet's side edge.
+      function depthTick() {
+        if (!frozen) {
+          const pc = planet.getBoundingClientRect();
+          const midY = pc.top + pc.height * 0.5;
+          for (const chip of chips) {
+            const r = chip.getBoundingClientRect();
+            chip.style.zIndex = r.top + r.height / 2 < midY ? "1" : "3";
+          }
+        }
+        requestAnimationFrame(depthTick);
+      }
+      requestAnimationFrame(depthTick);
+
+      const extras = chips.map((c) => c.querySelector("[data-gs-extra]") as HTMLElement);
+      gsap.set(bgen, { xPercent: -50 });
+      gsap.set(extras, { xPercent: -50, y: 6 }); // caption centred under its pill
+
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: wrap,
+          trigger: scene,
           start: "top top",
           end: "bottom bottom",
           scrub: 0.8,
-          pin: stage,
+          pin: pin,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onEnter: freeze,
-          onEnterBack: () => marquee.pause(),
+          onEnterBack: freeze,
+          onLeaveBack: unfreeze,
         },
       });
 
-      gsap.set(gather, { zIndex: 3 }); // keep the seven above the crowd
+      // 1 — tag + title fade; the thesis line rises to the top and stays; cue clears
+      tl.to(fade, { opacity: 0, y: -20, duration: 0.5, ease: "power2.in" }, 0);
+      tl.to(heroline, { y: () => -heroRise, duration: 0.7, ease: "power2.inOut" }, 0);
+      tl.to(scrollCue, { opacity: 0, duration: 0.4 }, 0);
+      // 2 — the seven leave their orbits and settle into the row
+      tl.to(chips, { x: (i, t) => (t as any)._tx, y: (i, t) => (t as any)._ty, duration: 1.2, ease: "power2.inOut", stagger: 0.04 }, 0.1);
+      // 3 — each pill reveals its detail caption
+      tl.to(extras, { opacity: 1, y: 0, duration: 0.6, ease: "power1.out", stagger: 0.04 }, 0.7);
+      // 4 — the lines funnel down behind the token
+      tl.to(linePaths, { strokeDashoffset: 0, duration: 0.7, ease: "power1.inOut", stagger: 0.03 }, 1.35);
+      // 5 — as the lines arrive, the bGEN card fades in where they converge
+      tl.fromTo(bgen, { opacity: 0, y: 14, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power2.out" }, 1.85);
 
-      // 2 — the whole row drifts up together while the seven converge horizontally.
-      tl.to(group, { y: () => groupShift, duration: 1.3, ease: "power2.inOut" }, 0.15);
-      tl.to(gather, { x: (i, t) => (t as any)._dx, scale: () => fitScale, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
-      // 3 — ...and the rest of the market dissolves around them.
-      tl.to(fadeOut, { opacity: 0, scale: 0.84, filter: "grayscale(1)", duration: 0.7, stagger: { each: 0.01, from: "random" } }, 0.3);
-      // 5 — the seven funnel down as lines...
-      tl.to(linePaths, { strokeDashoffset: 0, duration: 0.6, ease: "power1.inOut", stagger: 0.03 }, 1.45);
-      // 6 — ...minting the bGEN token...
-      tl.fromTo(token, { opacity: 0, scale: 0.7, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.6)" }, 1.75);
-      // 7 — ...and its stats.
-      tl.fromTo(cul, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5 }, 2.0);
+      // CTA — the funnel line carries on into a rounded border that draws itself
+      // around the card as it scrolls in; the content fades in with it.
+      const ctaCard = root.querySelector("[data-gs-cta-card]") as HTMLElement;
+      const ctaPath = root.querySelector("[data-gs-cta-path]") as SVGPathElement;
+      const ctaFrame = root.querySelector("[data-gs-cta-frame]") as SVGSVGElement;
+      const ctaInner = root.querySelector("[data-gs-cta-inner]") as HTMLElement;
+      if (ctaCard && ctaPath && ctaFrame && ctaInner) {
+        const buildFrame = () => {
+          const w = ctaCard.clientWidth;
+          const h = ctaCard.clientHeight;
+          const r = 28;
+          const cx = w / 2;
+          // reach the connector up exactly to the foot of the pinned scene, where the
+          // strand from under the bGEN card ends — closes the gap at any size
+          const docY = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+          const sceneBottom = docY(scene) + scene.offsetHeight;
+          const CONN = Math.max(36, Math.min(400, docY(ctaCard) - sceneBottom + 4));
+          ctaFrame.setAttribute("viewBox", `0 0 ${w} ${h}`); // 1:1; connector draws above via overflow
+          // down the connector to the top-centre, then clockwise around the rounded rect
+          ctaPath.setAttribute(
+            "d",
+            `M ${cx} ${-CONN} L ${cx} 0 L ${w - r} 0 A ${r} ${r} 0 0 1 ${w} ${r} L ${w} ${h - r} A ${r} ${r} 0 0 1 ${w - r} ${h} L ${r} ${h} A ${r} ${r} 0 0 1 0 ${h - r} L 0 ${r} A ${r} ${r} 0 0 1 ${r} 0 L ${cx} 0`,
+          );
+          const len = ctaPath.getTotalLength();
+          ctaPath.style.strokeDasharray = `${len}`;
+          ctaPath.style.strokeDashoffset = `${len}`;
+        };
+        buildFrame();
+        gsap.set(ctaInner, { opacity: 0, y: 18 });
+        const ctaTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: ctaCard,
+            start: "top 82%",
+            end: "top 56%",
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+            onRefresh: buildFrame, // re-measure after layout / resize
+          },
+        });
+        ctaTl.to(ctaPath, { strokeDashoffset: 0, ease: "none", duration: 1 }, 0);
+        ctaTl.to(ctaInner, { opacity: 1, y: 0, ease: "power2.out", duration: 0.6 }, 0.4);
+      }
     }
 
     ScrollTrigger.refresh();
@@ -582,16 +495,84 @@ const stats = [
   }
 </script>
 
+<script>
+  // Live prices: stocks from /v1/tokens, crypto from /v1/prices (both Chainlink on
+  // Robinhood Chain). Patches the badge captions + the bGEN card in place — the
+  // animation is untouched — and falls back to the built-in placeholders if the
+  // API can't be reached.
+  const API = import.meta.env.PUBLIC_API_URL as string | undefined;
+  if (API) {
+    // basket weights (percent) — bGEN is their weighted index, base 100 at 24h ago
+    const WEIGHTS: Record<string, number> = { NVDA: 18, AAPL: 16, BTC: 16, MSFT: 15, ETH: 14, AMZN: 13, LINK: 8 };
+    const fmtPx = (v: number) => (v >= 1000 ? Math.round(v).toLocaleString("en-US") : v.toFixed(2));
+    const setChg = (el: Element, frac: number, arrow: boolean) => {
+      const up = frac >= 0;
+      const pct = (Math.abs(frac) * 100).toFixed(1);
+      el.textContent = arrow ? `${up ? "▲" : "▼"} ${pct}%` : `${up ? "+" : "-"}${pct}%`;
+      el.classList.toggle("cs-up", up);
+      el.classList.toggle("cs-down", !up);
+    };
+    type Px = { value: number; chg: number | null };
+    const load = async () => {
+      const base = API.replace(/\/$/, "");
+      const px: Record<string, Px> = {};
+      try {
+        const [tokens, prices] = await Promise.all([
+          fetch(`${base}/v1/tokens`).then((r) => r.json()),
+          fetch(`${base}/v1/prices`).then((r) => r.json()),
+        ]);
+        for (const t of tokens) if (t?.price) px[t.symbol] = { value: t.price.value, chg: t.price.change24h };
+        for (const p of prices) px[p.symbol] = { value: p.value, chg: p.change24h };
+      } catch (e) {
+        console.warn("[basket] live prices unavailable", e);
+        return;
+      }
+      for (const chip of document.querySelectorAll<HTMLElement>("[data-gs-chip]")) {
+        const d = chip.dataset.sym ? px[chip.dataset.sym] : undefined;
+        if (!d) continue;
+        const pxEl = chip.querySelector(".gs-chip-px");
+        const chgEl = chip.querySelector(".gs-chip-chg");
+        if (pxEl) pxEl.textContent = `$${fmtPx(d.value)}`;
+        if (chgEl && d.chg != null) setChg(chgEl, d.chg, true);
+      }
+      let ws = 0;
+      let wc = 0;
+      for (const sym in WEIGHTS) {
+        const d = px[sym];
+        if (d?.chg != null) {
+          ws += WEIGHTS[sym];
+          wc += WEIGHTS[sym] * d.chg;
+        }
+      }
+      if (ws > 0) {
+        const chg = wc / ws;
+        const bpx = document.querySelector(".gs-bgen-px");
+        const bchg = document.querySelector(".gs-bgen-chg");
+        if (bpx) bpx.textContent = `$${(100 * (1 + chg)).toFixed(2)}`;
+        if (bchg) setChg(bchg, chg, false);
+      }
+    };
+    load();
+    setInterval(load, 60000);
+  }
+</script>
+
+<style is:global>
+  /* pause the CSS orbit once the scroll transform takes over */
+  .gs--frozen .gs-orbit-chip { animation-play-state: paused; }
+</style>
+
 <script is:inline>
   // Cover token parallax: the jade token eases toward the cursor a touch, giving
-  // the cover depth. Runs on the wrapper (--px/--py) so the float keyframe on the
-  // image is untouched. No-op under reduced motion or on coarse pointers.
+  // the cover depth. Runs on the planet wrapper (--px/--py) so the float keyframe
+  // on the image is untouched. No-op under reduced motion or on coarse pointers.
   (function () {
-    var art = document.querySelector("[data-gs-art]");
-    if (!art) return;
+    // set on the pin so both planet layers (base + front occluder) inherit --px/--py
+    var pin = document.querySelector("[data-gs-pin]");
+    if (!pin) return;
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
-    var tx = 0, ty = 0, cx = 0, cy = 0, AMP = 22;
+    var tx = 0, ty = 0, cx = 0, cy = 0, AMP = 20;
     window.addEventListener("pointermove", function (e) {
       tx = (e.clientX / window.innerWidth - 0.5) * AMP;
       ty = (e.clientY / window.innerHeight - 0.5) * AMP;
@@ -599,8 +580,8 @@ const stats = [
     (function frame() {
       cx += (tx - cx) * 0.06;
       cy += (ty - cy) * 0.06;
-      art.style.setProperty("--px", cx.toFixed(1) + "px");
-      art.style.setProperty("--py", cy.toFixed(1) + "px");
+      pin.style.setProperty("--px", cx.toFixed(1) + "px");
+      pin.style.setProperty("--py", cy.toFixed(1) + "px");
       requestAnimationFrame(frame);
     })();
   })();
