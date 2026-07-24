@@ -1,0 +1,252 @@
+/* ------------------------------------------------------------------ *
+ * Coming-soon design system — everything is prefixed `.cs` so the app  *
+ * and docs/blog keep their existing brand. Warm cream ground, editorial *
+ * Halant serif display, Basquets green accent, rounded surfaces, fluid  *
+ * reveals. Shared by the ComingSoonLayout across the landing + subpages.*
+ * ------------------------------------------------------------------ */
+.cs {
+  --cream: #fcf6ef;
+  --sand: #efe7dd;
+  --sand-2: #f6f0e9;
+  --ink: #241813;
+  --ink-70: color-mix(in srgb, #241813 70%, transparent);
+  --ink-55: color-mix(in srgb, #241813 55%, transparent);
+  --line: color-mix(in srgb, #241813 12%, transparent);
+  --accent: oklch(0.62 0.17 155);
+  --accent-deep: oklch(0.46 0.13 155);
+  --accent-soft: oklch(0.96 0.03 155);
+  --up: oklch(0.55 0.15 155);
+  --down: oklch(0.58 0.16 25);
+  --serif: "Halant", Georgia, "Times New Roman", serif;
+  --r: 18px;
+
+  min-height: 100dvh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow: clip;
+}
+/* faint printed-paper grain over the whole page */
+.cs::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 14%, transparent) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+.cs > * { position: relative; z-index: 1; }
+
+/* full-screen pages: nav + growing main + footer fill exactly one viewport.
+   width:100% keeps children full-bleed — auto side-margins in a flex column
+   otherwise shrink-wrap them and break the nav/footer max-width centering. */
+.cs--full { display: flex; flex-direction: column; }
+.cs--full > *, .cs--full .cs-hero { width: 100%; }
+.cs--full > main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+.cs--full .cs-hero { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+
+.cs em { font-style: normal; color: var(--accent-deep); }
+.cs strong { font-weight: 600; }
+
+/* --- shared bits --- */
+.cs-display {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  margin: 0;
+  font-size: clamp(52px, 8.5vw, 112px);
+}
+.cs-display--sm { font-size: clamp(34px, 4.6vw, 60px); line-height: 1.05; }
+
+.cs-eyebrow, .cs-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; letter-spacing: 0.02em;
+  color: var(--ink-70);
+}
+.cs-tag {
+  padding: 5px 12px; border-radius: 999px;
+  background: var(--sand); color: var(--ink-70);
+  font-weight: 600; letter-spacing: 0;
+}
+.cs-tag--ghost { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-deep); }
+.cs-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); animation: cs-pulse 2s ease-in-out infinite; }
+@keyframes cs-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* --- pills / buttons --- */
+.cs-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 12px;
+  font-weight: 600; font-size: 14px; text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer; border: 0;
+}
+.cs-pill--lg { padding: 13px 22px; font-size: 15px; border-radius: 14px; }
+.cs-pill--ink { background: var(--ink); color: var(--cream); }
+.cs-pill--ink:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -12px color-mix(in srgb, var(--ink) 55%, transparent); }
+.cs-pill--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.cs-pill--ghost:hover { background: var(--sand-2); transform: translateY(-2px); }
+
+/* --- nav --- */
+.cs-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1120px; margin: 0 auto; padding: 22px clamp(20px, 5vw, 48px);
+}
+.cs-word { display: inline-flex; align-items: center; font-family: var(--serif); font-size: 24px; font-weight: 500; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+/* the Basquets brand mark — the green square, carried over from the app nav */
+.cs-mark { display: inline-block; width: 0.62em; height: 0.62em; background: var(--accent); margin-right: 0.44em; }
+.cs-nav-links { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); }
+.cs-nav-links > a:not(.cs-pill) { color: var(--ink-70); text-decoration: none; font-size: 14px; font-weight: 500; }
+.cs-nav-links > a:not(.cs-pill):hover { color: var(--ink); }
+
+/* --- hero --- */
+.cs-hero {
+  position: relative;
+  max-width: 1120px; margin: 0 auto;
+  padding: clamp(48px, 9vh, 120px) clamp(20px, 5vw, 48px) clamp(64px, 9vh, 128px);
+}
+.cs-hero-inner { position: relative; z-index: 2; max-width: 700px; }
+/* only the display headline stacks tall; everything else runs full width */
+.cs-hero .cs-display { max-width: 8ch; }
+.cs-lead {
+  font-size: clamp(17px, 1.5vw, 21px); line-height: 1.6; color: var(--ink-70);
+  max-width: 54ch; margin: 26px 0 0;
+}
+.cs-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+
+/* interactive green blob — follows the cursor (JS) and morphs its shape (CSS),
+   evoking Claura's grainy gradient in our accent */
+.cs-blob {
+  position: absolute; z-index: 1; pointer-events: none;
+  right: 3%; top: 12%; width: min(48vw, 520px); aspect-ratio: 1;
+  background: radial-gradient(circle at 42% 40%,
+    color-mix(in srgb, var(--accent) 60%, transparent),
+    color-mix(in srgb, var(--accent) 20%, transparent) 52%, transparent 74%);
+  filter: blur(6px);
+  border-radius: 42% 58% 60% 40% / 44% 46% 54% 56%;
+  animation: cs-blobmorph 16s ease-in-out infinite;
+  will-change: transform, border-radius;
+  opacity: 0; /* JS grows + fades it in on load, then keeps the follow effect */
+}
+@keyframes cs-blobmorph {
+  0%,100% { border-radius: 42% 58% 60% 40% / 44% 46% 54% 56%; }
+  33% { border-radius: 62% 38% 46% 54% / 58% 42% 60% 40%; }
+  66% { border-radius: 46% 54% 58% 42% / 40% 60% 42% 58%; }
+}
+
+/* --- sections --- */
+.cs-section { max-width: 1120px; margin: 0 auto; padding: clamp(48px, 8vh, 104px) clamp(20px, 5vw, 48px); }
+.cs-section-head { max-width: 40ch; margin-bottom: 40px; }
+.cs-section-head .cs-display { margin-top: 16px; }
+.cs-sub { font-size: clamp(15px, 1.3vw, 18px); line-height: 1.6; color: var(--ink-70); margin: 18px 0 0; }
+
+/* --- basket card --- */
+.cs-card {
+  background: color-mix(in srgb, #fff 55%, var(--sand-2));
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: clamp(22px, 3vw, 34px);
+  max-width: 640px;
+  box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--ink) 40%, transparent);
+}
+.cs-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.cs-card-title { font-family: var(--serif); font-weight: 500; font-size: clamp(22px, 2.4vw, 30px); margin: 10px 0 0; letter-spacing: -0.01em; }
+.cs-return { text-align: right; white-space: nowrap; }
+.cs-return-val { display: block; font-family: var(--serif); font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; letter-spacing: -0.02em; }
+.cs-return-lbl { font-size: 12px; color: var(--ink-55); }
+.cs-up { color: var(--up); }
+.cs-down { color: var(--down); }
+
+.cs-spark { width: 100%; height: 56px; margin: 18px 0 6px; overflow: visible; }
+.cs-spark polyline { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--accent) 30%, transparent)); }
+
+.cs-holdings { list-style: none; margin: 14px 0 0; padding: 0; }
+.cs-holdings li {
+  display: grid; grid-template-columns: 22px 56px 1fr auto auto;
+  align-items: center; gap: 12px;
+  padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px;
+}
+.cs-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-size: 12px; }
+.cs-badge--stock { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-deep); }
+.cs-badge--crypto { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+.cs-h-sym { font-weight: 600; }
+.cs-h-name { color: var(--ink-55); }
+.cs-h-weight { color: var(--ink-70); font-variant-numeric: tabular-nums; }
+.cs-h-chg { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 56px; text-align: right; }
+.cs-card-foot { margin: 16px 0 0; font-size: 12px; color: var(--ink-55); }
+.cs-card-blurb { margin: 14px 0 0; font-size: 14px; line-height: 1.55; color: var(--ink-70); max-width: 52ch; }
+
+/* --- join screen (centred in the growing main, /join) --- */
+.cs-join { flex: 1 1 auto; display: grid; place-items: center; padding: 40px 20px 60px; text-align: center; }
+.cs-join-inner { width: 100%; max-width: 400px; }
+.cs-join .cs-display { margin: 16px 0 0; }
+.cs-join .cs-sub { margin-left: auto; margin-right: auto; max-width: 40ch; }
+.cs-authlist { display: flex; flex-direction: column; gap: 10px; margin-top: 34px; }
+.cs-authbtn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 14px 18px; border-radius: 14px;
+  border: 1.5px solid var(--line); background: color-mix(in srgb, #fff 45%, var(--cream));
+  font-size: 15px; font-weight: 600; color: var(--ink); font-family: var(--font-body);
+  text-decoration: none; cursor: pointer;
+  transition: background 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+}
+.cs-authbtn:hover { background: var(--sand-2); transform: translateY(-1px); border-color: color-mix(in srgb, var(--ink) 22%, transparent); }
+.cs-authbtn--primary { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.cs-authbtn--primary:hover { background: color-mix(in srgb, var(--ink) 88%, #000); }
+.cs-authbtn svg { width: 18px; height: 18px; flex: none; }
+.cs-authdiv { display: flex; align-items: center; gap: 12px; margin: 22px 0 2px; color: var(--ink-55); font-size: 12px; }
+.cs-authdiv::before, .cs-authdiv::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+.cs-join-note { margin-top: 22px; font-size: 12.5px; color: var(--ink-55); }
+
+/* --- footer --- */
+.cs-foot {
+  max-width: 1120px; margin: 0 auto; padding: 28px clamp(20px, 5vw, 48px);
+  border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between;
+  font-size: 12.5px; color: var(--ink-55);
+}
+.cs-foot a { color: var(--ink-55); text-decoration: none; }
+.cs-foot a:hover { color: var(--accent-deep); }
+.cs-foot-mid { color: var(--ink-55); }
+.cs-foot-links { display: inline-flex; align-items: center; gap: 16px; }
+.cs-foot-links a { display: inline-flex; align-items: center; gap: 6px; }
+
+/* --- ambient scattered price badges (fade in/out on the background) --- */
+.cs-badges { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.cs-badge-float {
+  position: absolute; display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 7px 13px; border-radius: 999px; white-space: nowrap; font-size: 13px;
+  background: color-mix(in srgb, #fff 55%, var(--sand-2));
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--ink) 45%, transparent);
+  opacity: 0; will-change: opacity, transform;
+  animation: cs-badgefade 9s ease-in-out infinite;
+}
+.cs-badge-float b { font-weight: 600; letter-spacing: 0.02em; }
+.cs-badge-float span { font-variant-numeric: tabular-nums; }
+.cs-tick-px { color: var(--ink-70); }
+@keyframes cs-badgefade {
+  0%, 100% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  45%, 55% { opacity: 1; transform: none; }
+}
+
+/* --- reveal animation (fluid, Framer-ish) --- */
+.cs [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1); transition-delay: calc(var(--d, 0) * 90ms); }
+.cs [data-reveal].in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cs [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .cs-blob, .cs-dot, .cs-badge-float { animation: none; }
+  .cs-blob { opacity: 1; }
+  .cs-badge-float { opacity: 0.5; transform: none; }
+}
+
+@media (max-width: 640px) {
+  .cs-nav-links > a:not(.cs-pill) { display: none; }
+  .cs-holdings li { grid-template-columns: 22px 48px 1fr auto; }
+  .cs-h-name { display: none; }
+}

@@ -1,0 +1,80 @@
+---
+import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
+
+// The live demo basket, moved off the landing to keep the home clean.
+// The real launch basket: four mega-cap stocks + BTC, ETH, LINK. ETH is a proven
+// component (Chainlink feed + deep USDG liquidity, first-class swap leg). BTC/LINK
+// have Chainlink feeds on chain 4663 too; USDG-pool depth for zapping is still to
+// be verified. Name/weights/chg are PLACEHOLDER until the live Chainlink island lands.
+const basket = {
+  symbol: "bMIX7",
+  name: "Old Guard, New Rails",
+  tag: "Flagship basket",
+  blurb: "The four companies that run the internet, plus the three assets rebuilding money. Old guard, new rails — priced live by Chainlink, held onchain.",
+  chg: 3.6, // placeholder weighted since-launch return
+};
+const holdings = [
+  { sym: "NVDA", name: "NVIDIA", kind: "stock", weight: 18, chg: 4.1 },
+  { sym: "AAPL", name: "Apple", kind: "stock", weight: 16, chg: 1.2 },
+  { sym: "BTC", name: "Bitcoin", kind: "crypto", weight: 16, chg: 2.6 },
+  { sym: "MSFT", name: "Microsoft", kind: "stock", weight: 15, chg: 0.9 },
+  { sym: "ETH", name: "Ethereum", kind: "crypto", weight: 14, chg: 5.4 },
+  { sym: "AMZN", name: "Amazon", kind: "stock", weight: 13, chg: 2.2 },
+  { sym: "LINK", name: "Chainlink", kind: "crypto", weight: 8, chg: 6.3 },
+];
+---
+<ComingSoonLayout
+  title="Basquets — A live basket"
+  description="A live sample basket of tokenized US stocks and crypto on Robinhood Chain, priced by Chainlink — the same math every Basquets basket runs."
+>
+  <section id="demo" class="cs-section">
+    <div class="cs-section-head" data-reveal>
+      <span class="cs-tag">Live demo</span>
+      <h2 class="cs-display cs-display--sm">A basket, <em>since launch.</em></h2>
+      <p class="cs-sub">
+        One recipe of stocks and crypto, priced live by Chainlink. Here's what it's done since we
+        opened the waitlist — the same math every basket runs.
+      </p>
+    </div>
+
+    <div class="cs-card" data-reveal>
+      <div class="cs-card-top">
+        <div>
+          <span class="cs-tag cs-tag--ghost">{basket.tag}</span>
+          <h3 class="cs-card-title">{basket.name}</h3>
+        </div>
+        <div class="cs-return">
+          <span class={`cs-return-val ${basket.chg >= 0 ? "cs-up" : "cs-down"}`}>{basket.chg >= 0 ? "+" : ""}{basket.chg}%</span>
+          <span class="cs-return-lbl">since launch</span>
+        </div>
+      </div>
+      <p class="cs-card-blurb">{basket.blurb}</p>
+
+      <svg class="cs-spark" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="0,52 40,48 80,50 120,40 160,42 200,30 240,26 280,18 320,12" />
+      </svg>
+
+      <ul class="cs-holdings">
+        {holdings.map((h) => (
+          <li>
+            <span class={`cs-badge cs-badge--${h.kind}`}>{h.kind === "crypto" ? "◇" : "▪"}</span>
+            <span class="cs-h-sym">{h.sym}</span>
+            <span class="cs-h-name">{h.name}</span>
+            <span class="cs-h-weight">{h.weight}%</span>
+            <span class={`cs-h-chg ${h.chg >= 0 ? "cs-up" : "cs-down"}`}>
+              {h.chg >= 0 ? "+" : ""}{h.chg}%
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="cs-card-foot">
+        {basket.symbol} · priced live by Chainlink · since waitlist launch · not investment advice
+      </p>
+    </div>
+
+    <div class="cs-cta-row" data-reveal style="margin-top: 36px;">
+      <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
+      <a href="/" class="cs-pill cs-pill--ghost cs-pill--lg">← Back home</a>
+    </div>
+  </section>
+</ComingSoonLayout>

@@ -1,85 +1,29 @@
 ---
-import Container from "../components/layout/Container.astro";
-import { buttonVariants } from "../components/ui/button";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { cn } from "../lib/utils";
+import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
 
-// Coming-soon landing for the root domain. The working product lives on
-// app.basquets.xyz; the functions/_middleware.ts host router keeps the app off
-// this domain and sends app routes to the subdomain. docs/ and blog/ stay here.
-// chrome=false so BaseLayout drops the app Nav/Footer/ticker but keeps the head.
-const CONTACT = "hello@basquets.xyz";
+// Coming-soon landing for the root domain. Kept intentionally clean: hero +
+// waitlist only. The live demo basket lives on its own page (/basket). The
+// warm theme, nav, footer and sticky ticker come from ComingSoonLayout.
 ---
-<BaseLayout
-  chrome={false}
+<ComingSoonLayout
   title="Basquets — Coming soon"
-  description="Tokenized US stock baskets on Robinhood Chain. Basquets is launching soon. For partnerships, get in touch."
+  description="Tokenized US stocks and crypto, drafted into baskets on Robinhood Chain. Basquets is launching soon — join the waitlist."
+  fullscreen
 >
-  <main id="main" class="coming-soon relative flex min-h-dvh flex-col overflow-hidden">
-    <Container class="relative z-10 flex flex-1 flex-col">
-      <!-- wordmark, top-left, matching the app nav mark -->
-      <div class="py-6">
-        <span class="inline-flex items-center gap-2 font-heading font-extrabold text-lg text-ink">
-          <span class="inline-block size-3.5 bg-accent"></span>Basquets
-        </span>
+  <!-- HERO -->
+  <section class="cs-hero">
+    <div class="cs-hero-inner">
+      <h1 class="cs-display" data-reveal style="--d:1">Draft the <em>market.</em></h1>
+      <p class="cs-lead" data-reveal style="--d:2">
+        Real US stocks and crypto live onchain as tokens. Basquets turns them into <strong>baskets</strong>{" "}
+        — portfolios anyone can create, invest in with one signature, and automate. Priced by
+        Chainlink, self-custodied.
+      </p>
+      <div class="cs-cta-row" data-reveal style="--d:3">
+        <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
+        <a href="/basket" class="cs-pill cs-pill--ghost cs-pill--lg">See a live basket →</a>
       </div>
-
-      <!-- centred statement -->
-      <div class="flex flex-1 flex-col justify-center py-[clamp(48px,10vh,120px)]">
-        <span class="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.1em] text-ink/55">
-          <span class="size-2 bg-accent animate-pulse-live"></span>Coming soon
-        </span>
-        <h1 class="mt-6 mb-0 max-w-[14ch] text-[clamp(44px,7vw,104px)] leading-[1.02] tracking-[-0.02em]">
-          <span class="block">Draft the</span>
-          <span class="block">market.</span>
-        </h1>
-        <p class="mt-8 mb-0 max-w-[52ch] font-heading font-extrabold text-[clamp(18px,1.7vw,24px)] leading-[1.35] tracking-[-0.01em]">
-          Tokenized US stock baskets, on Robinhood Chain.
-        </p>
-        <p class="mt-4 mb-0 max-w-[58ch] text-[clamp(15px,1.3vw,18px)] leading-[1.65] text-ink/78">
-          Real US stocks live onchain as tokens. Basquets turns them into portfolios anyone can
-          create, invest in, and automate. The full product is landing soon.
-        </p>
-
-        <div class="mt-9 flex flex-wrap items-center gap-3">
-          <a
-            href={`mailto:${CONTACT}`}
-            class={cn(buttonVariants({ variant: "primary", size: "lg" }))}
-          >Partnerships → {CONTACT}</a>
-          <a href="/docs" class={cn(buttonVariants({ variant: "ghost", size: "lg" }))}>Read the docs</a>
-          <a href="/blog" class={cn(buttonVariants({ variant: "ghost", size: "lg" }))}>Blog</a>
-        </div>
-
-        <p class="mt-8 mb-0 text-[11px] uppercase tracking-[0.1em] text-ink/55">
-          Built on Robinhood stock tokens · Priced by Chainlink · Self-custodied
-        </p>
-      </div>
-
-      <!-- footer line -->
-      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t-2 border-divider py-6 text-[12px] text-ink/60">
-        <span>© {new Date().getFullYear()} Basquets</span>
-        <a href={`mailto:${CONTACT}`} class="text-ink/60 no-underline hover:text-accent-700">{CONTACT}</a>
-      </div>
-    </Container>
-  </main>
-</BaseLayout>
-
-<style>
-  /* Same printed-stock backdrop as the hero: an accent aura low on the page and
-     a dot field fading out downward, so the coming-soon reads on-brand rather
-     than as a bare white page. */
-  .coming-soon {
-    background:
-      radial-gradient(52% 40% at 28% 58%, color-mix(in oklch, var(--color-accent) 15%, transparent), transparent 72%),
-      linear-gradient(to bottom, transparent 45%, color-mix(in oklch, var(--color-accent-100) 48%, transparent));
-  }
-  .coming-soon::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 18%, transparent) 1px, transparent 1px);
-    background-size: 22px 22px;
-    mask-image: linear-gradient(to bottom, black, transparent 82%);
-  }
-</style>
+    </div>
+    <div class="cs-blob" aria-hidden="true"></div>
+  </section>
+</ComingSoonLayout>

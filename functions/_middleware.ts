@@ -11,12 +11,17 @@ const ROOT_HOST = "basquets.xyz";
 const APP_HOST = "app.basquets.xyz";
 
 // Docs and blog stay canonical on the root domain.
+// Paths that stay canonical on the root domain: public docs/blog, plus the
+// coming-soon subpages (e.g. /basket). Root serves them; the app host redirects
+// them back to root.
 function isContentPath(path: string): boolean {
   return (
     path === "/docs" ||
     path.startsWith("/docs/") ||
     path === "/blog" ||
-    path.startsWith("/blog/")
+    path.startsWith("/blog/") ||
+    path === "/basket" ||
+    path === "/join"
   );
 }
 
