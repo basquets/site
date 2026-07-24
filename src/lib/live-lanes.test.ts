@@ -37,6 +37,21 @@ describe("laneRows", () => {
     ));
     expect(rows[rows.length - 1].deltaBps).toBe(-25);
   });
+  test("anchors to quote.best even when it isn't the max-output rail", () => {
+    const rows = laneRows(q(
+      [
+        { rail: "v4", buyAmount: "4800200000000000000" },   // highest gross output
+        { rail: "rialto", buyAmount: "4796900000000000000" }, // chosen best (e.g. net-of-gas)
+      ],
+      "rialto",
+    ));
+    expect(rows[0].rail).toBe("rialto");
+    expect(rows[0].isBest).toBe(true);
+    expect(rows[0].deltaBps).toBe(0);
+    // v4 has MORE gross output than the chosen best, so its delta is positive
+    expect(rows[1].rail).toBe("v4");
+    expect(rows[1].deltaBps).toBe(7);
+  });
 });
 
 describe("shouldFallback", () => {

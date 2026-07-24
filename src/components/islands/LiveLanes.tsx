@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { laneByRail, railLabel } from "@/lib/lanes";
+import { LANES, laneByRail, railLabel } from "@/lib/lanes";
 import { type LaneRow, laneRows, shouldFallback } from "@/lib/live-lanes";
 import LaneList from "./LaneList";
 import TokenLogo from "./TokenLogo";
@@ -47,7 +47,7 @@ export default function LiveLanes({ sym }: { sym: string }) {
         <div className="leading-tight">
           <p className="m-0 font-heading font-extrabold text-[15px]">Routing $1,000 into {sym}</p>
           <p className="m-0 text-[12px] text-ink/55">
-            {status === "loading" ? "quoting…" : `${liveCount} of 5 venues quoting${spreadBps !== null ? ` · best beats worst by ${spreadBps} bps` : ""}`}
+            {status === "loading" ? "quoting…" : `${liveCount} of ${LANES.length} venues quoting${spreadBps !== null ? ` · best beats worst by ${spreadBps} bps` : ""}`}
           </p>
         </div>
       </div>

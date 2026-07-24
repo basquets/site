@@ -12,7 +12,11 @@ export default function RouteCard({ quote }: { quote: ApiQuote }) {
       </p>
       <ul className="m-0 list-none p-0">
         {[...quote.rails]
-          .sort((a, b) => (BigInt(b.buyAmount) > BigInt(a.buyAmount) ? 1 : -1))
+          .sort((a, b) => {
+            const av = BigInt(a.buyAmount);
+            const bv = BigInt(b.buyAmount);
+            return bv > av ? 1 : bv < av ? -1 : 0;
+          })
           .map((r) => {
             const isBest = r.rail === quote.best;
             return (

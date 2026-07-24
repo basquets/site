@@ -11,10 +11,19 @@ export interface LaneRow {
 
 export function laneRows(quote: ApiQuote): LaneRow[] {
   const dec = quote.buy.decimals;
-  const sorted = [...quote.rails].sort((a, b) => (BigInt(b.buyAmount) > BigInt(a.buyAmount) ? 1 : -1));
-  const bestAmt = sorted.length ? Number(formatUnits(BigInt(sorted[0].buyAmount), dec)) : 0;
+  const amt = (b: string) => Number(formatUnits(BigInt(b), dec));
+  // The API's chosen rail is the single source of "best"; the display anchors to it.
+  const bestRail = quote.rails.find((r) => r.rail === quote.best) ?? quote.rails[0];
+  const bestAmt = bestRail ? amt(bestRail.buyAmount) : 0;
+  const sorted = [...quote.rails].sort((a, b) => {
+    if (a.rail === quote.best) return -1; // chosen best always leads
+    if (b.rail === quote.best) return 1;
+    const av = BigInt(a.buyAmount);
+    const bv = BigInt(b.buyAmount);
+    return bv > av ? 1 : bv < av ? -1 : 0; // then by gross output, desc
+  });
   return sorted.map((r) => {
-    const amount = Number(formatUnits(BigInt(r.buyAmount), dec));
+    const amount = amt(r.buyAmount);
     return {
       rail: r.rail,
       amount,
