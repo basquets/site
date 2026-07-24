@@ -61,6 +61,7 @@ const stats = [
   <div class="gs" data-gs-root>
     <!-- hero cover: the flagship, its holdings, the thesis -->
     <section class="gs-hero">
+      <img class="gs-hero-art" src="/genesis-art.jpg" alt="" aria-hidden="true" />
       <div class="gs-hero-top">
         <span class="cs-tag">The flagship basket · curated by Basquets</span>
         <h1 class="cs-display gs-title">Genesis.</h1>
@@ -162,10 +163,18 @@ const stats = [
 <style>
   /* hero cover — one viewport: text up top under the nav, holdings shelf lower,
      scroll cue pinned to the bottom */
-  .gs-hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; padding: clamp(36px, 6vh, 68px) clamp(20px, 5vw, 48px) clamp(130px, 20vh, 190px); }
-  .gs-hero-top { max-width: 640px; }
-  .gs-hero-shelf { max-width: 720px; }
+  .gs-hero { position: relative; min-height: calc(100dvh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; padding: clamp(28px, 4vh, 52px) clamp(20px, 5vw, 48px) clamp(120px, 18vh, 176px); }
+  .gs-hero-top { max-width: 640px; position: relative; z-index: 1; }
+  .gs-hero-shelf { max-width: 720px; position: relative; z-index: 1; }
   .gs-hero-shelf .gs-heroline { margin-top: 18px; }
+  /* the generated centrepiece — cream background multiplies away, leaving the green network */
+  .gs-hero-art {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: min(58vh, 540px); max-width: 82vw; height: auto; z-index: 0;
+    pointer-events: none; mix-blend-mode: multiply;
+    animation: gs-artfloat 16s ease-in-out infinite;
+  }
+  @keyframes gs-artfloat { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, calc(-50% - 10px)) scale(1.02); } }
 
   /* pinned stage */
   .gs-stagewrap { height: 320vh; position: relative; }
@@ -274,6 +283,7 @@ const stats = [
 
   /* static fallback (mobile / reduced motion) */
   .gs--static .gs-hero { min-height: auto; justify-content: flex-start; gap: 22px; padding-bottom: 8px; }
+  .gs--static .gs-hero-art { display: none; }
   .gs--static .gs-stagewrap { height: auto; }
   .gs--static .gs-stage { height: auto; overflow: visible; display: block; padding: 24px clamp(20px, 5vw, 48px) 48px; }
   .gs--static .gs-group { gap: 32px; }
