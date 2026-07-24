@@ -54,5 +54,8 @@ export default defineConfig({
     plugins: [tailwindcss()],
     // api-client ships TypeScript source; bundle it rather than externalize.
     ssr: { noExternal: ["@basquets/api-client"] },
+    // Pre-bundle Privy up front so its lazy-loaded screens (e.g. the OAuth
+    // return handler) don't trigger a mid-flow dep re-optimize → 504 in dev.
+    optimizeDeps: { include: ["@privy-io/react-auth"] },
   },
 });
