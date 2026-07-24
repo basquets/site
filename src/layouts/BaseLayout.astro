@@ -1,19 +1,17 @@
 ---
 import "../styles/global.css";
-import MarketStatus from "../components/islands/MarketStatus";
-import TickerStrip from "../components/islands/TickerStrip";
-import Footer from "../components/layout/Footer.astro";
-import Nav from "../components/layout/Nav.astro";
 
+// Head-only shell (SEO/OG/favicon/fonts). The app chrome (nav, ticker, footer)
+// moved to the app repo in the marketing/app split; every marketing surface
+// brings its own chrome (ComingSoonLayout for the warm pages, DocsLayout /
+// ArticleLayout for docs + blog).
 interface Props {
   title: string;
   description: string;
-  /** Set false for pages that bring their own nav and footer. */
-  chrome?: boolean;
   /** Keep gated preview pages out of search results. */
   noindex?: boolean;
 }
-const { title, description, chrome = true, noindex = false } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
 // Cloudflare Web Analytics: renders only when the beacon token is set, so local
 // dev and previews don't pollute the production numbers. Cookieless, no banner.
 const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
@@ -65,14 +63,6 @@ const orgLd = JSON.stringify({
   </head>
   <body>
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-accent focus:px-3.5 focus:py-2 focus:text-ground">Skip to content</a>
-    {chrome && <Nav />}
-    {chrome && (
-      <div class="flex items-stretch border-b-2 border-divider">
-        <div class="min-w-0 flex-1"><TickerStrip client:idle /></div>
-        <MarketStatus client:idle />
-      </div>
-    )}
     <slot />
-    {chrome && <Footer />}
   </body>
 </html>

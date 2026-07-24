@@ -1,6 +1,5 @@
 import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
-import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import sentry from "@sentry/astro";
 import tailwindcss from "@tailwindcss/vite";
@@ -29,17 +28,9 @@ const sentryIntegration = sentryDsn
   : [];
 
 export default defineConfig({
-  // Placeholder domain until the real one is registered — update when known.
+  // Marketing root: coming-soon landing, Genesis demo, docs, blog.
   site: "https://basquets.xyz",
-  integrations: [
-    react(),
-    mdx(),
-    // Gated preview pages stay out of the sitemap.
-    sitemap({
-      filter: (page) => !/\/(studio|manage|create)\/$/.test(page),
-    }),
-    ...sentryIntegration,
-  ],
+  integrations: [mdx(), sitemap(), ...sentryIntegration],
   // Shiki with the css-variables theme: token colors come from the Modernist
   // ramp defined in global.css (--astro-code-*), so code blocks stay on-brand.
   markdown: {
@@ -55,18 +46,10 @@ export default defineConfig({
           content: { type: "text", value: "#" },
         },
       ],
-      [
-        rehypeExternalLinks,
-        { target: "_blank", rel: ["noopener", "noreferrer"] },
-      ],
+      [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
     ],
   },
-  // fs.allow: the docs content collection loads from ../docs (repo root).
-  // ssr.noExternal: bundle the workspace api-client package instead of trying
-  // to resolve it as an external node module during SSR.
   vite: {
     plugins: [tailwindcss()],
-    server: { fs: { allow: [".."] } },
-    ssr: { noExternal: ["@basquets/api-client"] },
   },
 });
