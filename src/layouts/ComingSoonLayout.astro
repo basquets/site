@@ -1,4 +1,5 @@
 ---
+import PrivyNav from "../components/islands/PrivyNav";
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/coming-soon.css";
 
@@ -139,7 +140,7 @@ const ticker = [
         <a href="/basket">Genesis</a>
         <a href="/docs">Docs</a>
         <a href="/blog">Blog</a>
-        <a href="/join" class="cs-pill cs-pill--ink">Join waitlist</a>
+        <PrivyNav client:load />
       </nav>
     </header>
 
