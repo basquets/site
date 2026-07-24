@@ -216,23 +216,27 @@
 .cs-foot-links { display: inline-flex; align-items: center; gap: 16px; }
 .cs-foot-links a { display: inline-flex; align-items: center; gap: 6px; }
 
-/* --- ambient scattered price badges (fade in/out on the background) --- */
+/* --- ambient scattered price badges (mini stock cards; fade in/out) --- */
 .cs-badges { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .cs-badge-float {
-  position: absolute; display: inline-flex; align-items: baseline; gap: 6px;
-  padding: 7px 13px; border-radius: 999px; white-space: nowrap; font-size: 13px;
-  background: color-mix(in srgb, #fff 55%, var(--sand-2));
+  position: absolute; display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.5em 0.85em; border-radius: 999px; white-space: nowrap;
+  font-size: calc(13px * var(--s, 1));
+  background: color-mix(in srgb, #fff 66%, var(--sand-2));
   border: 1px solid var(--line);
-  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--ink) 45%, transparent);
+  box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--ink) 42%, transparent);
   opacity: 0; will-change: opacity, transform;
   animation: cs-badgefade 9s ease-in-out infinite;
 }
-.cs-badge-float b { font-weight: 600; letter-spacing: 0.02em; }
-.cs-badge-float span { font-variant-numeric: tabular-nums; }
+.cs-bf-sym { font-weight: 700; font-size: 1em; letter-spacing: 0.01em; }
+.cs-bf-arrow { font-size: 0.82em; line-height: 1; }
+.cs-bf-arrow.cs-up { color: var(--up); }
+.cs-bf-arrow.cs-down { color: var(--down); }
+.cs-bf-px { color: var(--ink-70); font-variant-numeric: tabular-nums; }
 .cs-tick-px { color: var(--ink-70); }
 @keyframes cs-badgefade {
-  0%, 100% { opacity: 0; transform: translateY(8px) scale(0.96); }
-  45%, 55% { opacity: 1; transform: none; }
+  0%, 100% { opacity: 0; transform: translateY(10px) scale(0.94) rotate(var(--rot, 0deg)); }
+  45%, 55% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
 }
 
 /* --- reveal animation (fluid, Framer-ish) --- */

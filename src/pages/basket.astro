@@ -7,10 +7,10 @@ import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
 // have Chainlink feeds on chain 4663 too; USDG-pool depth for zapping is still to
 // be verified. Name/weights/chg are PLACEHOLDER until the live Chainlink island lands.
 const basket = {
-  symbol: "bMIX7",
-  name: "Old Guard, New Rails",
-  tag: "Flagship basket",
-  blurb: "The four companies that run the internet, plus the three assets rebuilding money. Old guard, new rails — priced live by Chainlink, held onchain.",
+  symbol: "bGEN",
+  name: "Genesis",
+  tag: "The Genesis basket",
+  blurb: "The four companies that run the internet, plus the three assets rebuilding money — the first basket Basquets launches with. Priced live by Chainlink, held onchain.",
   chg: 3.6, // placeholder weighted since-launch return
 };
 const holdings = [
@@ -24,16 +24,17 @@ const holdings = [
 ];
 ---
 <ComingSoonLayout
-  title="Basquets — A live basket"
-  description="A live sample basket of tokenized US stocks and crypto on Robinhood Chain, priced by Chainlink — the same math every Basquets basket runs."
+  title="Basquets — Genesis basket"
+  description="Genesis: the first Basquets basket — tokenized US stocks and crypto on Robinhood Chain, priced live by Chainlink."
+  badges={false}
 >
   <section id="demo" class="cs-section">
     <div class="cs-section-head" data-reveal>
       <span class="cs-tag">Live demo</span>
-      <h2 class="cs-display cs-display--sm">A basket, <em>since launch.</em></h2>
+      <h2 class="cs-display cs-display--sm">Genesis, <em>since launch.</em></h2>
       <p class="cs-sub">
-        One recipe of stocks and crypto, priced live by Chainlink. Here's what it's done since we
-        opened the waitlist — the same math every basket runs.
+        The first basket we launch with — one recipe of stocks and crypto, priced live by Chainlink.
+        Here's what it's done since we opened the waitlist; the same math every basket runs.
       </p>
     </div>
 
