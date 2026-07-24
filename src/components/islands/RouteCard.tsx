@@ -1,10 +1,7 @@
 import type { ApiQuote } from "@basquets/api-client";
 import { formatUnits } from "viem";
-
-const railLabel = (rail: string, hops: number | null) =>
-  rail === "zeroex"
-    ? "0x RFQ (market maker)"
-    : `Uniswap v4${hops === 2 ? " · via USDG" : ""}`;
+import { laneByRail, railLabel } from "@/lib/lanes";
+import { cn } from "@/lib/utils";
 
 /** Side-by-side rail comparison; the winner is executed. */
 export default function RouteCard({ quote }: { quote: ApiQuote }) {
@@ -23,7 +20,8 @@ export default function RouteCard({ quote }: { quote: ApiQuote }) {
                 key={r.rail}
                 className={`flex items-baseline justify-between gap-3 px-5 py-2.5 text-[13px] ${isBest ? "bg-accent-100" : "opacity-55"}`}
               >
-                <span className={isBest ? "font-heading font-extrabold" : ""}>
+                <span className={cn("flex items-center gap-2", isBest ? "font-heading font-extrabold" : "")}>
+                  {laneByRail(r.rail)?.logo && <img src={laneByRail(r.rail)!.logo} alt="" width={18} height={18} className="rounded-[4px]" />}
                   {railLabel(r.rail, r.hops?.length ?? null)}
                 </span>
                 <span className="tnum">
