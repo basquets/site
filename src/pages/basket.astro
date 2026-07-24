@@ -66,15 +66,19 @@ const stats = [
             <span class="cs-tag">The flagship basket · curated by Basquets</span>
             <h1 class="cs-display gs-title">Genesis.</h1>
             <p class="gs-sub" data-gs-sub>
-              Four mega-caps that already run your life: <span class="gs-asset"><i><img src="/logos/stock/NVDA.png" alt="" />
-              </i>NVDA</span> <span class="gs-asset"><i><img src="/logos/stock/AAPL.svg" alt="" /></i>AAPL</span>
-              <span class="gs-asset"><i><img src="/logos/stock/MSFT.png" alt="" /></i>MSFT</span>
-              <span class="gs-asset"><i><img src="/logos/stock/AMZN.png" alt="" /></i>AMZN</span>. And the three
-              protocols rebuilding money underneath it: <span class="gs-asset"><i><img src="/logos/crypto/btc.svg" alt="" /></i>BTC</span>
-              <span class="gs-asset"><i><img src="/logos/crypto/eth.svg" alt="" /></i>ETH</span> and
-              <span class="gs-asset"><i><img src="/logos/crypto/link.svg" alt="" /></i>LINK</span>, the oracle
-              that prices the whole basket.
+              Four companies that already run your life, and three protocols rebuilding money
+              underneath it. Held in one token, priced by the oracle it also holds.
             </p>
+            <div class="gs-shelf" data-gs-shelf>
+              <span class="gs-asset"><i><img src="/logos/stock/NVDA.png" alt="" /></i>NVDA</span>
+              <span class="gs-asset"><i><img src="/logos/stock/AAPL.svg" alt="" /></i>AAPL</span>
+              <span class="gs-asset"><i><img src="/logos/stock/MSFT.png" alt="" /></i>MSFT</span>
+              <span class="gs-asset"><i><img src="/logos/stock/AMZN.png" alt="" /></i>AMZN</span>
+              <span class="gs-shelf-div" aria-hidden="true"></span>
+              <span class="gs-asset"><i><img src="/logos/crypto/btc.svg" alt="" /></i>BTC</span>
+              <span class="gs-asset"><i><img src="/logos/crypto/eth.svg" alt="" /></i>ETH</span>
+              <span class="gs-asset"><i><img src="/logos/crypto/link.svg" alt="" /></i>LINK</span>
+            </div>
             <p class="gs-heroline">Incumbents and insurgents, in one self-custodied token.</p>
           </div>
 
@@ -160,12 +164,16 @@ const stats = [
   .gs-group { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 56px); width: 100%; will-change: transform; }
   .gs-head { text-align: center; padding: 0 clamp(20px, 5vw, 48px); }
   .gs-title { margin: 12px 0 0; font-size: clamp(56px, 10vw, 132px); }
-  .gs-sub { max-width: 62ch; margin: 18px auto 0; font-size: clamp(16px, 1.5vw, 21px); line-height: 1.95; color: var(--ink-70); }
-  /* inline asset — just the logo tile + bold name, no chrome */
+  .gs-sub { max-width: 50ch; margin: 18px auto 0; font-size: clamp(16px, 1.5vw, 21px); line-height: 1.55; color: var(--ink-70); }
+  /* asset chip — logo tile + bold ticker, no chrome */
   .gs-asset {
     display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;
-    margin: 0 2px; font-weight: 600; color: var(--ink); white-space: nowrap;
+    font-weight: 600; color: var(--ink); white-space: nowrap;
   }
+  /* the holdings shelf: 4 stocks · 3 crypto */
+  .gs-shelf { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 11px 16px; margin: 24px auto 0; max-width: 660px; }
+  .gs-shelf .gs-asset { font-size: clamp(15px, 1.4vw, 18px); }
+  .gs-shelf-div { width: 1px; height: 22px; background: var(--line); }
   .gs-asset i {
     display: inline-flex; align-items: center; justify-content: center;
     width: 21px; height: 21px; border-radius: 6px; background: #fff;
