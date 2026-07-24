@@ -507,6 +507,64 @@
   color: var(--ink-55);
 }
 
+/* waitlist: connected / registered states (WaitlistFlow island) */
+.cs-join-result {
+  margin-top: 28px;
+  text-align: left;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--sand-2);
+  padding: 22px 24px 26px;
+}
+.cs-join-signed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -4px -4px 16px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--line);
+}
+.cs-join-addr {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-variant-numeric: tabular-nums;
+}
+.cs-join-signout {
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+}
+.cs-join-signout:hover {
+  color: var(--accent);
+}
+.cs-join-result .cs-tag {
+  margin-bottom: 12px;
+}
+.cs-join-status-h {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.1;
+  margin: 0 0 10px;
+}
+.cs-join-place {
+  font-weight: 700;
+  font-size: clamp(52px, 7vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 4px 0 10px;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- footer --- */
 .cs-foot {
   position: relative;
