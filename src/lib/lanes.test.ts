@@ -1,11 +1,21 @@
 import { describe, expect, test } from "bun:test";
-import { LANES, groupLanes, laneByRail, railLabel } from "./lanes";
+import { groupLanes, LANES, laneByRail, railLabel } from "./lanes";
 
 describe("lanes", () => {
   test("has the five integrated lanes, live ones first", () => {
-    expect(LANES.map((l) => l.rail)).toEqual(["v4", "rialto", "lifi", "zeroex", "oneinch"]);
-    expect(LANES.filter((l) => l.status === "live").map((l) => l.rail)).toEqual(["v4", "rialto", "lifi"]);
-    expect(LANES.filter((l) => l.status === "soon").map((l) => l.rail)).toEqual(["zeroex", "oneinch"]);
+    expect(LANES.map((l) => l.rail)).toEqual([
+      "v4",
+      "rialto",
+      "lifi",
+      "zeroex",
+      "oneinch",
+    ]);
+    expect(LANES.filter((l) => l.status === "live").map((l) => l.rail)).toEqual(
+      ["v4", "rialto", "lifi"],
+    );
+    expect(LANES.filter((l) => l.status === "soon").map((l) => l.rail)).toEqual(
+      ["zeroex", "oneinch"],
+    );
   });
   test("laneByRail resolves known rails and returns undefined otherwise", () => {
     expect(laneByRail("rialto")?.name).toBe("Rialto");
@@ -23,6 +33,8 @@ describe("lanes", () => {
   test("groupLanes buckets by kind in AMM, propAMM, RFQ order", () => {
     const groups = groupLanes();
     expect(groups.map((g) => g.kind)).toEqual(["amm", "propamm", "rfq"]);
-    expect(groups.find((g) => g.kind === "rfq")?.lanes.map((l) => l.rail)).toEqual(["lifi", "zeroex", "oneinch"]);
+    expect(
+      groups.find((g) => g.kind === "rfq")?.lanes.map((l) => l.rail),
+    ).toEqual(["lifi", "zeroex", "oneinch"]);
   });
 });

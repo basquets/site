@@ -13,7 +13,8 @@ export function laneRows(quote: ApiQuote): LaneRow[] {
   const dec = quote.buy.decimals;
   const amt = (b: string) => Number(formatUnits(BigInt(b), dec));
   // The API's chosen rail is the single source of "best"; the display anchors to it.
-  const bestRail = quote.rails.find((r) => r.rail === quote.best) ?? quote.rails[0];
+  const bestRail =
+    quote.rails.find((r) => r.rail === quote.best) ?? quote.rails[0];
   const bestAmt = bestRail ? amt(bestRail.buyAmount) : 0;
   const sorted = [...quote.rails].sort((a, b) => {
     if (a.rail === quote.best) return -1; // chosen best always leads
@@ -27,14 +28,18 @@ export function laneRows(quote: ApiQuote): LaneRow[] {
     return {
       rail: r.rail,
       amount,
-      deltaBps: bestAmt > 0 ? Math.round(((amount - bestAmt) / bestAmt) * 10000) : 0,
+      deltaBps:
+        bestAmt > 0 ? Math.round(((amount - bestAmt) / bestAmt) * 10000) : 0,
       isBest: r.rail === quote.best,
       hops: r.hops?.length ?? null,
     };
   });
 }
 
-export function shouldFallback(status: "idle" | "loading" | "ready" | "error", railCount: number): boolean {
+export function shouldFallback(
+  status: "idle" | "loading" | "ready" | "error",
+  railCount: number,
+): boolean {
   if (status === "loading") return false;
   if (status === "ready") return railCount < 1;
   return true;

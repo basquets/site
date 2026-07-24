@@ -1,4 +1,7 @@
-export function resolveTokenLogo(sym: string, manifest: Record<string, string>): string | null {
+export function resolveTokenLogo(
+  sym: string,
+  manifest: Record<string, string>,
+): string | null {
   return manifest[sym.toUpperCase()] ?? null;
 }
 

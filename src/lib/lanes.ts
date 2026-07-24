@@ -17,14 +17,33 @@ export interface Lane {
 }
 
 export const LANES: Lane[] = [
-  { rail: "v4", name: "Uniswap v4", kind: "amm", status: "live", logo: uniswap.src },
-  { rail: "rialto", name: "Rialto", kind: "propamm", status: "live", logo: rialto.src },
+  {
+    rail: "v4",
+    name: "Uniswap v4",
+    kind: "amm",
+    status: "live",
+    logo: uniswap.src,
+  },
+  {
+    rail: "rialto",
+    name: "Rialto",
+    kind: "propamm",
+    status: "live",
+    logo: rialto.src,
+  },
   { rail: "lifi", name: "LI.FI", kind: "rfq", status: "live", logo: lifi.src },
   { rail: "zeroex", name: "0x", kind: "rfq", status: "soon", logo: zerox.src },
-  { rail: "oneinch", name: "1inch", kind: "rfq", status: "soon", logo: oneinch.src },
+  {
+    rail: "oneinch",
+    name: "1inch",
+    kind: "rfq",
+    status: "soon",
+    logo: oneinch.src,
+  },
 ];
 
-export const laneByRail = (rail: string): Lane | undefined => LANES.find((l) => l.rail === rail);
+export const laneByRail = (rail: string): Lane | undefined =>
+  LANES.find((l) => l.rail === rail);
 
 export function railLabel(rail: string, hops: number | null): string {
   if (rail === "v4") return `Uniswap v4${hops === 2 ? " · via USDG" : ""}`;
@@ -34,5 +53,8 @@ export function railLabel(rail: string, hops: number | null): string {
 const KIND_ORDER: LaneKind[] = ["amm", "propamm", "rfq"];
 
 export function groupLanes(): { kind: LaneKind; lanes: Lane[] }[] {
-  return KIND_ORDER.map((kind) => ({ kind, lanes: LANES.filter((l) => l.kind === kind) }));
+  return KIND_ORDER.map((kind) => ({
+    kind,
+    lanes: LANES.filter((l) => l.kind === kind),
+  }));
 }

@@ -19,13 +19,27 @@ export default function RouteCard({ quote }: { quote: ApiQuote }) {
           })
           .map((r) => {
             const isBest = r.rail === quote.best;
+            const lane = laneByRail(r.rail);
             return (
               <li
                 key={r.rail}
                 className={`flex items-baseline justify-between gap-3 px-5 py-2.5 text-[13px] ${isBest ? "bg-accent-100" : "opacity-55"}`}
               >
-                <span className={cn("flex items-center gap-2", isBest ? "font-heading font-extrabold" : "")}>
-                  {laneByRail(r.rail)?.logo && <img src={laneByRail(r.rail)!.logo} alt="" width={18} height={18} className="rounded-[4px]" />}
+                <span
+                  className={cn(
+                    "flex items-center gap-2",
+                    isBest ? "font-heading font-extrabold" : "",
+                  )}
+                >
+                  {lane?.logo && (
+                    <img
+                      src={lane.logo}
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="rounded-[4px]"
+                    />
+                  )}
                   {railLabel(r.rail, r.hops?.length ?? null)}
                 </span>
                 <span className="tnum">
