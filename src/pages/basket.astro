@@ -277,15 +277,18 @@ const stats = [
         },
       });
 
+      // Keep the gathering seven above the crowd as they pull out of it.
+      gsap.set(gather, { zIndex: 3 });
+
       // 1 — the subtitle steps aside as the build begins.
-      tl.to(sub, { opacity: 0, y: -12, duration: 0.3 }, 0.05);
-      // 2 — everything that isn't Genesis (and the marquee duplicates) drains away.
-      tl.to(fadeOut, { opacity: 0, scale: 0.84, filter: "grayscale(1)", duration: 0.6, stagger: { each: 0.008, from: "random" } }, 0.1);
-      // 3 — the seven physically gather into one tight, centred row.
-      tl.to(gather, { x: (i, t) => (t as any)._dx, scale: GS, duration: 1.0, ease: "power2.inOut", stagger: 0.04 }, 0.55);
+      tl.to(sub, { opacity: 0, y: -12, duration: 0.3 }, 0);
+      // 2 — the seven start converging FIRST, pulling out of the market...
+      tl.to(gather, { x: (i, t) => (t as any)._dx, scale: GS, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
+      // 3 — ...and the rest of the market dissolves around them as they go.
+      tl.to(fadeOut, { opacity: 0, scale: 0.84, filter: "grayscale(1)", duration: 0.7, stagger: { each: 0.01, from: "random" } }, 0.3);
       // 4 — lift the group and reveal the basket's stats.
-      tl.to(group, { y: -70, duration: 0.6 }, 1.2);
-      tl.fromTo(cul, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 1.35);
+      tl.to(group, { y: -70, duration: 0.6 }, 1.5);
+      tl.fromTo(cul, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 1.6);
     }
 
     ScrollTrigger.refresh();
