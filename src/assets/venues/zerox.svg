@@ -1,4 +1,5 @@
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <title>0x</title>
   <!-- placeholder — replace with official brand logo -->
   <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2.6a7.4 7.4 0 0 1 0 14.8 7.4 7.4 0 0 1 0-14.8ZM9.1 8 8 9.1l2.9 2.9L8 14.9 9.1 16 12 13.1 14.9 16 16 14.9 13.1 12 16 9.1 14.9 8 12 10.9 9.1 8Z"/>
 </svg>

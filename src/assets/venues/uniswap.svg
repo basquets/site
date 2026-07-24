@@ -1,4 +1,5 @@
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <title>Uniswap</title>
   <!-- placeholder — replace with official brand logo -->
   <path d="M12 3.2c.5 0 .95.26 1.2.69l7.3 12.9c.25.44.25.98 0 1.42a1.4 1.4 0 0 1-1.2.69H4.7a1.4 1.4 0 0 1-1.2-.69 1.42 1.42 0 0 1 0-1.42l7.3-12.9c.25-.43.7-.69 1.2-.69Z"/>
 </svg>
