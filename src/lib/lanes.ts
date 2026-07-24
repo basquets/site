@@ -1,5 +1,5 @@
 import type { SwapRail } from "@basquets/api-client";
-import lifi from "../assets/venues/lifi.svg";
+import lifi from "../assets/venues/lifi.webp";
 import oneinch from "../assets/venues/oneinch.svg";
 import rialto from "../assets/venues/rialto.svg";
 import uniswap from "../assets/venues/uniswap.svg";
