@@ -1,81 +1,248 @@
 ---
 import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
 
-// The live demo basket, moved off the landing to keep the home clean.
-// The real launch basket: four mega-cap stocks + BTC, ETH, LINK. ETH is a proven
-// component (Chainlink feed + deep USDG liquidity, first-class swap leg). BTC/LINK
-// have Chainlink feeds on chain 4663 too; USDG-pool depth for zapping is still to
-// be verified. Name/weights/chg are PLACEHOLDER until the live Chainlink island lands.
-const basket = {
-  symbol: "bGEN",
-  name: "Genesis",
-  tag: "The Genesis basket",
-  blurb: "The four companies that run the internet, plus the three assets rebuilding money — the first basket Basquets launches with. Priced live by Chainlink, held onchain.",
-  chg: 3.6, // placeholder weighted since-launch return
-};
-const holdings = [
-  { sym: "NVDA", name: "NVIDIA", kind: "stock", weight: 18, chg: 4.1 },
-  { sym: "AAPL", name: "Apple", kind: "stock", weight: 16, chg: 1.2 },
-  { sym: "BTC", name: "Bitcoin", kind: "crypto", weight: 16, chg: 2.6 },
-  { sym: "MSFT", name: "Microsoft", kind: "stock", weight: 15, chg: 0.9 },
-  { sym: "ETH", name: "Ethereum", kind: "crypto", weight: 14, chg: 5.4 },
-  { sym: "AMZN", name: "Amazon", kind: "stock", weight: 13, chg: 2.2 },
-  { sym: "LINK", name: "Chainlink", kind: "crypto", weight: 8, chg: 6.3 },
+// Genesis — an immersive, pinned scroll-story that builds the flagship basket in
+// front of the visitor: the whole market as a row of cards, everything that
+// isn't Genesis fades away, the seven holdings gather into the basket, its stats
+// reveal, and a full-width waitlist CTA closes it out. Driven by GSAP + Scroll-
+// Trigger (see the <script> below); a static fallback runs on mobile / reduced
+// motion. Numbers are PLACEHOLDER until the live Chainlink island lands.
+
+// The seven Genesis holdings — four mega-cap stocks + BTC, ETH, LINK.
+const genesis = [
+  { sym: "NVDA", name: "NVIDIA", kind: "stock", weight: 18, px: "181.20", chg: 4.1 },
+  { sym: "AAPL", name: "Apple", kind: "stock", weight: 16, px: "232.60", chg: 1.2 },
+  { sym: "BTC", name: "Bitcoin", kind: "crypto", weight: 16, px: "95,240", chg: 2.6 },
+  { sym: "MSFT", name: "Microsoft", kind: "stock", weight: 15, px: "441.10", chg: 0.9 },
+  { sym: "ETH", name: "Ethereum", kind: "crypto", weight: 14, px: "3,410", chg: 5.4 },
+  { sym: "AMZN", name: "Amazon", kind: "stock", weight: 13, px: "233.90", chg: 2.2 },
+  { sym: "LINK", name: "Chainlink", kind: "crypto", weight: 8, px: "24.80", chg: 6.3 },
+];
+// The rest of the market — context that fades away, leaving only Genesis.
+const others = [
+  { sym: "GOOGL", name: "Alphabet", kind: "stock", px: "201.40", chg: 3.0 },
+  { sym: "META", name: "Meta", kind: "stock", px: "604.50", chg: 2.7 },
+  { sym: "TSLA", name: "Tesla", kind: "stock", px: "412.80", chg: -1.8 },
+  { sym: "SOL", name: "Solana", kind: "crypto", px: "214.30", chg: 7.9 },
+  { sym: "COIN", name: "Coinbase", kind: "stock", px: "312.10", chg: -0.6 },
+  { sym: "PLTR", name: "Palantir", kind: "stock", px: "88.40", chg: 5.1 },
+  { sym: "MSTR", name: "MicroStrategy", kind: "stock", px: "402.70", chg: -2.3 },
+  { sym: "ORCL", name: "Oracle", kind: "stock", px: "196.20", chg: 1.4 },
+  { sym: "AMD", name: "AMD", kind: "stock", px: "168.90", chg: 3.6 },
+  { sym: "INTC", name: "Intel", kind: "stock", px: "42.10", chg: -1.1 },
+  { sym: "MU", name: "Micron", kind: "stock", px: "112.30", chg: 2.9 },
+  { sym: "CRWD", name: "CrowdStrike", kind: "stock", px: "372.50", chg: 0.8 },
+];
+// Interleave so Genesis holdings are spread across the row, not clustered.
+const market = [
+  others[0], genesis[0], others[1], others[2], genesis[1], others[3],
+  genesis[2], others[4], others[5], genesis[3], others[6], genesis[4],
+  others[7], others[8], genesis[5], others[9], others[10], genesis[6], others[11],
+];
+
+const stats = [
+  { big: "+3.6%", label: "since launch" },
+  { big: "7", label: "holdings · 4 stocks / 3 crypto" },
+  { big: "1", label: "signature to own them all" },
+  { big: "0.5%", label: "streaming fee at launch" },
 ];
 ---
 <ComingSoonLayout
   title="Basquets — Genesis basket"
-  description="Genesis: the first Basquets basket — tokenized US stocks and crypto on Robinhood Chain, priced live by Chainlink."
+  description="Genesis: the first Basquets basket — the biggest names in stocks and crypto on Robinhood Chain, drafted into one, priced live by Chainlink."
   badges={false}
 >
-  <section id="demo" class="cs-section">
-    <div class="cs-section-head" data-reveal>
-      <span class="cs-tag">Live demo</span>
-      <h2 class="cs-display cs-display--sm">Genesis, <em>since launch.</em></h2>
-      <p class="cs-sub">
-        The first basket we launch with — one recipe of stocks and crypto, priced live by Chainlink.
-        Here's what it's done since we opened the waitlist; the same math every basket runs.
+  <div class="gs" data-gs-root>
+    <!-- ACT 1 — hero -->
+    <section class="gs-hero">
+      <span class="cs-tag">Genesis · curated by Basquets</span>
+      <h1 class="cs-display gs-title">Genesis.</h1>
+      <p class="gs-hero-sub">
+        The first basket we launch with — the biggest names in stocks and crypto, drafted into one.
+        <strong>Watch it get built.</strong>
       </p>
-    </div>
+      <span class="gs-scrollcue" aria-hidden="true">Scroll ↓</span>
+    </section>
 
-    <div class="cs-card" data-reveal>
-      <div class="cs-card-top">
-        <div>
-          <span class="cs-tag cs-tag--ghost">{basket.tag}</span>
-          <h3 class="cs-card-title">{basket.name}</h3>
+    <!-- ACT 2–4 — the pinned stage -->
+    <div class="gs-stagewrap" data-gs-wrap>
+      <div class="gs-stage" data-gs-stage>
+        <p class="gs-cue" data-gs-cue>The whole market, onchain</p>
+
+        <div class="gs-row" data-gs-row>
+          {market.map((c) => (
+            <article class="gs-card" data-genesis={genesis.some((g) => g.sym === c.sym)}>
+              <div class="gs-card-top">
+                <span class={`cs-badge cs-badge--${c.kind}`}>{c.kind === "crypto" ? "◇" : "▪"}</span>
+                <b>{c.sym}</b>
+              </div>
+              <span class="gs-card-name">{c.name}</span>
+              <span class="gs-card-px">${c.px}</span>
+              <span class={`gs-card-chg ${c.chg >= 0 ? "cs-up" : "cs-down"}`}>{c.chg >= 0 ? "▲" : "▼"} {Math.abs(c.chg)}%</span>
+            </article>
+          ))}
         </div>
-        <div class="cs-return">
-          <span class={`cs-return-val ${basket.chg >= 0 ? "cs-up" : "cs-down"}`}>{basket.chg >= 0 ? "+" : ""}{basket.chg}%</span>
-          <span class="cs-return-lbl">since launch</span>
+
+        <!-- the basket the seven gather into -->
+        <div class="gs-basket" data-gs-basket>
+          <div class="cs-card gs-basket-card">
+            <div class="cs-card-top">
+              <div>
+                <span class="cs-tag cs-tag--ghost">The Genesis basket</span>
+                <h3 class="cs-card-title">Genesis</h3>
+              </div>
+              <div class="cs-return">
+                <span class="cs-return-val cs-up">+3.6%</span>
+                <span class="cs-return-lbl">since launch</span>
+              </div>
+            </div>
+            <ul class="cs-holdings">
+              {genesis.map((h) => (
+                <li>
+                  <span class={`cs-badge cs-badge--${h.kind}`}>{h.kind === "crypto" ? "◇" : "▪"}</span>
+                  <span class="cs-h-sym">{h.sym}</span>
+                  <span class="cs-h-name">{h.name}</span>
+                  <span class="cs-h-weight">{h.weight}%</span>
+                  <span class={`cs-h-chg ${h.chg >= 0 ? "cs-up" : "cs-down"}`}>+{h.chg}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="gs-stats" data-gs-stats>
+            {stats.map((s) => (
+              <div class="gs-stat">
+                <span class="gs-stat-big">{s.big}</span>
+                <span class="gs-stat-label">{s.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <p class="cs-card-blurb">{basket.blurb}</p>
+    </div>
 
-      <svg class="cs-spark" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points="0,52 40,48 80,50 120,40 160,42 200,30 240,26 280,18 320,12" />
-      </svg>
-
-      <ul class="cs-holdings">
-        {holdings.map((h) => (
-          <li>
-            <span class={`cs-badge cs-badge--${h.kind}`}>{h.kind === "crypto" ? "◇" : "▪"}</span>
-            <span class="cs-h-sym">{h.sym}</span>
-            <span class="cs-h-name">{h.name}</span>
-            <span class="cs-h-weight">{h.weight}%</span>
-            <span class={`cs-h-chg ${h.chg >= 0 ? "cs-up" : "cs-down"}`}>
-              {h.chg >= 0 ? "+" : ""}{h.chg}%
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p class="cs-card-foot">
-        {basket.symbol} · priced live by Chainlink · since waitlist launch · not investment advice
+    <!-- ACT 4 — CTA -->
+    <section class="gs-cta">
+      <span class="cs-tag">Early access</span>
+      <h2 class="cs-display cs-display--sm">Own Genesis in <em>one signature.</em></h2>
+      <p class="gs-cta-sub">
+        Priced live by Chainlink, self-custodied, yours. Join the waitlist to draft baskets before
+        anyone else.
       </p>
-    </div>
-
-    <div class="cs-cta-row" data-reveal style="margin-top: 36px;">
-      <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
-      <a href="/" class="cs-pill cs-pill--ghost cs-pill--lg">← Back home</a>
-    </div>
-  </section>
+      <div class="cs-cta-row" style="justify-content:center;">
+        <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
+        <a href="/" class="cs-pill cs-pill--ghost cs-pill--lg">← Back home</a>
+      </div>
+    </section>
+  </div>
 </ComingSoonLayout>
+
+<style>
+  /* ACT 1 — hero */
+  .gs-hero { max-width: 1120px; margin: 0 auto; padding: clamp(64px, 14vh, 160px) clamp(20px, 5vw, 48px) clamp(40px, 8vh, 96px); }
+  .gs-title { margin: 16px 0 0; font-size: clamp(60px, 12vw, 160px); }
+  .gs-hero-sub { max-width: 40ch; margin: 24px 0 0; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.55; color: var(--ink-70); }
+  .gs-scrollcue { display: inline-block; margin-top: 40px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-55); animation: gs-bob 2.2s ease-in-out infinite; }
+  @keyframes gs-bob { 0%,100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(5px); opacity: 1; } }
+
+  /* ACT 2–4 — pinned stage */
+  .gs-stagewrap { height: 420vh; position: relative; }
+  .gs-stage { height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+  .gs-cue { position: absolute; top: clamp(24px, 8vh, 80px); left: 50%; transform: translateX(-50%); margin: 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-55); white-space: nowrap; }
+
+  /* the market row — wider than the viewport so it reads as "there's more" */
+  .gs-row { display: flex; gap: 14px; padding: 0 40px; will-change: transform; }
+  .gs-card {
+    flex: 0 0 auto; width: 150px; display: flex; flex-direction: column; gap: 3px;
+    padding: 14px 15px; border-radius: 14px;
+    background: color-mix(in srgb, #fff 62%, var(--sand-2));
+    border: 1px solid var(--line);
+    box-shadow: 0 16px 32px -22px color-mix(in srgb, var(--ink) 45%, transparent);
+    will-change: transform, opacity, filter;
+  }
+  .gs-card[data-genesis="true"] { border-color: color-mix(in srgb, var(--accent) 42%, transparent); box-shadow: 0 18px 34px -20px color-mix(in srgb, var(--accent) 40%, transparent); }
+  .gs-card-top { display: flex; align-items: center; gap: 8px; }
+  .gs-card-top b { font-weight: 700; font-size: 15px; }
+  .gs-card-name { font-size: 12px; color: var(--ink-55); }
+  .gs-card-px { margin-top: 6px; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gs-card-chg { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* the basket + stats (revealed as the seven gather) */
+  .gs-basket { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(20px, 3vh, 32px); pointer-events: none; opacity: 0; }
+  .gs-basket-card { pointer-events: auto; width: min(92vw, 560px); background: color-mix(in srgb, #fff 62%, var(--sand-2)); }
+  .gs-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; width: min(92vw, 640px); }
+  .gs-stat { padding: 16px; border-radius: 14px; background: color-mix(in srgb, #fff 40%, var(--sand-2)); border: 1px solid var(--line); text-align: center; }
+  .gs-stat-big { display: block; font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); font-weight: 500; letter-spacing: -0.01em; }
+  .gs-stat-label { display: block; margin-top: 4px; font-size: 11.5px; color: var(--ink-55); line-height: 1.35; }
+
+  /* ACT 4 — CTA */
+  .gs-cta { max-width: 760px; margin: 0 auto; padding: clamp(72px, 16vh, 180px) clamp(20px, 5vw, 48px) clamp(80px, 14vh, 160px); text-align: center; }
+  .gs-cta .cs-display { margin: 16px 0 0; }
+  .gs-cta-sub { max-width: 46ch; margin: 18px auto 34px; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.6; color: var(--ink-70); }
+
+  /* static fallback (mobile / reduced motion): everything just stacks and shows */
+  .gs--static .gs-stagewrap { height: auto; }
+  .gs--static .gs-stage { height: auto; overflow: visible; display: block; padding: 24px clamp(20px, 5vw, 48px) 48px; }
+  .gs--static .gs-cue { position: static; transform: none; text-align: center; margin-bottom: 20px; }
+  .gs--static .gs-row { flex-wrap: wrap; justify-content: center; gap: 12px; padding: 0; }
+  .gs--static .gs-row .gs-card[data-genesis="false"] { display: none; }
+  .gs--static .gs-basket { position: static; inset: auto; opacity: 1; margin-top: 40px; }
+
+  @media (max-width: 720px) {
+    .gs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  const root = document.querySelector("[data-gs-root]") as HTMLElement | null;
+  if (root) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const small = window.matchMedia("(max-width: 820px)").matches;
+
+    if (reduce || small) {
+      // Static fallback: show the composed layout, no pin/scrub.
+      root.classList.add("gs--static");
+    } else {
+      const stage = root.querySelector("[data-gs-stage]") as HTMLElement;
+      const wrap = root.querySelector("[data-gs-wrap]") as HTMLElement;
+      const row = root.querySelector("[data-gs-row]") as HTMLElement;
+      const cue = root.querySelector("[data-gs-cue]") as HTMLElement;
+      const basket = root.querySelector("[data-gs-basket]") as HTMLElement;
+      const cards = gsap.utils.toArray<HTMLElement>(".gs-card");
+      const genesisCards = cards.filter((c) => c.dataset.genesis === "true");
+      const otherCards = cards.filter((c) => c.dataset.genesis !== "true");
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: wrap,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.8,
+          pin: stage,
+          anticipatePin: 1,
+        },
+      });
+
+      // Phase 1 — hold on the full market, then retire the cue.
+      tl.to(cue, { opacity: 0, y: -12, duration: 0.4 }, 0.6);
+
+      // Phase 2 — everything that isn't Genesis fades and drains away.
+      tl.to(otherCards, { opacity: 0.06, scale: 0.9, filter: "grayscale(1)", duration: 1, stagger: { each: 0.02, from: "random" } }, 0.5);
+
+      // Phase 3 — the seven drop toward the basket and hand off to it.
+      tl.to(otherCards, { opacity: 0, duration: 0.4 }, 1.5);
+      tl.to(genesisCards, { y: 90, scale: 0.6, opacity: 0, duration: 0.9, stagger: 0.04 }, 1.6);
+      tl.fromTo(basket, { opacity: 0, scale: 0.86, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: 0.9 }, 1.9);
+
+      // gentle parallax drift on the row before it fades, for life
+      tl.fromTo(row, { xPercent: 4 }, { xPercent: -4, duration: 1.4, ease: "none" }, 0);
+    }
+
+    // Recompute on resize (orientation, viewport changes).
+    ScrollTrigger.refresh();
+  }
+</script>
