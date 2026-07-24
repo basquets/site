@@ -1,0 +1,76 @@
+---
+import WaitlistFlow from "../components/islands/WaitlistFlow";
+import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
+
+// The waitlist is the Genesis early-access list, so the page leads with the
+// Genesis identity: the jade basket token with its seven holdings orbiting it
+// (the same motif as /basket, here a compact always-on loop — pure CSS, no
+// scroll-story JS). The WaitlistFlow island drives the real Privy sign-in and
+// registers the connected wallet via api-client joinWaitlist({ address }).
+
+const genesis = [
+  { sym: "NVDA", kind: "stock" },
+  { sym: "AAPL", kind: "stock" },
+  { sym: "BTC", kind: "crypto" },
+  { sym: "MSFT", kind: "stock" },
+  { sym: "ETH", kind: "crypto" },
+  { sym: "AMZN", kind: "stock" },
+  { sym: "LINK", kind: "crypto" },
+];
+const stockSvg = new Set(["AAPL", "INTC", "AMZN"]);
+const logoSrc = (c: { sym: string; kind: string }) =>
+  c.kind === "crypto"
+    ? `/logos/crypto/${c.sym.toLowerCase()}.svg`
+    : `/logos/stock/${c.sym}.${stockSvg.has(c.sym) ? "svg" : "png"}`;
+// Each chip circles the token on its own radius (rf), speed (dur) and start
+// phase (ph), spread around the ring so none clump.
+const orbits = [
+  { rf: 0.74, dur: 34, ph: 0.0 },
+  { rf: 1.34, dur: 52, ph: 0.15 },
+  { rf: 0.98, dur: 40, ph: 0.29 },
+  { rf: 1.16, dur: 58, ph: 0.43 },
+  { rf: 0.82, dur: 32, ph: 0.58 },
+  { rf: 1.44, dur: 64, ph: 0.72 },
+  { rf: 1.06, dur: 46, ph: 0.86 },
+];
+---
+<ComingSoonLayout
+  title="Basquets — Join the waitlist"
+  description="Claim your seat in Genesis, the first Basquets basket. Sign in to join the early-access waitlist — the beta opens wallet by wallet."
+  fullscreen
+  badges={false}
+>
+  <div class="cs-join cs-join--genesis">
+    <div class="cs-join-inner">
+      <!-- left: Genesis orbit — the jade token with its seven holdings circling it -->
+      <div class="cs-gorbit-wrap">
+        <div class="cs-gorbit" aria-hidden="true">
+          <span class="cs-gorbit-glow"></span>
+          <img class="cs-gorbit-token" src="/genesis-token.webp" width="1500" height="1137" alt="" />
+          {genesis.map((c, i) => (
+            <span
+              class="cs-gchip"
+              style={`--dur:${orbits[i].dur}s;--ph:${orbits[i].ph};--rf:${orbits[i].rf}`}
+            >
+              <span class="cs-gchip-in">
+                <i class="cs-gchip-logo"><img src={logoSrc(c)} width="16" height="16" alt="" /></i>
+                <b>{c.sym}</b>
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <!-- right: the pitch + the real sign-in -->
+      <div class="cs-join-panel">
+        <span class="cs-tag cs-tag--ghost">Early access · Genesis</span>
+        <h1 class="cs-display cs-display--sm">Claim your <em>seat.</em></h1>
+        <p class="cs-sub">
+          Genesis is the first Basquets basket — seven of the biggest names in stocks and crypto,
+          drafted into one token. The beta opens wallet by wallet; sign in to take your place.
+        </p>
+        <WaitlistFlow client:load />
+      </div>
+    </div>
+  </div>
+</ComingSoonLayout>

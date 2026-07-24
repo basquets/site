@@ -2,6 +2,10 @@
 @import "@fontsource/archivo/400.css";
 @import "@fontsource/archivo/600.css";
 @import "@fontsource/archivo/800.css";
+/* Halant: editorial serif for the coming-soon display type (scoped via .cs). */
+@import "@fontsource/halant/400.css";
+@import "@fontsource/halant/500.css";
+@import "@fontsource/halant/600.css";
 
 @theme {
   /* grounds & ink */

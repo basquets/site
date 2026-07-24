@@ -1,0 +1,273 @@
+---
+import PrivyNav from "../components/islands/PrivyNav";
+import BaseLayout from "./BaseLayout.astro";
+import "../styles/coming-soon.css";
+
+// Shared chrome for the coming-soon surface (landing + subpages like /basket):
+// the warm theme, the brand nav, the partnerships footer, and the sticky live
+// ticker. Pages provide only their <main> content via the slot. chrome=false so
+// BaseLayout drops the app nav/footer but keeps the SEO/OG head.
+interface Props {
+  title: string;
+  description: string;
+  /** Make the page fill exactly one viewport (nav + growing main + footer). */
+  fullscreen?: boolean;
+  /** Ambient scattered price badges on the background. Off for content pages. */
+  badges?: boolean;
+}
+const { title, description, fullscreen = false, badges = true } = Astro.props;
+const CONTACT = "hello@basquets.xyz";
+const TWITTER = "https://x.com/basquetsxyz";
+
+// Live-priced market context for the sticky ticker (stocks + crypto, all
+// Chainlink). Crypto is context only — not necessarily a basket holding.
+// Prices/deltas are placeholder until the live Chainlink island lands.
+// Each ticker gets a scattered position, a size (s) and a small rotation (rot)
+// so the badges read as organically thrown across the background, plus a stagger
+// so they fade in and out at different times. Positions dodge the left-centre
+// band where the hero headline sits.
+const ticker = [
+  {
+    sym: "NVDA",
+    px: "181.20",
+    chg: 4.1,
+    top: "13%",
+    left: "6%",
+    s: 1.1,
+    rot: -3,
+    delay: "0s",
+  },
+  {
+    sym: "BTC",
+    px: "95,240",
+    chg: 2.6,
+    top: "18%",
+    left: "70%",
+    s: 1.32,
+    rot: 2,
+    delay: "1.3s",
+  },
+  {
+    sym: "AAPL",
+    px: "232.60",
+    chg: 1.2,
+    top: "30%",
+    left: "40%",
+    s: 0.92,
+    rot: -2,
+    delay: "2.6s",
+  },
+  {
+    sym: "ETH",
+    px: "3,410",
+    chg: 5.4,
+    top: "58%",
+    left: "74%",
+    s: 1.05,
+    rot: 3,
+    delay: "0.7s",
+  },
+  {
+    sym: "TSLA",
+    px: "412.80",
+    chg: -1.8,
+    top: "80%",
+    left: "12%",
+    s: 0.88,
+    rot: -4,
+    delay: "3.1s",
+  },
+  {
+    sym: "LINK",
+    px: "24.80",
+    chg: 6.3,
+    top: "44%",
+    left: "58%",
+    s: 1.16,
+    rot: 2,
+    delay: "1.9s",
+  },
+  {
+    sym: "MSFT",
+    px: "441.10",
+    chg: 0.9,
+    top: "84%",
+    left: "48%",
+    s: 1.0,
+    rot: -2,
+    delay: "2.2s",
+  },
+  {
+    sym: "AMZN",
+    px: "233.90",
+    chg: 2.2,
+    top: "32%",
+    left: "85%",
+    s: 0.9,
+    rot: 4,
+    delay: "3.8s",
+  },
+  {
+    sym: "META",
+    px: "604.50",
+    chg: 2.7,
+    top: "70%",
+    left: "32%",
+    s: 1.22,
+    rot: -1,
+    delay: "1.1s",
+  },
+];
+---
+<BaseLayout chrome={false} title={title} description={description}>
+  <div class:list={["cs", { "cs--full": fullscreen }]}>
+    {/* ambient live-price badges, scattered on the background, fading in and out */}
+    {badges && (
+      <div class="cs-badges" aria-hidden="true">
+        {ticker.map((t) => (
+          <span class="cs-badge-float" data-sym={t.sym} style={`top:${t.top};left:${t.left};--s:${t.s};--rot:${t.rot}deg;animation-delay:${t.delay}`}>
+            <b class="cs-bf-sym">{t.sym}</b>
+            <span class={`cs-bf-arrow ${t.chg >= 0 ? "cs-up" : "cs-down"}`}>{t.chg >= 0 ? "▲" : "▼"}</span>
+            <span class="cs-bf-px">${t.px}</span>
+          </span>
+        ))}
+      </div>
+    )}
+
+    <header class="cs-nav" data-reveal>
+      <a href="/" class="cs-word"><span class="cs-mark" aria-hidden="true"></span>Basquets</a>
+      <nav class="cs-nav-links">
+        <a href="/basket">Genesis</a>
+        <a href="/docs">Docs</a>
+        <a href="/blog">Blog</a>
+        <PrivyNav client:load />
+      </nav>
+    </header>
+
+    <main id="main"><slot /></main>
+
+    <footer class="cs-foot">
+      <div class="cs-foot-top">
+        <div class="cs-foot-brand">
+          <a href="/" class="cs-word cs-word--foot"><span class="cs-mark" aria-hidden="true"></span>Basquets</a>
+          <p class="cs-foot-tag">Draft the market into baskets — real US stocks and crypto, onchain, in one self-custodied token.</p>
+        </div>
+        <nav class="cs-foot-nav">
+          <div class="cs-foot-col">
+            <span class="cs-foot-h">Product</span>
+            <a href="/basket">Genesis basket</a>
+            <a href="/join">Join waitlist</a>
+          </div>
+          <div class="cs-foot-col">
+            <span class="cs-foot-h">Learn</span>
+            <a href="/docs">Docs</a>
+            <a href="/blog">Blog</a>
+          </div>
+          <div class="cs-foot-col">
+            <span class="cs-foot-h">Connect</span>
+            <a href={TWITTER} target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="12" height="12"><path d="M18.9 1.6h3.3l-7.2 8.2L23.7 22h-6.6l-5.2-6.8L5.9 22H2.6l7.7-8.8L2 1.6h6.8l4.7 6.2 5.4-6.2zm-1.2 18.4h1.8L7.1 3.4H5.2z"/></svg>
+              @basquetsxyz
+            </a>
+            <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+          </div>
+        </nav>
+      </div>
+      <div class="cs-foot-word-lg" aria-hidden="true">Basquets</div>
+      <div class="cs-foot-base">
+        <span>© {new Date().getFullYear()} Basquets</span>
+        <span class="cs-foot-mid">Built on Robinhood stock tokens · Priced by Chainlink</span>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // Fluid scroll reveals: reveal on enter, once.
+  (function () {
+    var els = document.querySelectorAll(".cs [data-reveal]");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach(function (e) { e.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+
+  // Interactive blob (home hero only): eases toward the cursor with a gentle
+  // idle drift, grows + fades in on load. CSS keeps the shape-morph (border-
+  // radius only) so setting transform here does not fight it. No-op if absent.
+  (function () {
+    var blob = document.querySelector(".cs-blob");
+    if (!blob) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      blob.style.opacity = "1";
+      return;
+    }
+    var tx = 0, ty = 0, cx = 0, cy = 0, start = null;
+    var INTRO = 1200; // ms: grow + fade in, then settle into the live follow
+    function easeOut(p) { return 1 - Math.pow(1 - p, 3); }
+    window.addEventListener("pointermove", function (e) {
+      tx = e.clientX / window.innerWidth - 0.5;
+      ty = e.clientY / window.innerHeight - 0.5;
+    }, { passive: true });
+    function frame(t) {
+      if (start === null) start = t;
+      var intro = easeOut(Math.min((t - start) / INTRO, 1));
+      cx += (tx - cx) * 0.05;
+      cy += (ty - cy) * 0.05;
+      var fx = Math.sin(t / 2600) * 16;
+      var fy = Math.cos(t / 2100) * 18;
+      var scale = 0.5 + 0.5 * intro;
+      blob.style.opacity = intro.toFixed(3);
+      blob.style.transform =
+        "translate3d(" + (cx * 180 + fx).toFixed(1) + "px," + (cy * 150 + fy).toFixed(1) + "px,0) scale(" + scale.toFixed(3) + ")";
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+</script>
+
+<script>
+  // Live prices for the ambient badges: stocks from /v1/tokens, crypto from
+  // /v1/prices (both Chainlink). Patches each badge's price + arrow in place, and
+  // leaves the built-in placeholders if the API can't be reached.
+  const API = import.meta.env.PUBLIC_API_URL as string | undefined;
+  const badges = document.querySelectorAll<HTMLElement>(".cs-badge-float");
+  if (API && badges.length) {
+    const fmtPx = (v: number) => (v >= 1000 ? Math.round(v).toLocaleString("en-US") : v.toFixed(2));
+    const load = async () => {
+      const base = API.replace(/\/$/, "");
+      const px: Record<string, { value: number; chg: number | null }> = {};
+      try {
+        const [tokens, prices] = await Promise.all([
+          fetch(`${base}/v1/tokens`).then((r) => r.json()),
+          fetch(`${base}/v1/prices`).then((r) => r.json()),
+        ]);
+        for (const t of tokens) if (t?.price) px[t.symbol] = { value: t.price.value, chg: t.price.change24h };
+        for (const p of prices) px[p.symbol] = { value: p.value, chg: p.change24h };
+      } catch {
+        return; // keep placeholders
+      }
+      for (const b of badges) {
+        const d = b.dataset.sym ? px[b.dataset.sym] : undefined;
+        if (!d) continue;
+        const pxEl = b.querySelector(".cs-bf-px");
+        const arrow = b.querySelector(".cs-bf-arrow");
+        if (pxEl) pxEl.textContent = `$${fmtPx(d.value)}`;
+        if (arrow && d.chg != null) {
+          const up = d.chg >= 0;
+          arrow.textContent = up ? "▲" : "▼";
+          arrow.classList.toggle("cs-up", up);
+          arrow.classList.toggle("cs-down", !up);
+        }
+      }
+    };
+    load();
+    setInterval(load, 60000);
+  }
+</script>

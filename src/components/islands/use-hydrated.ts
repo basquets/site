@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 
 /**
- * False during SSR and the hydration render, true from the first client
- * effect. Wallet-dependent islands render their server markup (the
- * disconnected state) until this flips, because the navbar's PrivyBridge often
- * moves the shared wallet store to "connecting" before later islands hydrate,
- * and React 19 treats that divergence as a hydration error.
+ * False during SSR and the hydration render, true from the first client effect.
+ * The waitlist island renders its server markup (the sign-in buttons) until
+ * this flips, so Privy's client-only state can't cause a hydration mismatch.
  */
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);

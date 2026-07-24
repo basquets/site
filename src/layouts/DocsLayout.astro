@@ -1,9 +1,7 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
 import type { MarkdownHeading } from "astro";
-import Container from "../components/layout/Container.astro";
-import Kicker from "../components/layout/Kicker.astro";
-import BaseLayout from "./BaseLayout.astro";
+import ComingSoonLayout from "./ComingSoonLayout.astro";
 
 interface Props {
   entry: CollectionEntry<"docs">;
@@ -64,63 +62,55 @@ const docsLd = JSON.stringify([
   },
 ]);
 ---
-<BaseLayout title={pageTitle} description={entry.data.description}>
+<ComingSoonLayout title={pageTitle} description={entry.data.description} badges={false}>
   <script is:inline type="application/ld+json" set:html={docsLd} />
-  <main id="main">
-    <Container>
-      <div class="grid items-start gap-y-10 gap-x-[clamp(32px,5vw,80px)] py-[calc(2*28px)] lg:grid-cols-[220px_minmax(0,1fr)]">
-        <aside class="lg:sticky lg:top-7">
-          <nav aria-label="Protocol docs">
-            <Kicker class="mb-3.5">Protocol docs</Kicker>
-            <ol class="m-0 flex list-none flex-col p-0 max-lg:flex-row max-lg:flex-wrap max-lg:gap-x-5 lg:border-l-2 lg:border-divider">
-              {items.map((item) => (
-                <li>
-                  <a
-                    href={item.href}
-                    aria-current={item.id === entry.id ? "page" : undefined}
-                    class="block py-1.5 text-sm text-ink/70 no-underline hover:text-accent-700 aria-[current=page]:font-heading aria-[current=page]:font-extrabold aria-[current=page]:text-accent-700 lg:-ml-0.5 lg:border-l-2 lg:border-transparent lg:pl-4 lg:aria-[current=page]:border-accent"
-                  >{item.title}</a>
-                </li>
+  <div class="cs-doc">
+    <div class="cs-doc-grid">
+      <aside class="cs-doc-aside">
+        <nav aria-label="Protocol docs">
+          <span class="cs-kicker">Protocol docs</span>
+          <ol class="cs-doc-navlist">
+            {items.map((item) => (
+              <li>
+                <a href={item.href} aria-current={item.id === entry.id ? "page" : undefined}>{item.title}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        {toc.length > 1 && (
+          <nav aria-label="On this page" class="cs-toc">
+            <p class="cs-toc-h">On this page</p>
+            <ol>
+              {toc.map((h) => (
+                <li><a href={`#${h.slug}`}>{h.text}</a></li>
               ))}
             </ol>
           </nav>
-          {toc.length > 1 && (
-            <nav aria-label="On this page" class="mt-10 max-lg:hidden">
-              <p class="m-0 mb-3.5 text-[11px] uppercase tracking-[0.08em] text-ink/55">On this page</p>
-              <ol class="m-0 list-none border-l-2 border-divider p-0">
-                {toc.map((h) => (
-                  <li>
-                    <a href={`#${h.slug}`} class="block py-1.5 pl-4 text-[13px] leading-5 text-ink/70 no-underline hover:text-accent-700">{h.text}</a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+        )}
+      </aside>
+
+      <article>
+        <div class="cs-prose">
+          <slot />
+        </div>
+
+        <nav aria-label="Docs pagination" class="cs-doc-pager">
+          {prev && (
+            <a href={prev.href} class:list={[!next && "cs-pager-span2"]}>
+              <span class="cs-pager-lbl">Previous</span>
+              <span class="cs-pager-title">← {prev.title}</span>
+            </a>
           )}
-        </aside>
+          {next && (
+            <a href={next.href} class:list={[!prev && "cs-pager-span2"]}>
+              <span class="cs-pager-lbl">Next</span>
+              <span class="cs-pager-title">{next.title} →</span>
+            </a>
+          )}
+        </nav>
+      </article>
+    </div>
 
-        <article class="min-w-0">
-          <div class="prose-basquets text-[15.5px] leading-7">
-            <slot />
-          </div>
-
-          <nav aria-label="Docs pagination" class="mt-14 grid border-t-2 border-l-2 border-divider sm:grid-cols-2">
-            {prev && (
-              <a href={prev.href} class:list={["block border-r-2 border-b-2 border-divider p-5 text-ink no-underline hover:bg-surface", !next && "sm:col-span-2"]}>
-                <span class="block text-[11px] uppercase tracking-[0.08em] text-ink/55">Previous</span>
-                <span class="mt-1.5 block font-heading font-extrabold text-[15px]">← {prev.title}</span>
-              </a>
-            )}
-            {next && (
-              <a href={next.href} class:list={["block border-r-2 border-b-2 border-divider p-5 text-ink no-underline hover:bg-surface", !prev && "sm:col-span-2"]}>
-                <span class="block text-[11px] uppercase tracking-[0.08em] text-ink/55">Next</span>
-                <span class="mt-1.5 block font-heading font-extrabold text-[15px]">{next.title} →</span>
-              </a>
-            )}
-          </nav>
-        </article>
-      </div>
-
-      <slot name="bottom" />
-    </Container>
-  </main>
-</BaseLayout>
+    <slot name="bottom" />
+  </div>
+</ComingSoonLayout>

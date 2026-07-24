@@ -1,251 +1,29 @@
 ---
-import { Image } from "astro:assets";
-import conviction from "../assets/conviction.png";
-import BasketLattice from "../components/islands/BasketLattice";
-import LaneList from "../components/islands/LaneList";
-import TokenShelf from "../components/islands/TokenShelf";
-import ZapCard from "../components/islands/ZapCard";
-import Container from "../components/layout/Container.astro";
-import Kicker from "../components/layout/Kicker.astro";
-import Section from "../components/layout/Section.astro";
-import FeatureCell from "../components/site/FeatureCell.astro";
-import StatStrip from "../components/site/StatStrip.astro";
-import { buttonVariants } from "../components/ui/button";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { ALL_BASKETS, FLAGSHIP } from "../lib/market";
-import { CURATOR_SHARE_LABEL, STREAMING_FEE_LABEL } from "../lib/protocol";
-import { TOKENS } from "../lib/tokens";
-import { cn } from "../lib/utils";
+import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
+
+// Coming-soon landing for the root domain. Kept intentionally clean: hero +
+// waitlist only. The live demo basket lives on its own page (/basket). The
+// warm theme, nav, footer and sticky ticker come from ComingSoonLayout.
 ---
-<BaseLayout
-  title="Basquets — Tokenized US stock baskets on Robinhood Chain"
-  description="Real US stocks live onchain as tokens. Basquets turns them into baskets: create one in minutes, invest with one signature, self-custodied and priced live by Chainlink."
+<ComingSoonLayout
+  title="Basquets — Coming soon"
+  description="Tokenized US stocks and crypto, drafted into baskets on Robinhood Chain. Basquets is launching soon — join the waitlist."
+  fullscreen
 >
-  <main id="main">
-    <!-- hero: centred statement, live zap band underneath. Sits outside the
-         Container so its backdrop spans the full viewport width. -->
-    <section class="hero-field relative flex min-h-[calc(100dvh-97px)] flex-col justify-center overflow-hidden pt-[calc(2*28px)] pb-[calc(2.5*28px)]">
-      <Container class="relative z-10">
-        <div class="text-center">
-          <h1 class="m-0 text-[clamp(44px,6.6vw,96px)] leading-[1.02] tracking-[-0.02em]">
-            <span class="block">Draft the</span>
-            <span class="block">market.</span>
-          </h1>
-          <p class="mx-auto mt-8 mb-0 max-w-[46ch] font-heading font-extrabold text-[clamp(19px,1.7vw,24px)] leading-[1.35] tracking-[-0.01em]">
-            Real US stocks live onchain as tokens.
-          </p>
-          <p class="mx-auto mt-4 mb-0 max-w-[64ch] text-[clamp(16px,1.3vw,18px)] leading-[1.65] text-ink/78">
-            Basquets turns them into portfolios: create a basket in minutes, invest in one with a
-            single signature, or set a savings plan and let it run.
-          </p>
-          <div class="mt-9 flex flex-wrap justify-center gap-3">
-            <a href="/baskets" class={cn(buttonVariants({ variant: "primary", size: "lg" }))}>Explore baskets</a>
-            <a href="/curators#apply" class={cn(buttonVariants({ variant: "ghost", size: "lg" }))}>Become a curator</a>
-          </div>
-          <p class="mt-7 mb-0 text-[11px] uppercase tracking-[0.1em] text-ink/55">
-            Built on Robinhood stock tokens · Priced by Chainlink · Self-custodied
-          </p>
-        </div>
-        <div class="mt-[clamp(44px,5vw,72px)]">
-          <ZapCard client:idle />
-        </div>
-      </Container>
-    </section>
-
-    <!-- the shelf: an ink plate under the hero holding the live token inventory
-         and the swap CTA. The material change is the section break — no rules. -->
-    <section class="slab relative overflow-hidden bg-ink py-[calc(2.5*28px)] text-ground">
-      <Container class="relative z-10">
-        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-          <span class="block text-[11px] uppercase tracking-[0.1em] text-accent-300">The shelf</span>
-          <span class="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.1em] text-ground/60">
-            <span class="size-2 bg-accent-300 animate-pulse-live"></span>
-            {TOKENS.length} tokens · priced live
-          </span>
-        </div>
-        <h2 class="mt-4 mb-0 max-w-[18ch] text-[clamp(30px,3.6vw,50px)] leading-[1.08] tracking-[-0.02em] text-ground">
-          Every basket is built from these.
-        </h2>
-        <div class="mt-9"><TokenShelf client:load /></div>
-        <p class="mt-5 mb-0 max-w-[70ch] text-[13px] leading-6 text-ground/60">
-          Official Robinhood stock tokens, straight from the onchain asset registry. No memecoins,
-          no synthetics — and a basket can only hold the ones Chainlink can price.
-        </p>
-      </Container>
-    </section>
-
-    <Container>
-      <!-- live baskets -->
-      <Section id="baskets">
-        <div class="mb-7 flex flex-wrap items-end justify-between gap-5">
-          <div>
-            <Kicker class="mb-3.5">Live baskets</Kicker>
-            <h2 class="m-0 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">Curated by people, not committees.</h2>
-          </div>
-          <div class="flex items-center gap-2.5 pb-1.5 text-xs uppercase tracking-[0.08em] text-ink/70">
-            <span class="size-2.5 bg-accent animate-pulse-live"></span>
-            <span>Priced live by Chainlink</span>
-          </div>
-        </div>
-        {/* Market islands hydrate on load, never client:visible: the visible
-            directive observes the island's children before they are parsed, so
-            it never fires here and the island would sit on "loading" forever. */}
-        <BasketLattice client:load />
-        <!-- story / CTA cell continuing the lattice -->
-        <div class="grid items-end gap-y-7 gap-x-[clamp(24px,5vw,96px)] border-2 border-t-0 border-divider bg-surface p-[clamp(28px,3.5vw,48px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <div>
-            <h2 class="m-0 text-[clamp(28px,3.4vw,44px)] leading-[1.1] tracking-[-0.015em]">
-              <span class="block">Every basket starts as</span>
-              <span class="block">somebody's conviction.</span>
-            </h2>
-            <p class="mt-5.5 mb-0 max-w-[52ch] text-[15.5px] leading-7 text-ink/78">
-              A thesis about AI. A patience habit learned from a grandfather. A top-10 argued over in
-              a group chat for years. On Basquets a conviction becomes a token anyone can hold.
-            </p>
-            <p class="mt-4 mb-0 max-w-[52ch] font-heading font-extrabold text-[17px] leading-7">
-              And its curator earns {CURATOR_SHARE_LABEL} of every fee it generates — automatically,
-              onchain, for as long as people zap in and out.
-            </p>
-          </div>
-          {/* The scribble resolving into a token. The print's paper is warm
-              cream; brightness lifts it to true white so multiply can drop it
-              entirely, leaving the linework on the panel rather than a slab of
-              its own colour. */}
-          <Image
-            src={conviction}
-            alt="A tangle of scribbled line gradually straightening as it descends, resolving into a clean hexagonal token"
-            widths={[220, 440]}
-            sizes="220px"
-            class="mx-auto block w-full max-w-[220px] mix-blend-multiply brightness-[1.15]"
-            loading="lazy"
-          />
-        </div>
-        <!-- protocol facts: real constants only, no invented traction -->
-        <div class="mt-9">
-          <StatStrip
-            items={[
-              { value: `${ALL_BASKETS.length}`, label: "Baskets at launch" },
-              { value: STREAMING_FEE_LABEL, label: "Holding fee at launch" },
-              { value: CURATOR_SHARE_LABEL, label: "Of every fee goes to curators" },
-              { value: "3", label: "Venues quoted on every swap" },
-            ]}
-          />
-        </div>
-      </Section>
-
-      <!-- investor path in three steps, so nobody has to leave for the docs to get the mechanics -->
-      <Section rule id="how">
-        <Kicker class="mb-3.5">How it works</Kicker>
-        <h2 class="m-0 mb-7 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">Three steps, no fine print.</h2>
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] border-t-2 border-l-2 border-divider">
-          <FeatureCell num="01" title="Pick a basket" copy="Every recipe is public before you put in a cent: exactly these tokens, exactly these units, priced live by Chainlink. Or create your own in minutes.">
-            <div class="flex max-w-[280px] flex-col gap-1.5">
-              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[64%] bg-ink"></span></div>
-              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[52%] bg-neutral-500"></span></div>
-              <div class="flex items-center gap-2.5"><span class="size-2 flex-none bg-accent"></span><span class="h-2 w-[38%] bg-neutral-300"></span></div>
-            </div>
-          </FeatureCell>
-          <FeatureCell num="02" title="Zap in" copy="USDG in, basket out. One signature, gas sponsored, every fee shown before you sign. The recipe executes at oracle prices.">
-            <div class="flex items-center gap-3.5 tnum">
-              <span class="font-heading font-extrabold">USDG</span>
-              <span class="relative h-0.5 max-w-20 flex-1 bg-ink">
-                <span class="absolute -top-1 -right-px border-y-[5px] border-l-8 border-y-transparent border-l-ink"></span>
-              </span>
-              <span class="inline-flex size-5.5 items-center justify-center border-2 border-accent"><span class="size-2.5 bg-accent"></span></span>
-              <span class="font-heading font-extrabold text-accent-700">{FLAGSHIP.symbol}</span>
-            </div>
-          </FeatureCell>
-          <FeatureCell num="03" title="Hold, automate, exit" copy="Basket tokens are plain ERC-20s in your wallet. Set a weekly savings plan and let it run, or sell back to USDG whenever markets are open.">
-            <div class="flex size-16 items-center justify-center border-2 border-ink">
-              <span class="flex size-10 items-center justify-center border-2 border-neutral-500">
-                <span class="size-4.5 bg-accent"></span>
-              </span>
-            </div>
-          </FeatureCell>
-        </div>
-      </Section>
-
-      <!-- best execution: the router quotes every venue at once, better price fills -->
-      <Section rule id="venues">
-        <Kicker class="mb-3.5">Best execution</Kicker>
-        <h2 class="m-0 mb-3 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">We route across every venue.</h2>
-        <p class="mt-0 mb-8 max-w-[62ch] text-[15.5px] leading-7 text-ink/78">
-          Every swap is quoted against multiple liquidity sources at once — an AMM, market-maker RFQ
-          desks, and an onchain propAMM. The better price fills.
-        </p>
-        <LaneList variant="grouped" client:visible />
-      </Section>
-
-    </Container>
-
-    <!-- two doors out of the homepage: the manual, and the research. Full
-         bleed, split by a single rule; each panel is the link and inverts to
-         ink on hover. Its own gutters match the Container's so the type still
-         lines up with everything above. -->
-    <section class="border-t-2 border-divider md:grid md:grid-cols-2">
-        {[
-          {
-            kicker: "Documentation",
-            title: "How it works, in full.",
-            copy: "Recipes, oracle pricing, fees and the open protocol underneath — the whole mechanism, written down and kept current with the code.",
-            cta: "Read the docs",
-            href: "/docs",
-          },
-          {
-            kicker: "Blog",
-            title: "What we found onchain.",
-            copy: "Research notes from the chain itself: where stock tokens actually trade, which prices hold up, and why two sources disagree.",
-            cta: "Read the writing",
-            href: "/blog",
-          },
-        ].map((p, i) => (
-          <a
-            href={p.href}
-            class:list={[
-              "group flex flex-col px-[clamp(20px,5vw,72px)] py-[clamp(40px,5vw,72px)] text-ink no-underline transition-colors duration-150 hover:bg-ink hover:text-ground",
-              i === 1 && "border-t-2 border-divider md:border-t-0 md:border-l-2",
-            ]}
-          >
-            <span class="text-[11px] uppercase tracking-[0.1em] text-accent-700 transition-colors group-hover:text-accent-300">
-              {p.kicker}
-            </span>
-            <h2 class="mt-4 mb-0 max-w-[16ch] text-[clamp(26px,2.9vw,38px)] leading-[1.1] tracking-[-0.018em]">
-              {p.title}
-            </h2>
-            <p class="mt-5 mb-0 max-w-[46ch] text-[15.5px] leading-7 text-ink/75 transition-colors group-hover:text-ground/70">
-              {p.copy}
-            </p>
-            <span class="mt-9 inline-flex items-center gap-3 font-heading font-extrabold text-[15px] text-accent-700 transition-colors group-hover:text-accent-300">
-              {p.cta}
-              <span
-                class="transition-transform duration-150 group-hover:translate-x-1.5"
-                aria-hidden="true">→</span>
-            </span>
-          </a>
-        ))}
-    </section>
-
-  </main>
-</BaseLayout>
-
-<style>
-  /* Hero backdrop, three stacked layers: an accent aura that pools behind the
-     zap band, a dot field that fades out downward, and a grain pass over both
-     so the whole thing reads as printed stock rather than a screen gradient.
-     The section bleeds past the Container so the field spans the viewport. */
-  .hero-field {
-    background:
-      radial-gradient(58% 44% at 50% 64%, color-mix(in oklch, var(--color-accent) 17%, transparent), transparent 70%),
-      linear-gradient(to bottom, transparent 38%, color-mix(in oklch, var(--color-accent-100) 58%, transparent));
-  }
-  /* Dot field; the grain on top comes from the shared .bq-grain class. */
-  .hero-field::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 20%, transparent) 1px, transparent 1px);
-    background-size: 22px 22px;
-    mask-image: linear-gradient(to bottom, black, transparent 78%);
-  }
-</style>
+  <!-- HERO -->
+  <section class="cs-hero">
+    <div class="cs-hero-inner">
+      <h1 class="cs-display" data-reveal style="--d:1">Draft the <em>market.</em></h1>
+      <p class="cs-lead" data-reveal style="--d:2">
+        Real US stocks and crypto live onchain as tokens. Basquets turns them into <strong>baskets</strong>{" "}
+        — portfolios anyone can create, invest in with one signature, and automate. Priced by
+        Chainlink, self-custodied.
+      </p>
+      <div class="cs-cta-row" data-reveal style="--d:3">
+        <a href="/join" class="cs-pill cs-pill--ink cs-pill--lg">Join the waitlist</a>
+        <a href="/basket" class="cs-pill cs-pill--ghost cs-pill--lg">Meet Genesis →</a>
+      </div>
+    </div>
+    <div class="cs-blob" aria-hidden="true"></div>
+  </section>
+</ComingSoonLayout>

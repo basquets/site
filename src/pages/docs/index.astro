@@ -14,17 +14,17 @@ const pages = docs.filter((d) => d.id !== "index");
   <Content />
 
   <div slot="bottom">
-    <hr class="m-0 h-0.5 border-0 bg-divider" />
-    <section class="py-[calc(2.5*28px)]">
-      <h2 class="m-0 mb-7 text-[clamp(24px,2.6vw,32px)] tracking-[-0.015em]">All pages.</h2>
-      <div class="grid border-t-2 border-l-2 border-divider sm:grid-cols-2 xl:grid-cols-4">
+    <hr class="cs-doc-divider" />
+    <section>
+      <h2 class="cs-doc-sub">All pages.</h2>
+      <div class="cs-doc-cards">
         {pages.map((doc) => (
-          <a href={`/docs/${doc.id}`} class="flex min-h-[150px] flex-col gap-2.5 border-r-2 border-b-2 border-divider p-6 text-ink no-underline hover:bg-surface">
-            <span class="flex items-baseline justify-between gap-4">
-              <span class="font-heading font-extrabold text-[17px] tracking-[-0.01em]">{doc.data.title}</span>
-              <span class="font-heading font-extrabold text-accent-700" aria-hidden="true">→</span>
+          <a href={`/docs/${doc.id}`} class="cs-doc-card">
+            <span class="cs-doc-card-top">
+              <span class="cs-doc-card-title">{doc.data.title}</span>
+              <span class="cs-doc-card-arrow" aria-hidden="true">→</span>
             </span>
-            <span class="text-[13px] leading-6 text-ink/70">{doc.data.description}</span>
+            <span class="cs-doc-card-desc">{doc.data.description}</span>
           </a>
         ))}
       </div>
