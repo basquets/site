@@ -61,13 +61,15 @@ const stats = [
   <div class="gs" data-gs-root>
     <!-- hero cover: the flagship, its holdings, the thesis -->
     <section class="gs-hero">
-      <div class="gs-hero-inner">
+      <div class="gs-hero-top">
         <span class="cs-tag">The flagship basket · curated by Basquets</span>
         <h1 class="cs-display gs-title">Genesis.</h1>
         <p class="gs-sub">
           Four companies that already run your life, and three protocols rebuilding money
           underneath it. Held in one token, priced by the oracle it also holds.
         </p>
+      </div>
+      <div class="gs-hero-shelf">
         <div class="gs-shelf">
           <span class="gs-asset"><i><img src="/logos/stock/NVDA.png" alt="" /></i>NVDA</span>
           <span class="gs-asset"><i><img src="/logos/stock/AAPL.svg" alt="" /></i>AAPL</span>
@@ -158,9 +160,12 @@ const stats = [
 </ComingSoonLayout>
 
 <style>
-  /* hero cover — one viewport: the thesis + holdings, scroll cue at the bottom */
-  .gs-hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: clamp(72px, 11vh, 130px) clamp(20px, 5vw, 48px) clamp(84px, 12vh, 120px); }
-  .gs-hero-inner { max-width: 760px; }
+  /* hero cover — one viewport: text up top under the nav, holdings shelf lower,
+     scroll cue pinned to the bottom */
+  .gs-hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; padding: clamp(36px, 6vh, 68px) clamp(20px, 5vw, 48px) clamp(130px, 20vh, 190px); }
+  .gs-hero-top { max-width: 640px; }
+  .gs-hero-shelf { max-width: 720px; }
+  .gs-hero-shelf .gs-heroline { margin-top: 18px; }
 
   /* pinned stage */
   .gs-stagewrap { height: 320vh; position: relative; }
@@ -268,7 +273,7 @@ const stats = [
   .gs-cta-sub { max-width: 46ch; margin: 18px auto 34px; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.6; color: var(--ink-70); }
 
   /* static fallback (mobile / reduced motion) */
-  .gs--static .gs-hero { min-height: auto; padding-bottom: 8px; }
+  .gs--static .gs-hero { min-height: auto; justify-content: flex-start; gap: 22px; padding-bottom: 8px; }
   .gs--static .gs-stagewrap { height: auto; }
   .gs--static .gs-stage { height: auto; overflow: visible; display: block; padding: 24px clamp(20px, 5vw, 48px) 48px; }
   .gs--static .gs-group { gap: 32px; }
