@@ -9,13 +9,62 @@ import ComingSoonLayout from "../layouts/ComingSoonLayout.astro";
 // motion. Numbers are PLACEHOLDER until the live Chainlink island lands.
 
 const genesis = [
-  { sym: "NVDA", name: "NVIDIA", kind: "stock", weight: 18, px: "181.20", chg: 4.1 },
-  { sym: "AAPL", name: "Apple", kind: "stock", weight: 16, px: "232.60", chg: 1.2 },
-  { sym: "BTC", name: "Bitcoin", kind: "crypto", weight: 16, px: "95,240", chg: 2.6 },
-  { sym: "MSFT", name: "Microsoft", kind: "stock", weight: 15, px: "441.10", chg: 0.9 },
-  { sym: "ETH", name: "Ethereum", kind: "crypto", weight: 14, px: "3,410", chg: 5.4 },
-  { sym: "AMZN", name: "Amazon", kind: "stock", weight: 13, px: "233.90", chg: 2.2 },
-  { sym: "LINK", name: "Chainlink", kind: "crypto", weight: 8, px: "24.80", chg: 6.3 },
+  {
+    sym: "NVDA",
+    name: "NVIDIA",
+    kind: "stock",
+    weight: 18,
+    px: "181.20",
+    chg: 4.1,
+  },
+  {
+    sym: "AAPL",
+    name: "Apple",
+    kind: "stock",
+    weight: 16,
+    px: "232.60",
+    chg: 1.2,
+  },
+  {
+    sym: "BTC",
+    name: "Bitcoin",
+    kind: "crypto",
+    weight: 16,
+    px: "95,240",
+    chg: 2.6,
+  },
+  {
+    sym: "MSFT",
+    name: "Microsoft",
+    kind: "stock",
+    weight: 15,
+    px: "441.10",
+    chg: 0.9,
+  },
+  {
+    sym: "ETH",
+    name: "Ethereum",
+    kind: "crypto",
+    weight: 14,
+    px: "3,410",
+    chg: 5.4,
+  },
+  {
+    sym: "AMZN",
+    name: "Amazon",
+    kind: "stock",
+    weight: 13,
+    px: "233.90",
+    chg: 2.2,
+  },
+  {
+    sym: "LINK",
+    name: "Chainlink",
+    kind: "crypto",
+    weight: 8,
+    px: "24.80",
+    chg: 6.3,
+  },
 ];
 const others = [
   { sym: "GOOGL", name: "Alphabet", kind: "stock", px: "201.40", chg: 3.0 },
@@ -24,7 +73,13 @@ const others = [
   { sym: "SOL", name: "Solana", kind: "crypto", px: "214.30", chg: 7.9 },
   { sym: "COIN", name: "Coinbase", kind: "stock", px: "312.10", chg: -0.6 },
   { sym: "PLTR", name: "Palantir", kind: "stock", px: "88.40", chg: 5.1 },
-  { sym: "MSTR", name: "MicroStrategy", kind: "stock", px: "402.70", chg: -2.3 },
+  {
+    sym: "MSTR",
+    name: "MicroStrategy",
+    kind: "stock",
+    px: "402.70",
+    chg: -2.3,
+  },
   { sym: "ORCL", name: "Oracle", kind: "stock", px: "196.20", chg: 1.4 },
   { sym: "AMD", name: "AMD", kind: "stock", px: "168.90", chg: 3.6 },
   { sym: "INTC", name: "Intel", kind: "stock", px: "42.10", chg: -1.1 },
@@ -33,18 +88,48 @@ const others = [
 ];
 // Interleave Genesis holdings across the market row.
 const market = [
-  others[0], genesis[0], others[1], others[2], genesis[1], others[3],
-  genesis[2], others[4], others[5], genesis[3], others[6], genesis[4],
-  others[7], others[8], genesis[5], others[9], others[10], genesis[6], others[11],
+  others[0],
+  genesis[0],
+  others[1],
+  others[2],
+  genesis[1],
+  others[3],
+  genesis[2],
+  others[4],
+  others[5],
+  genesis[3],
+  others[6],
+  genesis[4],
+  others[7],
+  others[8],
+  genesis[5],
+  others[9],
+  others[10],
+  genesis[6],
+  others[11],
 ];
 const isGen = (sym: string) => genesis.some((g) => g.sym === sym);
 // Most stock logos are colour PNGs; a few brand marks ship as monochrome SVGs
 // (the PNG set had them white-on-transparent, invisible on the light tile).
-const stockSvg = new Set(["AAPL", "INTC"]);
+const stockSvg = new Set(["AAPL", "INTC", "AMZN"]);
 const logoSrc = (c: { sym: string; kind: string }) =>
   c.kind === "crypto"
     ? `/logos/crypto/${c.sym.toLowerCase()}.svg`
     : `/logos/stock/${c.sym}.${stockSvg.has(c.sym) ? "svg" : "png"}`;
+
+// Per-holding orbit: each rides its own tilted ellipse at its own speed, so the
+// seven read as distinct orbits around the token rather than one shared ring.
+// fx/fy scale a base radius (wider than tall = orbital plane seen at an angle),
+// tilt rotates that plane, dur sets the sweep. Index-aligned with `genesis`.
+const orbits = [
+  { fx: 1.3, fy: 0.62, tilt: -12, dur: 56, ph: 0.02 }, // NVDA
+  { fx: 1.18, fy: 0.78, tilt: 20, dur: 64, ph: 0.3 }, // AAPL
+  { fx: 1.46, fy: 0.55, tilt: 6, dur: 48, ph: 0.62 }, // BTC
+  { fx: 1.12, fy: 0.8, tilt: -22, dur: 68, ph: 0.16 }, // MSFT
+  { fx: 1.38, fy: 0.66, tilt: 26, dur: 52, ph: 0.45 }, // ETH
+  { fx: 1.25, fy: 0.72, tilt: -8, dur: 60, ph: 0.8 }, // AMZN
+  { fx: 1.52, fy: 0.58, tilt: 15, dur: 46, ph: 0.48 }, // LINK
+];
 
 const stats = [
   { big: "+3.6%", label: "since launch" },
@@ -61,26 +146,30 @@ const stats = [
   <div class="gs" data-gs-root>
     <!-- hero cover: the flagship, its holdings, the thesis -->
     <section class="gs-hero">
-      <img class="gs-hero-art" src="/genesis-art.jpg" alt="" aria-hidden="true" />
+      <div class="gs-hero-artwrap" data-gs-art aria-hidden="true">
+        <span class="gs-hero-glow"></span>
+        <img class="gs-hero-art" src="/genesis-token.webp" alt="" width="1500" height="1137" />
+        <div class="gs-orbit">
+          {genesis.map((c, i) => (
+            <span
+              class="gs-orbit-lane"
+              style={`--tilt:${orbits[i].tilt}deg;--dur:${orbits[i].dur}s;--fx:${orbits[i].fx};--fy:${orbits[i].fy};--ph:${orbits[i].ph}`}
+            >
+              <span class="gs-orbit-chip">
+                <span class="gs-orbit-chip-in">
+                  <i class="gs-orbit-logo"><img src={logoSrc(c)} alt="" width="18" height="18" /></i>
+                  <b>{c.sym}</b>
+                </span>
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
       <div class="gs-hero-top">
         <span class="cs-tag">The flagship basket · curated by Basquets</span>
         <h1 class="cs-display gs-title">Genesis.</h1>
-        <p class="gs-sub">
-          Four companies that already run your life, and three protocols rebuilding money
-          underneath it. Held in one token, priced by the oracle it also holds.
-        </p>
       </div>
       <div class="gs-hero-shelf">
-        <div class="gs-shelf">
-          <span class="gs-asset"><i><img src="/logos/stock/NVDA.png" alt="" /></i>NVDA</span>
-          <span class="gs-asset"><i><img src="/logos/stock/AAPL.svg" alt="" /></i>AAPL</span>
-          <span class="gs-asset"><i><img src="/logos/stock/MSFT.png" alt="" /></i>MSFT</span>
-          <span class="gs-asset"><i><img src="/logos/stock/AMZN.png" alt="" /></i>AMZN</span>
-          <span class="gs-shelf-div" aria-hidden="true"></span>
-          <span class="gs-asset"><i><img src="/logos/crypto/btc.svg" alt="" /></i>BTC</span>
-          <span class="gs-asset"><i><img src="/logos/crypto/eth.svg" alt="" /></i>ETH</span>
-          <span class="gs-asset"><i><img src="/logos/crypto/link.svg" alt="" /></i>LINK</span>
-        </div>
         <p class="gs-heroline">Incumbents and insurgents, in one self-custodied token.</p>
       </div>
       <span class="gs-scrolldown">Scroll down ↓</span>
@@ -167,14 +256,73 @@ const stats = [
   .gs-hero-top { max-width: 640px; position: relative; z-index: 1; }
   .gs-hero-shelf { max-width: 720px; position: relative; z-index: 1; }
   .gs-hero-shelf .gs-heroline { margin-top: 18px; }
-  /* the generated centrepiece — cream background multiplies away, leaving the green network */
-  .gs-hero-art {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: min(58vh, 540px); max-width: 82vw; height: auto; z-index: 0;
-    pointer-events: none; mix-blend-mode: multiply;
-    animation: gs-artfloat 16s ease-in-out infinite;
+  /* the generated centrepiece — jade token on ivory: the cream multiplies away,
+     leaving the stone + gold ring. The wrapper carries the mouse parallax (via
+     --px/--py from JS) so it never fights the float keyframe on the image. */
+  .gs-hero-artwrap {
+    position: absolute; top: 53%; left: 50%; z-index: 0;
+    width: min(52vh, 470px); max-width: 82vw; pointer-events: none;
+    transform: translate(calc(-50% + var(--px, 0px)), calc(-50% + var(--py, 0px)));
   }
-  @keyframes gs-artfloat { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, calc(-50% - 10px)) scale(1.02); } }
+  .gs-hero-art {
+    display: block; width: 100%; height: auto;
+    filter: drop-shadow(0 26px 46px rgba(28, 44, 26, 0.22));
+    animation: gs-artfloat 15s ease-in-out infinite;
+  }
+  @keyframes gs-artfloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-14px) rotate(0.8deg); }
+  }
+  /* soft green halo behind the token, gently breathing */
+  .gs-hero-glow {
+    position: absolute; left: 50%; top: 52%; width: 74%; height: 74%;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in oklch, var(--accent) 40%, transparent) 0%, transparent 66%);
+    filter: blur(40px); z-index: -1;
+    animation: gs-artglow 7s ease-in-out infinite;
+  }
+  @keyframes gs-artglow {
+    0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.92); }
+    50% { opacity: 0.78; transform: translate(-50%, -50%) scale(1.08); }
+  }
+  /* the seven holdings, each on its OWN orbit around the token. A per-chip lane
+     rotates the orbital plane (--tilt); inside it the chip rides its own tilted
+     ellipse via offset-path (--fx/--fy scale a shared base radius) at its own
+     speed (--dur). offset-rotate:0 keeps the chip aligned to the tilted lane, so
+     the inner pill counter-rotates (-tilt) to stay upright in the world. */
+  .gs-orbit { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .gs-orbit-lane { position: absolute; inset: 0; transform: rotate(var(--tilt)); }
+  .gs-orbit-chip {
+    --R: min(30vh, 260px);
+    position: absolute; left: 0; top: 0;
+    offset-path: ellipse(calc(var(--R) * var(--fx)) calc(var(--R) * var(--fy)) at 50% 50%);
+    offset-rotate: 0deg;
+    offset-distance: calc(var(--ph) * 100%);
+    animation: gs-orbit var(--dur) linear infinite;
+  }
+  .gs-orbit-chip-in {
+    display: inline-flex; align-items: center; gap: 6px;
+    transform: rotate(calc(-1 * var(--tilt)));
+    padding: 4px 11px 4px 5px; border-radius: 999px;
+    background: color-mix(in oklch, var(--cream) 72%, transparent);
+    border: 1px solid color-mix(in oklch, var(--ink) 9%, transparent);
+    backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+    box-shadow: 0 6px 18px rgba(30, 34, 22, 0.12);
+    font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: var(--ink);
+    white-space: nowrap;
+  }
+  .gs-orbit-logo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; background: #fff; border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+  .gs-orbit-logo img { width: 16px; height: 16px; display: block; object-fit: contain; }
+  @keyframes gs-orbit {
+    to { offset-distance: calc(var(--ph) * 100% + 100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gs-hero-art, .gs-hero-glow, .gs-orbit-chip { animation: none; }
+  }
 
   /* pinned stage */
   .gs-stagewrap { height: 320vh; position: relative; }
@@ -283,7 +431,7 @@ const stats = [
 
   /* static fallback (mobile / reduced motion) */
   .gs--static .gs-hero { min-height: auto; justify-content: flex-start; gap: 22px; padding-bottom: 8px; }
-  .gs--static .gs-hero-art { display: none; }
+  .gs--static .gs-hero-artwrap { display: none; }
   .gs--static .gs-stagewrap { height: auto; }
   .gs--static .gs-stage { height: auto; overflow: visible; display: block; padding: 24px clamp(20px, 5vw, 48px) 48px; }
   .gs--static .gs-group { gap: 32px; }
@@ -432,4 +580,28 @@ const stats = [
     ScrollTrigger.refresh();
     window.addEventListener("resize", () => ScrollTrigger.refresh());
   }
+</script>
+
+<script is:inline>
+  // Cover token parallax: the jade token eases toward the cursor a touch, giving
+  // the cover depth. Runs on the wrapper (--px/--py) so the float keyframe on the
+  // image is untouched. No-op under reduced motion or on coarse pointers.
+  (function () {
+    var art = document.querySelector("[data-gs-art]");
+    if (!art) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0, AMP = 22;
+    window.addEventListener("pointermove", function (e) {
+      tx = (e.clientX / window.innerWidth - 0.5) * AMP;
+      ty = (e.clientY / window.innerHeight - 0.5) * AMP;
+    }, { passive: true });
+    (function frame() {
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
+      art.style.setProperty("--px", cx.toFixed(1) + "px");
+      art.style.setProperty("--py", cy.toFixed(1) + "px");
+      requestAnimationFrame(frame);
+    })();
+  })();
 </script>
