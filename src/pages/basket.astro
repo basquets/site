@@ -258,6 +258,7 @@ const stats = [
       const stage = root.querySelector("[data-gs-stage]") as HTMLElement;
       const wrap = root.querySelector("[data-gs-wrap]") as HTMLElement;
       const track = root.querySelector("[data-gs-track]") as HTMLElement;
+      const group = root.querySelector("[data-gs-group]") as HTMLElement;
       const head = root.querySelector(".gs-head") as HTMLElement;
       const sub = root.querySelector("[data-gs-sub]") as HTMLElement;
       const linesSvg = root.querySelector("[data-gs-lines]") as SVGSVGElement;
@@ -288,25 +289,30 @@ const stats = [
 
       // The seven gather at FULL size into a row in the upper third; lines then
       // funnel down into the bGEN token. Targets measured once, marquee frozen.
-      const GAP = 8;
-      const ROW_Y = 0.27; // vertical centre of the gathered row (fraction of vh)
-      const TOKEN_Y = 0.6; // vertical centre of the bGEN token
+      const GAP = 10;
+      const ROW_Y = 0.36; // vertical centre of the gathered row (fraction of vh)
+      const TOKEN_Y = 0.66; // vertical centre of the bGEN token
       const centers: number[] = [];
       let cardH = 0;
+      let fitScale = 1; // shrink only enough that all seven fit the viewport width
+      let groupShift = 0; // move the WHOLE group up so the row lands at ROW_Y (nothing flies out on its own)
       function computeTargets() {
         const cardW = gather[0].offsetWidth;
         cardH = gather[0].offsetHeight;
-        const spacing = cardW + GAP; // full size, side by side
-        const total = gather.length * spacing - GAP;
-        const startCenter = window.innerWidth / 2 - total / 2 + cardW / 2;
+        const natural = gather.length * cardW + (gather.length - 1) * GAP;
+        fitScale = Math.min(1, (window.innerWidth * 0.94) / natural);
+        const spacing = (cardW + GAP) * fitScale;
+        const total = gather.length * spacing - GAP * fitScale;
+        const startCenter = window.innerWidth / 2 - total / 2 + (cardW * fitScale) / 2;
         const targetY = window.innerHeight * ROW_Y;
+        const r0 = gather[0].getBoundingClientRect();
+        groupShift = targetY - (r0.top + r0.height / 2);
         centers.length = 0;
         gather.forEach((c, i) => {
           const r = c.getBoundingClientRect();
           const cx = startCenter + i * spacing;
           centers[i] = cx;
           (c as any)._dx = cx - (r.left + r.width / 2);
-          (c as any)._dy = targetY - (r.top + r.height / 2);
         });
       }
 
@@ -315,7 +321,7 @@ const stats = [
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         linesSvg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
-        const rowBottom = vh * ROW_Y + cardH / 2;
+        const rowBottom = vh * ROW_Y + (cardH * fitScale) / 2;
         const bx = vw / 2;
         const by = vh * TOKEN_Y - 46; // roughly the token's top edge
         linePaths.forEach((p, i) => {
@@ -358,8 +364,9 @@ const stats = [
 
       // 1 — subtitle steps aside.
       tl.to(sub, { opacity: 0, y: -12, duration: 0.3 }, 0);
-      // 2 — the seven converge first, at full size, into the upper row...
-      tl.to(gather, { x: (i, t) => (t as any)._dx, y: (i, t) => (t as any)._dy, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
+      // 2 — the whole row drifts up together while the seven converge horizontally.
+      tl.to(group, { y: () => groupShift, duration: 1.3, ease: "power2.inOut" }, 0.15);
+      tl.to(gather, { x: (i, t) => (t as any)._dx, scale: () => fitScale, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
       // 3 — ...and the rest of the market dissolves around them.
       tl.to(fadeOut, { opacity: 0, scale: 0.84, filter: "grayscale(1)", duration: 0.7, stagger: { each: 0.01, from: "random" } }, 0.3);
       // 4 — the title bows out to make room for the mint.
