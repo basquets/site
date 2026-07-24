@@ -501,6 +501,55 @@
   flex: 1;
   background: var(--line);
 }
+/* inline email OTP form (no Privy modal) */
+.cs-authform {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+.cs-authinput {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  transition: border-color 0.15s ease;
+}
+.cs-authinput::placeholder {
+  color: var(--ink-55);
+}
+.cs-authinput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.cs-authhint {
+  margin: 2px 0 -2px;
+  font-size: 13.5px;
+  color: var(--ink-70);
+}
+.cs-autherr {
+  margin: -2px 0 0;
+  font-size: 13px;
+  color: var(--down);
+}
+.cs-authback {
+  align-self: center;
+  margin-top: 4px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 4px;
+  font-size: 13px;
+  color: var(--ink-55);
+}
+.cs-authback:hover {
+  color: var(--accent-deep);
+}
+
 .cs-join-note {
   margin-top: 22px;
   font-size: 12.5px;
@@ -614,9 +663,6 @@
   font-size: 15px;
   line-height: 1.6;
   color: var(--ink-70);
-}
-.cs-foot-cta {
-  font-size: 13.5px;
 }
 .cs-foot-nav {
   display: grid;

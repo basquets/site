@@ -1,0 +1,15 @@
+---
+// Umami analytics: self-hosted (Railway project `analytics`), cookieless, no
+// consent banner. Renders only when both env vars are set, so local dev and
+// preview deploys stay out of the production numbers. Replaces the Cloudflare
+// Web Analytics beacon that used to live in BaseLayout.
+//
+// Set in .env.production (local build) AND as Pages build vars in Cloudflare:
+//   PUBLIC_UMAMI_SRC=https://analytics.basquets.xyz/script.js
+//   PUBLIC_UMAMI_WEBSITE_ID=<website id from Umami → Settings → Websites>
+const umamiSrc = import.meta.env.PUBLIC_UMAMI_SRC;
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+---
+{umamiSrc && umamiWebsiteId && (
+  <script is:inline defer src={umamiSrc} data-website-id={umamiWebsiteId}></script>
+)}
