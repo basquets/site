@@ -96,13 +96,24 @@ const stats = [
           </div>
         </div>
 
-        <!-- revealed once the seven have gathered -->
+        <!-- lines the seven funnel down into the basket token -->
+        <svg class="gs-lines" data-gs-lines aria-hidden="true"></svg>
+
+        <!-- the minted basket token, a real onchain asset -->
+        <div class="gs-token" data-gs-token>
+          <span class="gs-token-mark" aria-hidden="true"></span>
+          <span class="gs-token-id">
+            <span class="gs-token-sym">bGEN</span>
+            <span class="gs-token-name">Genesis · basket token</span>
+          </span>
+          <span class="gs-token-val">
+            <span class="gs-token-price">$103.60</span>
+            <span class="cs-return-val cs-up gs-token-chg">+3.6%</span>
+          </span>
+        </div>
+
+        <!-- revealed once the token is minted -->
         <div class="gs-culmination" data-gs-cul>
-          <div class="gs-cul-head">
-            <span class="cs-badge cs-badge--stock gs-cul-mark">▪</span>
-            <span class="gs-cul-title">Genesis</span>
-            <span class="cs-return-val cs-up gs-cul-return">+3.6%</span>
-          </div>
           <div class="gs-stats">
             {stats.map((s) => (
               <div class="gs-stat">
@@ -133,7 +144,7 @@ const stats = [
 
 <style>
   /* pinned stage */
-  .gs-stagewrap { height: 460vh; position: relative; }
+  .gs-stagewrap { height: 320vh; position: relative; }
   .gs-stage { height: 100vh; overflow: hidden; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
   /* centred group: title + marquee row, tight together */
@@ -180,12 +191,33 @@ const stats = [
   .gs-chg.cs-up { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent-deep); }
   .gs-chg.cs-down { background: color-mix(in srgb, var(--down) 13%, transparent); color: var(--down); }
 
-  /* culmination — label + stats, revealed after the gather */
-  .gs-culmination { position: absolute; left: 50%; bottom: clamp(48px, 12vh, 130px); transform: translateX(-50%); width: min(92vw, 680px); opacity: 0; pointer-events: none; }
-  .gs-cul-head { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; }
-  .gs-cul-mark { width: 18px; height: 18px; }
-  .gs-cul-title { font-family: var(--serif); font-weight: 500; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.01em; }
-  .gs-cul-return { font-size: clamp(22px, 2.4vw, 30px); }
+  /* the lines the seven funnel down into the token */
+  .gs-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
+  /* :global — the paths are created in JS and lack Astro's scope attribute */
+  :global(.gs-line) { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.5; stroke-linecap: round; }
+
+  /* the minted basket token — a real onchain asset */
+  .gs-token {
+    position: absolute; left: 50%; top: 60%;
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 15px 22px 15px 15px; border-radius: 18px;
+    background:
+      radial-gradient(130% 130% at 18% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 62%),
+      color-mix(in srgb, #fff 80%, var(--sand-2));
+    border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+    box-shadow: 0 34px 64px -30px color-mix(in srgb, var(--accent) 52%, transparent);
+    opacity: 0; z-index: 2;
+  }
+  .gs-token-mark { width: 42px; height: 42px; flex: none; border-radius: 12px; background: var(--accent); box-shadow: inset 0 0 0 5px color-mix(in srgb, #fff 34%, transparent); }
+  .gs-token-id { display: flex; flex-direction: column; }
+  .gs-token-sym { font-weight: 700; font-size: 18px; letter-spacing: 0.01em; }
+  .gs-token-name { font-size: 12px; color: var(--ink-55); }
+  .gs-token-val { display: flex; flex-direction: column; align-items: flex-end; margin-left: 10px; }
+  .gs-token-price { font-family: var(--serif); font-size: 23px; font-weight: 500; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .gs-token-chg { font-size: 14px; }
+
+  /* stats, pinned to the bottom */
+  .gs-culmination { position: absolute; left: 50%; bottom: clamp(40px, 9vh, 92px); width: min(92vw, 680px); opacity: 0; pointer-events: none; z-index: 2; }
   .gs-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .gs-stat { padding: 16px 12px; border-radius: 14px; background: color-mix(in srgb, #fff 40%, var(--sand-2)); border: 1px solid var(--line); text-align: center; }
   .gs-stat-big { display: block; font-family: var(--serif); font-size: clamp(22px, 2.8vw, 32px); font-weight: 500; letter-spacing: -0.01em; }
@@ -203,7 +235,9 @@ const stats = [
   .gs--static .gs-row { overflow: visible; -webkit-mask-image: none; mask-image: none; }
   .gs--static .gs-track { flex-wrap: wrap; justify-content: center; width: auto; }
   .gs--static .gs-card[data-genesis="false"], .gs--static .gs-card[data-dup="true"] { display: none; }
-  .gs--static .gs-culmination { position: static; transform: none; opacity: 1; margin: 40px auto 0; }
+  .gs--static .gs-lines { display: none; }
+  .gs--static .gs-token { position: static; opacity: 1; margin: 32px auto 0; }
+  .gs--static .gs-culmination { position: static; opacity: 1; margin: 32px auto 0; }
 
   @media (max-width: 720px) { .gs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
@@ -224,41 +258,84 @@ const stats = [
       const stage = root.querySelector("[data-gs-stage]") as HTMLElement;
       const wrap = root.querySelector("[data-gs-wrap]") as HTMLElement;
       const track = root.querySelector("[data-gs-track]") as HTMLElement;
-      const group = root.querySelector("[data-gs-group]") as HTMLElement;
+      const head = root.querySelector(".gs-head") as HTMLElement;
       const sub = root.querySelector("[data-gs-sub]") as HTMLElement;
+      const linesSvg = root.querySelector("[data-gs-lines]") as SVGSVGElement;
+      const token = root.querySelector("[data-gs-token]") as HTMLElement;
       const cul = root.querySelector("[data-gs-cul]") as HTMLElement;
       const cards = gsap.utils.toArray<HTMLElement>(".gs-card");
       // the seven that gather = first-set Genesis holdings (not the marquee duplicate)
       const gather = cards.filter((c) => c.dataset.genesis === "true" && c.dataset.dup === "false");
       const fadeOut = cards.filter((c) => c.dataset.genesis !== "true" || c.dataset.dup === "true");
 
-      // Seamless marquee: shift the track by exactly one card-set width and loop.
-      const setWidth = () => track.scrollWidth / 2;
-      const marquee = gsap.to(track, { x: () => -setWidth(), duration: 46, ease: "none", repeat: -1 });
+      // Centre the token + stats via GSAP transforms (not CSS) so the tweens below
+      // don't clobber the centring.
+      gsap.set([token, cul], { xPercent: -50 });
+      gsap.set(token, { yPercent: -50 });
 
-      // Gather targets: line the seven up, centred, tight. Measured with the
-      // marquee frozen so positions are stable; recomputed on refresh/resize.
-      const GS = 0.64; // scale of a gathered card — small enough to sit tight
+      // Pre-create one funnel path per holding so the timeline can target them;
+      // their geometry is set on freeze once positions are known.
+      const linePaths: SVGPathElement[] = [];
+      for (let i = 0; i < gather.length; i++) {
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("class", "gs-line");
+        linesSvg.appendChild(p);
+        linePaths.push(p);
+      }
+
+      // Seamless marquee: shift the track by exactly one card-set width and loop.
+      const marquee = gsap.to(track, { x: () => -track.scrollWidth / 2, duration: 46, ease: "none", repeat: -1 });
+
+      // The seven gather at FULL size into a row in the upper third; lines then
+      // funnel down into the bGEN token. Targets measured once, marquee frozen.
+      const GAP = 8;
+      const ROW_Y = 0.27; // vertical centre of the gathered row (fraction of vh)
+      const TOKEN_Y = 0.6; // vertical centre of the bGEN token
+      const centers: number[] = [];
+      let cardH = 0;
       function computeTargets() {
         const cardW = gather[0].offsetWidth;
-        const spacing = cardW * GS + 6; // scaled width + a hair of gap = side by side
-        const total = gather.length * spacing - 6;
-        const startCenter = window.innerWidth / 2 - total / 2 + (cardW * GS) / 2;
+        cardH = gather[0].offsetHeight;
+        const spacing = cardW + GAP; // full size, side by side
+        const total = gather.length * spacing - GAP;
+        const startCenter = window.innerWidth / 2 - total / 2 + cardW / 2;
+        const targetY = window.innerHeight * ROW_Y;
+        centers.length = 0;
         gather.forEach((c, i) => {
           const r = c.getBoundingClientRect();
-          const curCenter = r.left + r.width / 2;
-          (c as any)._dx = startCenter + i * spacing - curCenter;
+          const cx = startCenter + i * spacing;
+          centers[i] = cx;
+          (c as any)._dx = cx - (r.left + r.width / 2);
+          (c as any)._dy = targetY - (r.top + r.height / 2);
         });
       }
 
-      // Freeze the marquee and lock the gather targets exactly ONCE, the first
+      // Set each funnel path's geometry: from the card's underside to the token.
+      function buildLines() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        linesSvg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+        const rowBottom = vh * ROW_Y + cardH / 2;
+        const bx = vw / 2;
+        const by = vh * TOKEN_Y - 46; // roughly the token's top edge
+        linePaths.forEach((p, i) => {
+          const cx = centers[i];
+          p.setAttribute("d", `M ${cx} ${rowBottom} C ${cx} ${rowBottom + 90}, ${bx} ${by - 90}, ${bx} ${by}`);
+          const len = p.getTotalLength();
+          p.style.strokeDasharray = `${len}`;
+          p.style.strokeDashoffset = `${len}`;
+        });
+      }
+
+      // Freeze the marquee and lock every measured value exactly ONCE, the first
       // time the pin engages. Recomputing later (on re-enter / refresh) would
-      // measure already-transformed cards and corrupt the reverse scrub.
+      // measure already-transformed elements and corrupt the reverse scrub.
       let frozen = false;
       function freeze() {
         marquee.pause();
         if (frozen) return;
         computeTargets();
+        buildLines();
         frozen = true;
         tl.invalidate();
       }
@@ -277,18 +354,22 @@ const stats = [
         },
       });
 
-      // Keep the gathering seven above the crowd as they pull out of it.
-      gsap.set(gather, { zIndex: 3 });
+      gsap.set(gather, { zIndex: 3 }); // keep the seven above the crowd
 
-      // 1 — the subtitle steps aside as the build begins.
+      // 1 — subtitle steps aside.
       tl.to(sub, { opacity: 0, y: -12, duration: 0.3 }, 0);
-      // 2 — the seven start converging FIRST, pulling out of the market...
-      tl.to(gather, { x: (i, t) => (t as any)._dx, scale: GS, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
-      // 3 — ...and the rest of the market dissolves around them as they go.
+      // 2 — the seven converge first, at full size, into the upper row...
+      tl.to(gather, { x: (i, t) => (t as any)._dx, y: (i, t) => (t as any)._dy, duration: 1.3, ease: "power2.inOut", stagger: 0.05 }, 0.15);
+      // 3 — ...and the rest of the market dissolves around them.
       tl.to(fadeOut, { opacity: 0, scale: 0.84, filter: "grayscale(1)", duration: 0.7, stagger: { each: 0.01, from: "random" } }, 0.3);
-      // 4 — lift the group and reveal the basket's stats.
-      tl.to(group, { y: -70, duration: 0.6 }, 1.5);
-      tl.fromTo(cul, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 1.6);
+      // 4 — the title bows out to make room for the mint.
+      tl.to(head, { opacity: 0, y: -24, duration: 0.4 }, 1.15);
+      // 5 — the seven funnel down as lines...
+      tl.to(linePaths, { strokeDashoffset: 0, duration: 0.6, ease: "power1.inOut", stagger: 0.03 }, 1.45);
+      // 6 — ...minting the bGEN token...
+      tl.fromTo(token, { opacity: 0, scale: 0.7, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.6)" }, 1.75);
+      // 7 — ...and its stats.
+      tl.fromTo(cul, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5 }, 2.0);
     }
 
     ScrollTrigger.refresh();
