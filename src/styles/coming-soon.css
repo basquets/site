@@ -460,6 +460,185 @@
   margin-right: auto;
   max-width: 40ch;
 }
+
+/* Genesis orbit centrepiece (/join): the jade token with its seven holdings
+   circling it — a compact, always-on version of the /basket motif. Pure CSS
+   (offset-path); chip radii stay larger than the token so they never overlap
+   it, so no JS depth-sorting is needed. */
+.cs-join--genesis .cs-join-inner {
+  max-width: none;
+  width: 100%;
+  padding-inline: clamp(20px, 4vw, 64px);
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(24px, 4vw, 72px);
+  align-items: center;
+  text-align: left;
+}
+.cs-join-panel {
+  max-width: 540px;
+}
+.cs-gorbit-wrap {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+}
+.cs-join-panel {
+  min-width: 0;
+}
+.cs-join-panel .cs-tag {
+  margin-bottom: 16px;
+}
+.cs-join--genesis .cs-display {
+  margin: 0;
+}
+.cs-join--genesis .cs-sub {
+  margin: 16px 0 0;
+  max-width: 44ch;
+}
+.cs-join--genesis .cs-authlist {
+  margin-top: 26px;
+}
+.cs-join--genesis .cs-authmeta,
+.cs-join--genesis .cs-join-result {
+  text-align: left;
+}
+@media (max-width: 860px) {
+  .cs-join--genesis .cs-join-inner {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding-inline: clamp(20px, 6vw, 40px);
+    text-align: center;
+  }
+  .cs-gorbit {
+    width: min(74vw, 380px);
+    height: min(74vw, 380px);
+    --base: min(24vw, 128px);
+  }
+  .cs-gorbit-token {
+    width: min(26vw, 140px);
+  }
+  .cs-join-panel {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .cs-join-panel .cs-tag {
+    margin-top: 6px;
+  }
+  .cs-join--genesis .cs-sub {
+    margin-inline: auto;
+  }
+  .cs-join--genesis .cs-authmeta {
+    text-align: center;
+  }
+}
+.cs-gorbit {
+  position: relative;
+  width: min(52vw, 680px);
+  height: min(52vw, 680px);
+  margin: 0 auto;
+  --base: min(17vw, 226px);
+}
+.cs-gorbit-token {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(20vw, 250px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 20px 38px rgba(28, 44, 26, 0.24));
+  animation: cs-gfloat 15s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes cs-gfloat {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-10px) rotate(0.8deg);
+  }
+}
+.cs-gorbit-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  height: 62%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--accent) 42%, transparent) 0%, transparent 66%);
+  filter: blur(34px);
+  z-index: 1;
+  animation: cs-gglow 7s ease-in-out infinite;
+}
+@keyframes cs-gglow {
+  0%, 100% {
+    opacity: 0.38;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+.cs-gchip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  offset-path: circle(calc(var(--rf) * var(--base)) at 50% 50%);
+  offset-rotate: 0deg;
+  offset-distance: calc(var(--ph) * 100%);
+  animation: cs-gorbit var(--dur) linear infinite;
+}
+@keyframes cs-gorbit {
+  to {
+    offset-distance: calc(var(--ph) * 100% + 100%);
+  }
+}
+.cs-gchip-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px 4px 5px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--cream) 76%, transparent);
+  border: 1px solid color-mix(in oklch, var(--ink) 9%, transparent);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  box-shadow: 0 6px 18px rgba(30, 34, 22, 0.12);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.cs-gchip-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 6px;
+  flex: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+.cs-gchip-logo img {
+  width: 15px;
+  height: 15px;
+  display: block;
+  object-fit: contain;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs-gorbit-token,
+  .cs-gorbit-glow,
+  .cs-gchip {
+    animation: none;
+  }
+}
+
 .cs-authlist {
   display: flex;
   flex-direction: column;
