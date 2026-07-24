@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import conviction from "../assets/conviction.png";
 import BasketLattice from "../components/islands/BasketLattice";
+import LaneList from "../components/islands/LaneList";
 import TokenShelf from "../components/islands/TokenShelf";
 import ZapCard from "../components/islands/ZapCard";
 import Container from "../components/layout/Container.astro";
@@ -162,6 +163,17 @@ import { cn } from "../lib/utils";
             </div>
           </FeatureCell>
         </div>
+      </Section>
+
+      <!-- best execution: the router quotes every venue at once, better price fills -->
+      <Section rule id="venues">
+        <Kicker class="mb-3.5">Best execution</Kicker>
+        <h2 class="m-0 mb-3 text-[clamp(28px,3vw,40px)] tracking-[-0.015em]">We route across every venue.</h2>
+        <p class="mt-0 mb-8 max-w-[62ch] text-[15.5px] leading-7 text-ink/78">
+          Every swap is quoted against multiple liquidity sources at once — an AMM, market-maker RFQ
+          desks, and an onchain propAMM. The better price fills.
+        </p>
+        <LaneList variant="grouped" client:visible />
       </Section>
 
     </Container>
