@@ -3,6 +3,24 @@ import { useEffect, useRef, useState } from "react";
 import { privyActions, usePrivyState } from "../../lib/privy-store";
 import { useHydrated } from "./use-hydrated";
 
+/** Eased count-up to `target`, so the queue number lands with a little life. */
+function useCountUp(target: number, ms = 850): number {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    let startT = 0;
+    const step = (t: number) => {
+      if (!startT) startT = t;
+      const p = Math.min((t - startT) / ms, 1);
+      setN(Math.round((1 - Math.pow(1 - p, 3)) * target));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return n;
+}
+
 const API_URL = import.meta.env.PUBLIC_API_URL as string | undefined;
 const APP_ID = import.meta.env.PUBLIC_PRIVY_APP_ID as string | undefined;
 
@@ -50,43 +68,58 @@ function Registered({ address, onSignOut }: { address: string; onSignOut: () => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
+  const pos = access?.status === "waitlisted" ? (access.position ?? 0) : 0;
+  const shownPos = useCountUp(pos);
+
   return (
-    <div className="cs-join-result">
-      <div className="cs-join-signed">
-        <span className="cs-join-addr">{short}</span>
-        <button type="button" className="cs-join-signout" onClick={onSignOut}>
+    <div className="cs-seat">
+      <div className="cs-seat-top">
+        <span className="cs-seat-addr">{short}</span>
+        <button type="button" className="cs-seat-signout" onClick={onSignOut}>
           Sign out
         </button>
       </div>
 
       {access?.status === "allowed" ? (
-        <>
-          <span className="cs-tag cs-tag--ghost">Access granted</span>
-          <p className="cs-join-status-h">You're in. Welcome to the beta.</p>
-          <p className="cs-sub">This wallet is on the allowlist — every gated surface is open to you.</p>
-        </>
+        <div className="cs-seat-body">
+          <span className="cs-seat-kicker">✦ Access granted</span>
+          <p className="cs-seat-headline">You're in.</p>
+          <p className="cs-seat-note">This wallet is on the allowlist — every gated surface is open to you.</p>
+        </div>
       ) : access?.status === "waitlisted" ? (
-        <>
-          <span className="cs-tag cs-tag--ghost">You're in line</span>
-          <p className="cs-join-place">#{(access.position ?? 0).toLocaleString("en-US")}</p>
-          <p className="cs-sub">
-            of {access.total.toLocaleString("en-US")} {access.total === 1 ? "wallet" : "wallets"} · the beta opens wallet by
-            wallet, top of the list first.
+        <div className="cs-seat-body">
+          <span className="cs-seat-kicker">Your seat in Genesis</span>
+          <p className="cs-seat-rank">
+            <span className="cs-seat-hash">#</span>
+            <span className="cs-seat-num">{shownPos.toLocaleString("en-US")}</span>
+            <span className="cs-seat-of">/ {access.total.toLocaleString("en-US")}</span>
           </p>
-        </>
+          <div className="cs-seat-bar" aria-hidden="true">
+            <span
+              style={{
+                width: `${
+                  pos > 0
+                    ? (shownPos / pos) *
+                      Math.min(100, Math.max(8, ((access.total - pos + 1) / access.total) * 100))
+                    : 8
+                }%`,
+              }}
+            />
+          </div>
+          <p className="cs-seat-note">The beta opens wallet by wallet — top of the list first.</p>
+        </div>
       ) : apiError || !API_URL ? (
-        <>
-          <span className="cs-tag">Wallet connected</span>
-          <p className="cs-join-status-h">The waitlist is unreachable right now.</p>
-          <p className="cs-sub">Your wallet is connected; nothing is lost. Try again in a moment.</p>
+        <div className="cs-seat-body">
+          <p className="cs-seat-headline cs-seat-headline--sm">The waitlist is unreachable right now.</p>
+          <p className="cs-seat-note">Your wallet is connected; nothing is lost. Try again in a moment.</p>
           {API_URL && (
-            <button type="button" className="cs-pill cs-pill--ink" onClick={join}>
+            <button type="button" className="cs-pill cs-pill--ink" onClick={join} style={{ marginTop: "18px" }}>
               Retry
             </button>
           )}
-        </>
+        </div>
       ) : (
-        <p className="cs-sub">Securing your place on the waitlist…</p>
+        <p className="cs-seat-note cs-seat-note--load">Securing your place…</p>
       )}
     </div>
   );

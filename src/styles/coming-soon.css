@@ -502,7 +502,7 @@
   margin-top: 26px;
 }
 .cs-join--genesis .cs-authmeta,
-.cs-join--genesis .cs-join-result {
+.cs-join--genesis .cs-seat {
   text-align: left;
 }
 @media (max-width: 860px) {
@@ -713,62 +713,108 @@
   color: var(--ink-55);
 }
 
-/* waitlist: connected / registered states (WaitlistFlow island) */
-.cs-join-result {
-  margin-top: 28px;
+/* waitlist: connected / registered state (WaitlistFlow island) — borderless,
+   editorial. No card; it reads as part of the panel. */
+.cs-seat {
+  margin-top: 26px;
   text-align: left;
-  border: 1.5px solid var(--line);
-  border-radius: var(--r);
-  background: var(--sand-2);
-  padding: 22px 24px 26px;
 }
-.cs-join-signed {
+.cs-seat-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: -4px -4px 16px;
   padding-bottom: 14px;
   border-bottom: 1.5px solid var(--line);
 }
-.cs-join-addr {
+.cs-seat-addr {
   font-size: 12px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-55);
   font-variant-numeric: tabular-nums;
 }
-.cs-join-signout {
+.cs-seat-signout {
   cursor: pointer;
   border: none;
   background: none;
   padding: 0;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  font-size: 12.5px;
   color: var(--accent-deep);
 }
-.cs-join-signout:hover {
+.cs-seat-signout:hover {
   color: var(--accent);
 }
-.cs-join-result .cs-tag {
-  margin-bottom: 12px;
+.cs-seat-body {
+  margin-top: 22px;
 }
-.cs-join-status-h {
-  font-family: var(--serif);
-  font-weight: 400;
-  letter-spacing: -0.015em;
-  font-size: clamp(24px, 3vw, 32px);
-  line-height: 1.1;
-  margin: 0 0 10px;
+.cs-seat-kicker {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
 }
-.cs-join-place {
-  font-weight: 700;
-  font-size: clamp(52px, 7vw, 80px);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin: 4px 0 10px;
+.cs-seat-rank {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 10px 0 0;
   color: var(--accent-deep);
   font-variant-numeric: tabular-nums;
+  line-height: 0.85;
+}
+.cs-seat-hash {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 46px);
+  opacity: 0.55;
+}
+.cs-seat-num {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(66px, 9vw, 124px);
+  letter-spacing: -0.03em;
+}
+.cs-seat-of {
+  margin-left: 8px;
+  font-size: clamp(17px, 1.8vw, 22px);
+  font-weight: 500;
+  color: var(--ink-55);
+}
+.cs-seat-bar {
+  margin: 20px 0 0;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  overflow: hidden;
+}
+.cs-seat-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+}
+.cs-seat-headline {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(38px, 5.5vw, 60px);
+  line-height: 1.02;
+  margin: 10px 0 0;
+}
+.cs-seat-headline--sm {
+  font-size: clamp(22px, 3vw, 30px);
+}
+.cs-seat-note {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-70);
+  max-width: 42ch;
+}
+.cs-seat-note--load {
+  margin-top: 22px;
 }
 
 /* --- footer --- */
