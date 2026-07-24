@@ -1,5 +1,6 @@
 ---
 import HoldingBaskets from "../../components/islands/HoldingBaskets";
+import LiveLanes from "../../components/islands/LiveLanes";
 import TokenFacts from "../../components/islands/TokenFacts";
 import TokenHero from "../../components/islands/TokenHero";
 import Container from "../../components/layout/Container.astro";
@@ -34,7 +35,7 @@ const ROUTES = [
   },
   {
     name: "The swap desk here",
-    detail: `Uniswap v4 pools and 0x market makers quoted side by side; the better price fills. USDG in, ${token.sym} out, minimum enforced onchain.`,
+    detail: `Five venues — Uniswap v4, Rialto, LI.FI, and more — quoted side by side; the better price fills. USDG in, ${token.sym} out, minimum enforced onchain.`,
     href: "/swap",
     cta: `Swap ${token.sym}`,
     art: "venues",
@@ -59,17 +60,12 @@ const ROUTES = [
         <TokenHero sym={token.sym} client:load />
       </Section>
 
-      <!-- the trade door: the one action this page can hand straight to the product -->
-      <div class="mb-[calc(1.5*28px)] flex flex-wrap items-center justify-between gap-x-10 gap-y-5 border-2 border-ink bg-accent p-[clamp(20px,2.5vw,32px)] text-ground shadow-lg">
-        <div>
-          <p class="m-0 font-heading font-extrabold text-[clamp(20px,2.2vw,28px)] leading-[1.15] tracking-[-0.015em]">
-            Two venues bid on every {token.sym} swap.
-          </p>
-          <p class="mt-1.5 mb-0 text-[14.5px] leading-6 text-ground/85">
-            Uniswap v4 and 0x market makers, quoted live. You take the better one.
-          </p>
+      <!-- the trade door: a live look at every venue quoting this token -->
+      <div class="mb-[calc(1.5*28px)]">
+        <LiveLanes sym={token.sym} client:load />
+        <div class="mt-4 flex justify-end">
+          <a href="/swap" class={cn(buttonVariants({ variant: "primary", size: "lg" }))}>Swap {token.sym}</a>
         </div>
-        <a href="/swap" class={cn(buttonVariants({ variant: "inverse", size: "lg" }))}>Swap {token.sym}</a>
       </div>
 
       <Section rule class="py-[calc(2*28px)]">
