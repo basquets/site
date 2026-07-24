@@ -2,13 +2,13 @@ import { monogram, resolveTokenLogo } from "@/lib/token-logo";
 import { cn } from "@/lib/utils";
 
 const modules = import.meta.glob<{ default: { src: string } }>(
-  "../../assets/tokens/*.svg",
+  "../../assets/tokens/*.{svg,png,webp}",
   { eager: true },
 );
 const MANIFEST: Record<string, string> = {};
 for (const [path, mod] of Object.entries(modules)) {
   const file = path.split("/").pop() ?? "";
-  const sym = file.replace(/\.svg$/, "").toUpperCase();
+  const sym = file.replace(/\.(svg|png|webp)$/, "").toUpperCase();
   MANIFEST[sym] = mod.default.src;
 }
 
