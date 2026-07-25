@@ -5,8 +5,8 @@ import "../styles/coming-soon.css";
 
 // Shared chrome for the coming-soon surface (landing + subpages like /basket):
 // the warm theme, the brand nav, the partnerships footer, and the sticky live
-// ticker. Pages provide only their <main> content via the slot. chrome=false so
-// BaseLayout drops the app nav/footer but keeps the SEO/OG head.
+// ticker. Pages provide only their <main> content via the slot. BaseLayout is
+// head-only (SEO/OG) since the marketing/app split, so all chrome here is ours.
 interface Props {
   title: string;
   description: string;
@@ -119,7 +119,7 @@ const ticker = [
   },
 ];
 ---
-<BaseLayout chrome={false} title={title} description={description}>
+<BaseLayout title={title} description={description}>
   <div class:list={["cs", { "cs--full": fullscreen }]}>
     {/* ambient live-price badges, scattered on the background, fading in and out */}
     {badges && (
